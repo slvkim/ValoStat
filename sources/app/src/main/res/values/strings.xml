@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">ValoStat</string>
+
+    <string name="agents">Agents</string>
+    <string name="weapons">Weapons</string>
+    <string name="maps">Maps</string>
+
+</resources>

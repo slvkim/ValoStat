@@ -1,0 +1,29 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+rootProject.name = "ValoStat"
+include ':app'
+project(':app').projectDir = new File(rootDir, 'sources/app')
+
+include ':base'
+project(':base').projectDir = new File(rootDir, 'sources/base')
+
+include ':repository'
+project(':repository').projectDir = new File(rootDir, 'sources/repository')
+
+include ':network'
+project(':network').projectDir = new File(rootDir, 'sources/network')
+
+include ':storage'
+project(':storage').projectDir = new File(rootDir, 'sources/storage')

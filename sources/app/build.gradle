@@ -1,0 +1,88 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+apply from: "$rootDir/dependencies.gradle"
+
+android {
+    namespace 'com.example.valostat'
+    compileSdk 33
+
+    defaultConfig {
+        applicationId "com.example.valostat"
+        minSdk 26
+        targetSdk 33
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables {
+            useSupportLibrary true
+        }
+
+        buildConfigField("int", "VERSION_CODE", "1")
+        buildConfigField("String", "VERSION_NAME", '"0.0.1"')
+        buildConfigField("String", "BASE_URL_DEV", '"https://valorant-api.com/"')
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+    kotlinOptions {
+        jvmTarget = '11'
+    }
+    buildFeatures {
+        compose true
+        buildConfig true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion '1.4.5'
+    }
+    packagingOptions {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+    buildToolsVersion '33.0.1'
+}
+
+dependencies {
+    
+    api project(":base")
+
+    // Kotlin & AndroidX
+    implementation deps.kotlin.ktx
+    implementation deps.androidx.lifecycle.runtime
+
+    // Compose
+    def composeBom = platform(deps.androidx.compose.bom)
+    implementation composeBom
+    implementation deps.androidx.compose.ui
+    implementation deps.androidx.compose.uiGraphics
+    implementation deps.androidx.compose.uiToolingPreview
+    implementation deps.androidx.compose.material
+    implementation deps.androidx.compose.material3
+    implementation deps.androidx.compose.activity
+
+    // Navigation
+    implementation deps.navigation
+
+    // Test
+    androidTestImplementation platform(deps.androidx.compose.bom)
+    debugImplementation deps.androidx.compose.uiTestManifest
+    debugImplementation deps.androidx.compose.uiTooling
+    androidTestImplementation deps.androidx.compose.junit
+    testImplementation deps.tests.junit
+    androidTestImplementation deps.tests.junitExt
+    androidTestImplementation deps.tests.espresso
+
+
+}

@@ -1,0 +1,56 @@
+apply from: "$rootDir/versions.gradle"
+
+ext.deps = [
+        'kotlin' : [
+                'ktx' : "androidx.core:core-ktx:$versions.ktx",
+                'coroutines' : "org.jetbrains.kotlinx:kotlinx-coroutines-android:$versions.coroutines"
+        ],
+
+        'androidx'      : [
+                'lifecycle' : [
+                        'runtime' : "androidx.lifecycle:lifecycle-runtime-ktx:$versions.lifecycle"
+                ],
+
+                'compose' : [
+                        'bom' : "androidx.compose:compose-bom:$versions.composeBom",
+                        'ui' : "androidx.compose.ui:ui-tooling",
+                        'uiGraphics' : "androidx.compose.ui:ui-graphics",
+                        'uiToolingPreview' : "androidx.compose.ui:ui-tooling-preview",
+                        'material' : "androidx.compose.material:material",
+                        'material3' : "androidx.compose.material3:material3",
+
+                        'uiTestManifest' : "androidx.compose.ui:ui-test-manifest",
+                        'uiTooling' : "androidx.compose.ui:ui-tooling",
+                        'junit' : "androidx.compose.ui:ui-test-junit4",
+
+                        'activity' : "androidx.activity:activity-compose:$versions.composeActivity",
+                ]
+        ],
+
+        'moshi' : "com.squareup.moshi:moshi-kotlin:$versions.moshi",
+
+        'retrofit' : [
+                'retrofit' : "com.squareup.retrofit2:retrofit:$versions.retrofit",
+                'moshi' : "com.squareup.retrofit2:converter-moshi:$versions.retrofit"
+        ],
+
+        'okhttp' : [
+                'bom' : "com.squareup.okhttp3:okhttp-bom:$versions.okhttpBom",
+                'okhttp' : "com.squareup.okhttp3:okhttp",
+                'logging' : "com.squareup.okhttp3:logging-interceptor",
+        ],
+
+        'tests' : [
+                'junit' : "junit:junit:$versions.junit",
+                'junitExt' : "androidx.test.ext:junit:$versions.junitExt",
+                'espresso' : "androidx.test.espresso:espresso-core:$versions.espresso"
+        ],
+
+        'firebase' : [
+                'bom' : "com.google.firebase:firebase-bom:$versions.firebase_bom",
+                'analytics' : "com.google.firebase:firebase-analytics",
+                'crashlytics' : "com.google.firebase:firebase-crashlytics",
+        ],
+
+        'navigation' : "androidx.navigation:navigation-compose:$versions.navigation",
+]
