@@ -1,10 +1,10 @@
 package com.mikyegresl.valostat.base.network.model.weapon.stats
 
-import com.squareup.moshi.Json
+import com.google.gson.annotations.SerializedName
 
 data class WeaponAltShotgunStatsResponse(
-    @Json(name = "burstDistance")
+    @SerializedName("burstRate")
     val burstRate: Double? = null,
-    @Json(name = "burstDistance")
+    @SerializedName("burstDistance")
     val shotgunPelletCount: Int? = null
 )

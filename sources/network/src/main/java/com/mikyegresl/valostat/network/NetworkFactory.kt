@@ -3,19 +3,27 @@ package com.mikyegresl.valostat.network
 import com.mikyegresl.valostat.base.network.service.WeaponsRemoteDataSource
 import com.mikyegresl.valostat.network.api.ValorantApi
 import com.mikyegresl.valostat.base.network.config.NetworkConfig
+import com.mikyegresl.valostat.base.network.service.AgentsRemoteDataSource
+import com.mikyegresl.valostat.base.network.service.VideosRemoteDataSource
+import com.mikyegresl.valostat.network.api.YoutubeDataApi
 import com.mikyegresl.valostat.network.error.NetworkErrorHandler
+import com.mikyegresl.valostat.network.interceptor.AuthInterceptor
 import com.mikyegresl.valostat.network.interceptor.HeaderInterceptor
+import com.mikyegresl.valostat.network.service.AgentsRemoteDataSourceImpl
+import com.mikyegresl.valostat.network.service.VideosRemoteDataSourceImpl
 import com.mikyegresl.valostat.network.service.WeaponsRemoteDataSourceImpl
 import com.mikyegresl.valostat.network.util.OkHttpClientBuilder
 import com.mikyegresl.valostat.network.util.RetrofitWithFactories
 import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.converter.gson.GsonConverterFactory
 
 class NetworkFactory(
     private val config: NetworkConfig
 ) {
 
     private val headerInterceptor by lazy { HeaderInterceptor() }
+
+    private val authInterceptor by lazy { AuthInterceptor() }
 
     private val httpLoggingInterceptor by lazy {
         HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
@@ -32,24 +40,49 @@ class NetworkFactory(
     private val okHttpClient by lazy {
         baseOkHttpClient.newBuilder()
             .addInterceptor(headerInterceptor)
+            .addInterceptor(authInterceptor)
             .build()
     }
 
     private val converterFactories by lazy {
-        listOf(MoshiConverterFactory.create())
+        listOf(GsonConverterFactory.create())
     }
 
-    private val retrofit by lazy {
-        RetrofitWithFactories.create(okHttpClient, config.apiUrl, converterFactories)
+    private val valorantApi by lazy {
+        RetrofitWithFactories.create(
+            okHttpClient,
+            config.apiUrl,
+            converterFactories
+        ).create(ValorantApi::class.java)
     }
 
-    private val valorantApi by lazy { retrofit.create(ValorantApi::class.java) }
+    private val youtubeDataApi by lazy {
+        RetrofitWithFactories.create(
+            okHttpClient,
+            config.videoApiUrl,
+            converterFactories
+        ).create(YoutubeDataApi::class.java)
+    }
 
     private val networkErrorHandler by lazy { NetworkErrorHandler() }
+
+    val agentsRemoteDataSource: AgentsRemoteDataSource by lazy {
+        AgentsRemoteDataSourceImpl(
+            valorantApi,
+            networkErrorHandler
+        )
+    }
 
     val weaponsRemoteDataSource: WeaponsRemoteDataSource by lazy {
         WeaponsRemoteDataSourceImpl(
             valorantApi,
+            networkErrorHandler
+        )
+    }
+
+    val videosRemoteDataSource: VideosRemoteDataSource by lazy {
+        VideosRemoteDataSourceImpl(
+            youtubeDataApi,
             networkErrorHandler
         )
     }

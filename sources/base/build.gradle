@@ -35,8 +35,12 @@ android {
 }
 
 dependencies {
-    implementation deps.kotlin.ktx
-    implementation deps.kotlin.coroutines
+    api deps.kotlin.coroutines
 
-    implementation deps.moshi
+    implementation deps.androidx.core
+    implementation deps.androidx.appCompat
+    implementation deps.androidx.lifecycle.runtime
+    implementation deps.androidx.lifecycle.viewmodel
+
+    api deps.gson
 }

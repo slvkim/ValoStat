@@ -7,6 +7,7 @@ interface ErrorHandler {
         try {
             action()
         } catch (e: Throwable) {
+            e.printStackTrace()
             throw mapError(e)
         }
 

@@ -1,10 +1,10 @@
 package com.mikyegresl.valostat.base.network.model.weapon.shop
 
-import com.squareup.moshi.Json
+import com.google.gson.annotations.SerializedName
 
 data class WeaponShopGridPositionResponse(
-    @Json(name = "column")
+    @SerializedName("column")
     val column: Int? = null,
-    @Json(name = "row")
+    @SerializedName("row")
     val row: Int? = null
 )

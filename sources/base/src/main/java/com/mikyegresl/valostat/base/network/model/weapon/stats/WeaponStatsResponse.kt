@@ -1,44 +1,44 @@
 package com.mikyegresl.valostat.base.network.model.weapon.stats
 
-import com.squareup.moshi.Json
+import com.google.gson.annotations.SerializedName
 
 data class WeaponStatsResponse(
-    @Json(name = "equipTimeSeconds")
+    @SerializedName("equipTimeSeconds")
     val equipTimeSeconds: Double? = null,
-    @Json(name = "fireRate")
+    @SerializedName("fireRate")
     val fireRate: Double? = null,
-    @Json(name = "firstBulletAccuracy")
+    @SerializedName("firstBulletAccuracy")
     val firstBulletAccuracy: Double? = null,
-    @Json(name = "magazineSize")
+    @SerializedName("magazineSize")
     val magazineSize: Int? = null,
-    @Json(name = "reloadTimeSeconds")
+    @SerializedName("reloadTimeSeconds")
     val reloadTimeSeconds: Double? = null,
-    @Json(name = "runSpeedMultiplier")
+    @SerializedName("runSpeedMultiplier")
     val runSpeedMultiplier: Double? = null,
-    @Json(name = "shotgunPelletCount")
+    @SerializedName("shotgunPelletCount")
     val shotgunPelletCount: Int? = null,
-    @Json(name = "adsStats")
+    @SerializedName("adsStats")
     val adsStats: WeaponAdsStatsResponse? = null,
-    @Json(name = "airBurstStats")
+    @SerializedName("airBurstStats")
     val airBurstStats: WeaponAirBurstStatsResponse? = null,
-    @Json(name = "altShotgunStats")
+    @SerializedName("altShotgunStats")
     val altShotgunStats: WeaponAltShotgunStatsResponse? = null,
-    @Json(name = "damageRanges")
+    @SerializedName("damageRanges")
     val damageRanges: List<WeaponDamageRangeResponse>? = null,
 
     //TODO: enum
-    @Json(name = "altFireType")
+    @SerializedName("altFireType")
     val altFireType: String? = null,
 
     //TODO: enum
-    @Json(name = "feature")
+    @SerializedName("feature")
     val feature: String? = null,
 
     //TODO: enum
-    @Json(name = "fireMode")
+    @SerializedName("fireMode")
     val fireMode: String? = null,
 
     //TODO: enum
-    @Json(name = "wallPenetration")
+    @SerializedName("wallPenetration")
     val wallPenetration: String? = null
 )

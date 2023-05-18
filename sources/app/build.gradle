@@ -6,11 +6,11 @@ plugins {
 apply from: "$rootDir/dependencies.gradle"
 
 android {
-    namespace 'com.example.valostat'
+    namespace 'com.mikyegresl.valostat'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.valostat"
+        applicationId "com.mikyegresl.valostat"
         minSdk 26
         targetSdk 33
         versionCode 1
@@ -24,6 +24,7 @@ android {
         buildConfigField("int", "VERSION_CODE", "1")
         buildConfigField("String", "VERSION_NAME", '"0.0.1"')
         buildConfigField("String", "BASE_URL_DEV", '"https://valorant-api.com/"')
+        buildConfigField("String", "VIDEO_API_URL", '"https://www.googleapis.com/youtube/"')
     }
 
     buildTypes {
@@ -55,25 +56,40 @@ android {
 }
 
 dependencies {
-    
     api project(":base")
+    implementation project(":repository")
+    implementation project(":network")
+    implementation project(":storage")
 
-    // Kotlin & AndroidX
-    implementation deps.kotlin.ktx
+    // AndroidX
+    implementation deps.androidx.core
     implementation deps.androidx.lifecycle.runtime
+    implementation deps.androidx.lifecycle.compose
 
-    // Compose
     def composeBom = platform(deps.androidx.compose.bom)
     implementation composeBom
     implementation deps.androidx.compose.ui
     implementation deps.androidx.compose.uiGraphics
     implementation deps.androidx.compose.uiToolingPreview
     implementation deps.androidx.compose.material
-    implementation deps.androidx.compose.material3
     implementation deps.androidx.compose.activity
+    implementation deps.androidx.compose.coil
+
+    // Koin
+    api deps.koin.koin
+    api deps.koin.compose
 
     // Navigation
     implementation deps.navigation
+
+    // Moshi
+    implementation deps.gson
+
+    // Accompanist
+    implementation deps.accompanist
+
+    // Youtube
+    implementation deps.youtube.player
 
     // Test
     androidTestImplementation platform(deps.androidx.compose.bom)
@@ -83,6 +99,4 @@ dependencies {
     testImplementation deps.tests.junit
     androidTestImplementation deps.tests.junitExt
     androidTestImplementation deps.tests.espresso
-
-
 }

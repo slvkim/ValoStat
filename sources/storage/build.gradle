@@ -34,6 +34,5 @@ android {
 }
 
 dependencies {
-    implementation deps.kotlin.ktx
-
+    implementation project(":base")
 }

@@ -1,26 +1,26 @@
 package com.mikyegresl.valostat.base.network.model.weapon.shop
 
-import com.squareup.moshi.Json
+import com.google.gson.annotations.SerializedName
 
 data class WeaponShopDataResponse(
-    @Json(name = "categoryText")
+    @SerializedName("categoryText")
     val categoryText: String? = null,
-    @Json(name = "cost")
+    @SerializedName("cost")
     val cost: Int? = null,
-    @Json(name = "gridPosition")
+    @SerializedName("gridPosition")
     val gridPosition: WeaponShopGridPositionResponse? = null,
-    @Json(name = "image")
+    @SerializedName("image")
     val image: String? = null,
-    @Json(name = "newImage")
+    @SerializedName("newImage")
     val newImage: String? = null,
-    @Json(name = "newImage2")
+    @SerializedName("newImage2")
     val newImage2: String? = null,
-    @Json(name = "assetPath")
+    @SerializedName("assetPath")
     val assetPath: String? = null,
-    @Json(name = "canBeTrashed")
+    @SerializedName("canBeTrashed")
     val canBeTrashed: Boolean? = null,
 
     //TODO: enum
-    @Json(name = "category")
+    @SerializedName("category")
     val category: String? = null,
 )

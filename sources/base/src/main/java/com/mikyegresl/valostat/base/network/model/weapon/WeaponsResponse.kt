@@ -1,10 +1,10 @@
 package com.mikyegresl.valostat.base.network.model.weapon
 
-import com.squareup.moshi.Json
+import com.google.gson.annotations.SerializedName
 
 data class WeaponsResponse(
-    @Json(name = "status")
+    @SerializedName("status")
     val status: Int? = null,
-    @Json(name = "data")
+    @SerializedName("data")
     val data: List<WeaponResponse>? = null
 )

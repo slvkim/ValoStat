@@ -1,61 +1,42 @@
 package com.mikyegresl.valostat.repository
 
+import com.mikyegresl.valostat.base.database.service.AgentsLocalDataSource
+import com.mikyegresl.valostat.base.network.service.AgentsRemoteDataSource
+import com.mikyegresl.valostat.base.network.service.VideosRemoteDataSource
+import com.mikyegresl.valostat.base.network.service.WeaponsRemoteDataSource
+import com.mikyegresl.valostat.base.repository.AgentsRepository
+import com.mikyegresl.valostat.base.repository.VideosRepository
+import com.mikyegresl.valostat.base.repository.WeaponsRepository
 
+object RepositoryFactory {
 
-object RepositoriesFactory {
-
-    fun getPearsonChannelsRepository(
-        remoteDataSource: PearsonChannelsRemoteDataSource,
-        localDataSource: ChannelsLocalDataSource,
-        authProvider: AuthProvider,
-        gson: Gson
-    ): PearsonChannelsRepository = ChannelsRepositoryImpl(
+    fun getAgentsRepository(
+        remoteDataSource: AgentsRemoteDataSource,
+        localDataSource: AgentsLocalDataSource
+    ): AgentsRepository = AgentsRepositoryImpl(
         remoteDataSource,
-        localDataSource,
-        authProvider,
-        gson
+        localDataSource
     )
 
-    fun getBoclipsTokenRepository(
-        remoteDataSource: BoclipsVideoTokenRemoteDataSource
-    ): BoclipsVideoTokenRepository = BoclipsVideoTokenRepositoryImpl(
+    fun getWeaponsRepository(
+        remoteDataSource: WeaponsRemoteDataSource,
+//        localDataSource: WeaponsLocalDataSource
+    ): WeaponsRepository = WeaponsRepositoryImpl(
         remoteDataSource,
+//        localDataSource
     )
 
-    fun getBoclipsInfoRepository(
-        remoteDataSource: BoclipsVideoInfoRemoteDataSource,
-        tokenRemoteDataSource: BoclipsVideoTokenRemoteDataSource
-    ): BoclipsVideoInfoRepository = BoclipsVideoInfoRepositoryImpl(
-        remoteDataSource,
-        tokenRemoteDataSource
-    )
+//    fun getMapsRepository(
+//        remoteDataSource: MapsRemoteDataSource,
+//        localDataSource: MapsLocalDataSource
+//    ): MapsRepository = MapsRepositoryImpl(
+//        remoteDataSource,
+//        localDataSource
+//    )
 
-    fun getChannelsBookmarksRepository(
-        localDataSource: ChannelsBookmarksStorage,
-        authProvider: AuthProvider
-    ): ChannelsBookmarksRepository = ChannelsBookmarksRepositoryImpl(
-        localDataSource,
-        authProvider
-    )
-
-    fun getChannelContentOptionsRepository(
-        localDataSource: ContentOptionsStorage,
-        authProvider: AuthProvider,
-    ): ChannelContentOptionsRepository = ChannelContentOptionsRepositoryImpl(
-        localDataSource,
-        authProvider,
-    )
-
-    fun getAssetCountViewingRepository(
-        localStorage: ChannelsAssetViewsCounterStorage,
-        remoteDataSource: AssetViewsCounterRemoteDataSource
-    ): AssetCountViewingRepository = AssetCountViewingRepositoryImpl(
-        localStorage, remoteDataSource
-    )
-
-    fun getAssetCountViewingGapDurationRepository(
-        localStorage: ChannelsAssetViewsCounterStorage
-    ): AssetCountViewingGapDurationRepository = AssetCountViewingGapDurationRepositoryImpl(
-        localStorage
+    fun getVideosRepository(
+        remoteDataSource: VideosRemoteDataSource,
+    ) : VideosRepository = VideosRepositoryImpl(
+        remoteDataSource
     )
 }

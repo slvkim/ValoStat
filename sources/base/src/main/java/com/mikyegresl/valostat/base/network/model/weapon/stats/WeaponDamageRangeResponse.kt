@@ -1,16 +1,16 @@
 package com.mikyegresl.valostat.base.network.model.weapon.stats
 
-import com.squareup.moshi.Json
+import com.google.gson.annotations.SerializedName
 
 data class WeaponDamageRangeResponse(
-    @Json(name = "bodyDamage")
+    @SerializedName("bodyDamage")
     val bodyDamage: Int? = null,
-    @Json(name = "headDamage")
+    @SerializedName("headDamage")
     val headDamage: Double? = null,
-    @Json(name = "legDamage")
+    @SerializedName("legDamage")
     val legDamage: Double? = null,
-    @Json(name = "rangeEndMeters")
+    @SerializedName("rangeEndMeters")
     val rangeEndMeters: Int? = null,
-    @Json(name = "rangeStartMeters")
+    @SerializedName("rangeStartMeters")
     val rangeStartMeters: Int? = null
 )

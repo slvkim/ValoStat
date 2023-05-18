@@ -2,13 +2,17 @@ apply from: "$rootDir/versions.gradle"
 
 ext.deps = [
         'kotlin' : [
-                'ktx' : "androidx.core:core-ktx:$versions.ktx",
                 'coroutines' : "org.jetbrains.kotlinx:kotlinx-coroutines-android:$versions.coroutines"
         ],
 
         'androidx'      : [
+                'core' : "androidx.core:core-ktx:$versions.androidx",
+                'appCompat' : "androidx.appcompat:appcompat:$versions.appCompat",
+
                 'lifecycle' : [
-                        'runtime' : "androidx.lifecycle:lifecycle-runtime-ktx:$versions.lifecycle"
+                        'viewmodel' : "androidx.lifecycle:lifecycle-viewmodel-ktx:$versions.lifecycle",
+                        'runtime' : "androidx.lifecycle:lifecycle-runtime-ktx:$versions.lifecycle",
+                        'compose' : "androidx.lifecycle:lifecycle-runtime-compose:$versions.lifecycle"
                 ],
 
                 'compose' : [
@@ -17,21 +21,24 @@ ext.deps = [
                         'uiGraphics' : "androidx.compose.ui:ui-graphics",
                         'uiToolingPreview' : "androidx.compose.ui:ui-tooling-preview",
                         'material' : "androidx.compose.material:material",
-                        'material3' : "androidx.compose.material3:material3",
 
                         'uiTestManifest' : "androidx.compose.ui:ui-test-manifest",
                         'uiTooling' : "androidx.compose.ui:ui-tooling",
                         'junit' : "androidx.compose.ui:ui-test-junit4",
 
                         'activity' : "androidx.activity:activity-compose:$versions.composeActivity",
+
+                        'coil' : "io.coil-kt:coil-compose:$versions.coil",
                 ]
         ],
 
-        'moshi' : "com.squareup.moshi:moshi-kotlin:$versions.moshi",
+        'accompanist' : "com.google.accompanist:accompanist-systemuicontroller:$versions.accompanist",
+
+        'gson' : "com.google.code.gson:gson:$versions.gson",
 
         'retrofit' : [
                 'retrofit' : "com.squareup.retrofit2:retrofit:$versions.retrofit",
-                'moshi' : "com.squareup.retrofit2:converter-moshi:$versions.retrofit"
+                'gson' : "com.squareup.retrofit2:converter-gson:$versions.retrofit"
         ],
 
         'okhttp' : [
@@ -52,5 +59,16 @@ ext.deps = [
                 'crashlytics' : "com.google.firebase:firebase-crashlytics",
         ],
 
+        'youtube' : [
+                'player' : "com.pierfrancescosoffritti.androidyoutubeplayer:core:$versions.youtube_player"
+        ],
+
         'navigation' : "androidx.navigation:navigation-compose:$versions.navigation",
+
+        'koin' : [
+                'koin' : "io.insert-koin:koin-android:$versions.koin",
+                'compose' : "io.insert-koin:koin-androidx-compose:$versions.koinCompose",
+                'annotations' : "io.insert-koin:koin-annotations:$versions.koinKsp",
+                'compiler' : "io.insert-koin:koin-ksp-compiler:$versions.koinKsp",
+        ]
 ]

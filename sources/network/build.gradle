@@ -34,7 +34,6 @@ android {
 }
 
 dependencies {
-//    implementation deps.kotlin.ktx
     implementation project(":base")
 
     // Okhttp
@@ -43,5 +42,5 @@ dependencies {
     implementation deps.okhttp.okhttp
     implementation deps.okhttp.logging
     implementation deps.retrofit.retrofit
-    implementation deps.retrofit.moshi
+    implementation deps.retrofit.gson
 }

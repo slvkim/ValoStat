@@ -9,8 +9,8 @@ data class WeaponStatsDto(
     val runSpeedMultiplier: Double,
     val shotgunPelletCount: Int,
     val adsStats: WeaponAdsStatsDto,
-    val airBurstStats: WeaponAirBurstDto,
-    val altShotgunStats: WeaponAltShotgunStatsDto,
+    val airBurstStats: WeaponAirBurstStatsDto?,
+    val altShotgunStats: WeaponAltShotgunStatsDto?,
     val damageRanges: List<WeaponDamageRangeDto>,
 
     //TODO: enum

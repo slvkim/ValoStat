@@ -4,5 +4,17 @@
     <string name="agents">Agents</string>
     <string name="weapons">Weapons</string>
     <string name="maps">Maps</string>
+    <string name="videos">Videos</string>
+
+    <string name="connection_error_title">No internet</string>
+    <string name="general_error_title">Something went wrong</string>
+
+    <string name="role">Role</string>
+    <string name="origin">Origin</string>
+    <string name="description">Description</string>
+    <string name="points_for_ulti">Points for ultimate</string>
+    <string name="agent_details">Agent details</string>
+    <string name="abilities">Abilities</string>
+    <string name="type">Type</string>
 
 </resources>

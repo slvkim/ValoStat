@@ -1,24 +1,24 @@
 package com.mikyegresl.valostat.base.network.model.weapon.skin
 
-import com.squareup.moshi.Json
+import com.google.gson.annotations.SerializedName
 
 data class WeaponSkinResponse(
-    @Json(name = "uuid")
+    @SerializedName("uuid")
     val uuid: String? = null,
-    @Json(name = "displayName")
+    @SerializedName("displayName")
     val name: String? = null,
-    @Json(name = "displayIcon")
+    @SerializedName("displayIcon")
     val iconPath: String? = null,
-    @Json(name = "wallpaper")
+    @SerializedName("wallpaper")
     val wallpaperPath: String? = null,
-    @Json(name = "assetPath")
+    @SerializedName("assetPath")
     val assetPath: String? = null,
-    @Json(name = "themeUuid")
+    @SerializedName("themeUuid")
     val themeUuid: String? = null,
-    @Json(name = "contentTierUuid")
+    @SerializedName("contentTierUuid")
     val contentTierUuid: String? = null,
-    @Json(name = "chromas")
+    @SerializedName("chromas")
     val chromas: List<WeaponSkinChromaResponse>? = null,
-    @Json(name = "levels")
+    @SerializedName("levels")
     val levels: List<WeaponSkinLevelResponse>? = null
 )
