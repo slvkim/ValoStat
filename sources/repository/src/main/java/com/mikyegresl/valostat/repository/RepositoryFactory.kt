@@ -1,29 +1,35 @@
 package com.mikyegresl.valostat.repository
 
-import com.mikyegresl.valostat.base.database.service.AgentsLocalDataSource
+import com.google.gson.Gson
 import com.mikyegresl.valostat.base.network.service.AgentsRemoteDataSource
 import com.mikyegresl.valostat.base.network.service.VideosRemoteDataSource
 import com.mikyegresl.valostat.base.network.service.WeaponsRemoteDataSource
 import com.mikyegresl.valostat.base.repository.AgentsRepository
 import com.mikyegresl.valostat.base.repository.VideosRepository
 import com.mikyegresl.valostat.base.repository.WeaponsRepository
+import com.mikyegresl.valostat.base.storage.service.AgentsLocalDataSource
+import com.mikyegresl.valostat.base.storage.service.WeaponsLocalDataSource
 
 object RepositoryFactory {
 
     fun getAgentsRepository(
         remoteDataSource: AgentsRemoteDataSource,
-        localDataSource: AgentsLocalDataSource
+        localDataSource: AgentsLocalDataSource,
+        gson: Gson
     ): AgentsRepository = AgentsRepositoryImpl(
         remoteDataSource,
-        localDataSource
+        localDataSource,
+        gson
     )
 
     fun getWeaponsRepository(
         remoteDataSource: WeaponsRemoteDataSource,
-//        localDataSource: WeaponsLocalDataSource
+        localDataSource: WeaponsLocalDataSource,
+        gson: Gson
     ): WeaponsRepository = WeaponsRepositoryImpl(
         remoteDataSource,
-//        localDataSource
+        localDataSource,
+        gson
     )
 
 //    fun getMapsRepository(

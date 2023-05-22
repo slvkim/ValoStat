@@ -1,9 +1,9 @@
 package com.mikyegresl.valostat.network.service
 
 import com.mikyegresl.valostat.base.error.ErrorHandler
-import com.mikyegresl.valostat.base.network.model.video.channel.ChannelItemResponse
 import com.mikyegresl.valostat.base.network.model.video.VideoItemResponse
 import com.mikyegresl.valostat.base.network.model.video.YoutubeGeneralResponse
+import com.mikyegresl.valostat.base.network.model.video.channel.ChannelItemResponse
 import com.mikyegresl.valostat.base.network.model.video.stats.VideoStatDataResponse
 import com.mikyegresl.valostat.base.network.service.VideosRemoteDataSource
 import com.mikyegresl.valostat.network.api.YoutubeDataApi

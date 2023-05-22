@@ -1,11 +1,8 @@
 package com.mikyegresl.valostat.features.agent.details
 
-import android.util.Log
-import android.widget.Space
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material.Card
@@ -24,15 +20,9 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -43,26 +33,23 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.mikyegresl.valostat.R
 import com.mikyegresl.valostat.base.model.agent.AgentAbilityDto
 import com.mikyegresl.valostat.base.model.agent.AgentDto
 import com.mikyegresl.valostat.base.model.agent.AgentOriginDto
-import com.mikyegresl.valostat.common.compose.ShowLoadingState
 import com.mikyegresl.valostat.features.agent.agentAbilitiesMock
 import com.mikyegresl.valostat.features.agent.agentMock
 import com.mikyegresl.valostat.features.agent.agentOriginMock
 import com.mikyegresl.valostat.ui.dimen.ElemSize
 import com.mikyegresl.valostat.ui.dimen.Padding
 import com.mikyegresl.valostat.ui.theme.ValoStatTypography
-import com.mikyegresl.valostat.ui.theme.backgroundDark
-import com.mikyegresl.valostat.ui.theme.mainBackgroundDark
 import com.mikyegresl.valostat.ui.theme.mainTextDark
 import com.mikyegresl.valostat.ui.theme.secondaryBackgroundDark
 import com.mikyegresl.valostat.ui.theme.secondaryTextDark
+import com.mikyegresl.valostat.ui.theme.surfaceDark
 import com.mikyegresl.valostat.ui.theme.washWhite
-import kotlinx.coroutines.flow.StateFlow
+import com.mikyegresl.valostat.ui.widget.gradientModifier
 
 @Preview
 @Composable
@@ -90,7 +77,6 @@ fun AgentDetailsScreen(
     onBackPressed: () -> Unit
 ) {
     if (state == null) return
-    Log.e("AgentsDetailsScreen", "exec: ")
     AgentDetailsAsDataState(
         modifier = Modifier,
         details = state.details,
@@ -116,32 +102,30 @@ fun AgentDetailsAsDataState(
         LazyColumn(
             modifier = modifier
                 .fillMaxSize()
-                .background(
-                    Brush.linearGradient(
-                        colors = listOf(
-                            mainBackgroundDark,
-                            secondaryBackgroundDark
-                        ),
-                        start = Offset(x = 135f, y = 135f),
-                        tileMode = TileMode.Mirror
-                    )
-                )
         ) {
             item {
-                AgentDetailsTopBar(title = details.displayName) {
+                AgentDetailsTopBar(
+                    title = details.displayName,
+                    imageSrc = details.fullPortrait
+                ) {
                     onBackPressed()
                 }
             }
             item {
                 AgentDescriptionItem(
-                    Modifier.padding(top = Padding.Dp16),
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            top = Padding.Dp16,
+                            start = Padding.Dp32,
+                            end = Padding.Dp32
+                        ),
                     details,
                     origin,
                     pointsForUltimate
                 )
             }
             agentAbilities(
-                modifier = Modifier,
                 abilities = details.abilities
             ).invoke(this)
         }
@@ -150,35 +134,48 @@ fun AgentDetailsAsDataState(
 
 @Composable
 fun AgentDetailsTopBar(
-    modifier: Modifier = Modifier,
     title: String,
+    imageSrc: String,
     onBackPressed: () -> Unit
 ) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(
-                top = Padding.Dp24,
-                start = Padding.Dp24,
-                end = Padding.Dp24
-            ),
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            modifier = Modifier
-                .rotate(210f)
-                .clickable { onBackPressed() },
-            painter = painterResource(id = R.drawable.ic_arrow_left),
-            contentDescription = stringResource(id = R.string.agent_details),
-            tint = secondaryTextDark
+    Column(
+        modifier = gradientModifier(
+            35f,
+            .55f to surfaceDark,
+            .55f to secondaryBackgroundDark
         )
-        Text(
+    ) {
+        Row(
             modifier = Modifier
-                .weight(1f),
-            text = title,
-            textAlign = TextAlign.Center,
-            style = ValoStatTypography.subtitle1
+                .fillMaxWidth()
+                .padding(
+                    top = Padding.Dp24,
+                    start = Padding.Dp24,
+                    end = Padding.Dp24
+                ),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                modifier = Modifier
+                    .rotate(210f)
+                    .clickable { onBackPressed() },
+                painter = painterResource(id = R.drawable.ic_arrow_left),
+                contentDescription = stringResource(id = R.string.agent_details),
+                tint = secondaryTextDark
+            )
+            Text(
+                modifier = Modifier
+                    .weight(1f),
+                text = title,
+                textAlign = TextAlign.Center,
+                style = ValoStatTypography.subtitle1
+            )
+        }
+        AsyncImage(
+            model = imageSrc,
+            contentScale = ContentScale.FillBounds,
+            contentDescription = title
         )
     }
 }
@@ -192,14 +189,7 @@ fun AgentDescriptionItem(
 ) {
     Column(
         modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = Padding.Dp32)
     ) {
-        AsyncImage(
-            model = details.fullPortrait,
-            contentScale = ContentScale.FillBounds,
-            contentDescription = details.displayName
-        )
         Spacer(Modifier.padding(vertical = Padding.Dp16))
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -290,7 +280,6 @@ fun AgentDescriptionItem(
 }
 
 fun agentAbilities(
-    modifier: Modifier = Modifier,
     abilities: List<AgentAbilityDto>
 ) : LazyListScope.() -> Unit = {
     item {
@@ -331,6 +320,7 @@ fun AgentAbilityItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 AsyncImage(
+                    modifier = Modifier.size(ElemSize.Dp36),
                     model = ability.displayIcon,
                     contentDescription = ability.displayName
                 )

@@ -1,10 +1,10 @@
 package com.mikyegresl.valostat.network
 
-import com.mikyegresl.valostat.base.network.service.WeaponsRemoteDataSource
-import com.mikyegresl.valostat.network.api.ValorantApi
 import com.mikyegresl.valostat.base.network.config.NetworkConfig
 import com.mikyegresl.valostat.base.network.service.AgentsRemoteDataSource
 import com.mikyegresl.valostat.base.network.service.VideosRemoteDataSource
+import com.mikyegresl.valostat.base.network.service.WeaponsRemoteDataSource
+import com.mikyegresl.valostat.network.api.ValorantApi
 import com.mikyegresl.valostat.network.api.YoutubeDataApi
 import com.mikyegresl.valostat.network.error.NetworkErrorHandler
 import com.mikyegresl.valostat.network.interceptor.AuthInterceptor

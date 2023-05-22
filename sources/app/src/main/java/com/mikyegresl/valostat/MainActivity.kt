@@ -2,7 +2,6 @@ package com.mikyegresl.valostat
 
 import android.content.pm.ActivityInfo
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
@@ -29,19 +28,20 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.mikyegresl.valostat.features.agent.AgentsScreen
 import com.mikyegresl.valostat.features.agent.AgentsViewModel
+import com.mikyegresl.valostat.features.agent.details.AgentDetailsScreen
 import com.mikyegresl.valostat.features.map.MapsScreen
 import com.mikyegresl.valostat.features.video.VideosScreen
 import com.mikyegresl.valostat.features.video.VideosViewModel
 import com.mikyegresl.valostat.features.weapon.WeaponsScreen
 import com.mikyegresl.valostat.features.weapon.WeaponsViewModel
+import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsScreen
 import com.mikyegresl.valostat.navigation.GlobalNavItem
+import com.mikyegresl.valostat.navigation.NavigationItem
 import com.mikyegresl.valostat.ui.theme.ValoStatTheme
 import com.mikyegresl.valostat.ui.theme.mainBackgroundDark
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.mikyegresl.valostat.features.agent.details.AgentDetailsScreen
-import com.mikyegresl.valostat.navigation.NavigationItem
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
@@ -129,8 +129,8 @@ class MainActivity : ComponentActivity() {
             composable(GlobalNavItem.Agents.route) {
                 AgentsScreen(agentsViewModel.state) {
                     navController.navigate("${NavigationItem.AgentDetails.route}/$it") {
-                        navController.graph.startDestinationRoute?.let { screen_route ->
-                            popUpTo(screen_route) {
+                        navController.graph.startDestinationRoute?.let { screenRoute ->
+                            popUpTo(screenRoute) {
                                 saveState = true
                             }
                         }
@@ -140,7 +140,17 @@ class MainActivity : ComponentActivity() {
                 }
             }
             composable(GlobalNavItem.Weapons.route) {
-                WeaponsScreen(weaponsViewModel.state)
+                WeaponsScreen(weaponsViewModel.state) {
+                    navController.navigate("${NavigationItem.WeaponDetails.route}/$it") {
+                        navController.graph.startDestinationRoute?.let { screenRoute ->
+                            popUpTo(screenRoute) {
+                                saveState = true
+                            }
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
             }
             composable(GlobalNavItem.Maps.route) {
                 MapsScreen()
@@ -167,6 +177,22 @@ class MainActivity : ComponentActivity() {
                 it.arguments?.getString(NavigationItem.AgentDetails.agentId)?.let { agentId ->
                     AgentDetailsScreen(
                         agentsViewModel.getAgentDetailsState(agentId)
+                    ) {
+                        navController.navigateUp()
+                    }
+                }
+            }
+            composable(
+                route = "${NavigationItem.WeaponDetails.route}/{${NavigationItem.WeaponDetails.weaponId}}",
+                arguments = listOf(
+                    navArgument(NavigationItem.WeaponDetails.weaponId) {
+                        type = NavType.StringType
+                    }
+                )
+            ) {
+                it.arguments?.getString(NavigationItem.WeaponDetails.weaponId)?.let { weaponId ->
+                    WeaponDetailsScreen(
+                        weaponsViewModel.getWeaponDetailsState(weaponId)
                     ) {
                         navController.navigateUp()
                     }

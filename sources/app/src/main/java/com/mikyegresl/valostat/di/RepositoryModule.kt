@@ -5,7 +5,7 @@ import org.koin.dsl.module
 
 val repositoryModule = module {
     single { RepositoryFactory }
-    single { get<RepositoryFactory>().getAgentsRepository(get(), get()) }
-    single { get<RepositoryFactory>().getWeaponsRepository(get()) }
+    single { get<RepositoryFactory>().getAgentsRepository(get(), get(), get()) }
+    single { get<RepositoryFactory>().getWeaponsRepository(get(), get(), get()) }
     single { get<RepositoryFactory>().getVideosRepository(get()) }
 }

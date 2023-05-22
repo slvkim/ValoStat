@@ -29,7 +29,9 @@ ext.deps = [
                         'activity' : "androidx.activity:activity-compose:$versions.composeActivity",
 
                         'coil' : "io.coil-kt:coil-compose:$versions.coil",
-                ]
+                ],
+
+                'datastore' : "androidx.datastore:datastore-preferences:$versions.datastore"
         ],
 
         'accompanist' : "com.google.accompanist:accompanist-systemuicontroller:$versions.accompanist",

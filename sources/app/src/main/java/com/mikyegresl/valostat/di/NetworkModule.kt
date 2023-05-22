@@ -1,8 +1,8 @@
 package com.mikyegresl.valostat.di
 
-import com.mikyegresl.valostat.providers.NetworkConfigProviderImpl
 import com.mikyegresl.valostat.base.network.config.NetworkConfigProvider
 import com.mikyegresl.valostat.network.NetworkFactory
+import com.mikyegresl.valostat.providers.NetworkConfigProviderImpl
 import org.koin.dsl.module
 
 val networkModule = module {

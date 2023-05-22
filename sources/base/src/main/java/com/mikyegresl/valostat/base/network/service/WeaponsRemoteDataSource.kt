@@ -1,7 +1,8 @@
 package com.mikyegresl.valostat.base.network.service
 
-import com.mikyegresl.valostat.base.network.model.weapon.WeaponsResponse
+import com.google.gson.JsonElement
 
 interface WeaponsRemoteDataSource {
-    suspend fun getWeapons(): WeaponsResponse
+
+    suspend fun getWeapons(): JsonElement
 }

@@ -25,20 +25,44 @@ data class WeaponStatsResponse(
     val altShotgunStats: WeaponAltShotgunStatsResponse? = null,
     @SerializedName("damageRanges")
     val damageRanges: List<WeaponDamageRangeResponse>? = null,
-
-    //TODO: enum
-    @SerializedName("altFireType")
-    val altFireType: String? = null,
-
-    //TODO: enum
-    @SerializedName("feature")
-    val feature: String? = null,
-
-    //TODO: enum
-    @SerializedName("fireMode")
-    val fireMode: String? = null,
-
-    //TODO: enum
     @SerializedName("wallPenetration")
-    val wallPenetration: String? = null
-)
+    val wallPenetration: WallPenetrationResponse? = null,
+    @SerializedName("feature")
+    val feature: WeaponFeatureResponse? = null,
+    @SerializedName("fireMode")
+    val fireMode: FireModeResponse? = null,
+    @SerializedName("altFireType")
+    val altFireType: AltFireTypeResponse? = null
+) {
+    enum class WallPenetrationResponse {
+        @SerializedName("EWallPenetrationDisplayType::Low")
+        LOW,
+        @SerializedName("EWallPenetrationDisplayType::Medium")
+        MEDIUM,
+        @SerializedName("EWallPenetrationDisplayType::High")
+        HIGH
+    }
+
+    enum class WeaponFeatureResponse {
+        @SerializedName("EWeaponStatsFeature::Silenced")
+        SILENCED,
+        @SerializedName("EWeaponStatsFeature::DualZoom")
+        DUAL_ZOOM,
+        @SerializedName("EWeaponStatsFeature::ROFIncrease")
+        ROF_INCREASE
+    }
+
+    enum class FireModeResponse {
+        @SerializedName("EWeaponFireModeDisplayType::SemiAutomatic")
+        SEMI_AUTOMATIC
+    }
+
+    enum class AltFireTypeResponse {
+        @SerializedName("EWeaponAltFireDisplayType::ADS")
+        ADS,
+        @SerializedName("EWeaponAltFireDisplayType::AirBurst")
+        AIR_BURST,
+        @SerializedName("EWeaponAltFireDisplayType::Shotgun")
+        SHOTGUN
+    }
+}

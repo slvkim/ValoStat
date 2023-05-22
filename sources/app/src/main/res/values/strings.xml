@@ -16,5 +16,18 @@
     <string name="agent_details">Agent details</string>
     <string name="abilities">Abilities</string>
     <string name="type">Type</string>
+    <string name="weapon_details">Weapon details</string>
+    <string name="damage">Damage</string>
+    <string name="skins">Skins</string>
+    <string name="creds">Creds</string>
+    <string name="fire_rate">Fire Rate</string>
+    <string name="fire_mode">Fire Mode</string>
+    <string name="wall_penetration">Wall Penetration</string>
+    <string name="magazine">Magazine</string>
+    <string name="alt_fire_mode">Alt Fire Mode</string>
+    <string name="range">Range</string>
+    <string name="head">Head</string>
+    <string name="body">Body</string>
+    <string name="legs">Legs</string>
 
 </resources>

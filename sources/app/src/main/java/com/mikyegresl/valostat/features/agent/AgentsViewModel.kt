@@ -1,14 +1,10 @@
 package com.mikyegresl.valostat.features.agent
 
-import android.util.Log
-import androidx.lifecycle.viewModelScope
-import com.mikyegresl.valostat.common.viewmodel.BaseNavigationViewModel
+import com.mikyegresl.valostat.base.model.agent.AgentDto
 import com.mikyegresl.valostat.base.repository.AgentsRepository
-import com.mikyegresl.valostat.features.agent.details.AgentDetailsAsDataState
+import com.mikyegresl.valostat.common.viewmodel.BaseNavigationViewModel
 import com.mikyegresl.valostat.features.agent.details.AgentDetailsScreenState
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
 
 class AgentsViewModel(
     private val repository: AgentsRepository
@@ -32,19 +28,22 @@ class AgentsViewModel(
             onLoading = {
                 _state.value = AgentsScreenState.AgentsScreenLoadingState
             },
-            onSuccessRemote = { agents ->
-                val ids = agents.map { it.uuid }
-                _state.value = AgentsScreenState.AgentsScreenDataState(
-                    agents,
-                    repository.getAgentsOrigin(ids),
-                    repository.getPointsForUltimate(ids)
-                )
-            },
+            onSuccessRemote = ::processSuccessfulLoad,
+            onSuccessLocal = ::processSuccessfulLoad,
             onError = {
                 _state.value = AgentsScreenState.AgentsScreenErrorState(it)
                 true
             }
         )
+
+    private fun processSuccessfulLoad(agents: List<AgentDto>) {
+        val ids = agents.map { it.uuid }
+        _state.value = AgentsScreenState.AgentsScreenDataState(
+            agents,
+            repository.getAgentsOrigin(ids),
+            repository.getPointsForUltimate(ids)
+        )
+    }
 
     fun getAgentDetailsState(id: String): AgentDetailsScreenState? =
         (currentState as? AgentsScreenState.AgentsScreenDataState)?.let { dataState ->

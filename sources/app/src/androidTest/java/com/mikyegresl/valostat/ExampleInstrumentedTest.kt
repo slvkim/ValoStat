@@ -1,15 +1,13 @@
 package com.mikyegresl.valostat
 
 import android.app.Application
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import com.mikyegresl.valostat.di.networkModule
 import com.mikyegresl.valostat.di.repositoryModule
-
+import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
-
-import org.junit.Assert.*
 import org.koin.core.context.startKoin
 
 /**

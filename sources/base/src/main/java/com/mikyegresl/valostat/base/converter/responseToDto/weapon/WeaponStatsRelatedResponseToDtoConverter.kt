@@ -1,7 +1,6 @@
 package com.mikyegresl.valostat.base.converter.responseToDto.weapon
 
 import com.mikyegresl.valostat.base.common.converter.Converter
-import com.mikyegresl.valostat.base.common.converter.Converter.Companion.EMPTY_STRING
 import com.mikyegresl.valostat.base.model.weapon.stats.WeaponAdsStatsDto
 import com.mikyegresl.valostat.base.model.weapon.stats.WeaponAirBurstStatsDto
 import com.mikyegresl.valostat.base.model.weapon.stats.WeaponAltShotgunStatsDto
@@ -31,11 +30,41 @@ object WeaponStatsRelatedResponseToDtoConverter : Converter<WeaponStatsResponse?
                 damageRanges = DamageRangeResponseToDtoConverter.convert(
                     this?.damageRanges ?: emptyList()
                 ),
-                altFireType = this?.altFireType ?: EMPTY_STRING,
-                feature = this?.feature ?: EMPTY_STRING,
-                fireMode = this?.fireMode ?: EMPTY_STRING,
-                wallPenetration = this?.wallPenetration ?: EMPTY_STRING,
+                altFireType = mapAltFireType(this?.altFireType),
+                feature = mapWeaponFeature(this?.feature),
+                fireMode = mapFireMode(this?.fireMode),
+                wallPenetration = mapWallPenetration(this?.wallPenetration),
             )
+        }
+
+    private fun mapWallPenetration(from: WeaponStatsResponse.WallPenetrationResponse?): WeaponStatsDto.WallPenetrationDto =
+        when (from) {
+            WeaponStatsResponse.WallPenetrationResponse.HIGH -> WeaponStatsDto.WallPenetrationDto.HIGH
+            WeaponStatsResponse.WallPenetrationResponse.MEDIUM -> WeaponStatsDto.WallPenetrationDto.MEDIUM
+            WeaponStatsResponse.WallPenetrationResponse.LOW -> WeaponStatsDto.WallPenetrationDto.LOW
+            else -> WeaponStatsDto.WallPenetrationDto.UNKNOWN
+        }
+
+    private fun mapWeaponFeature(from: WeaponStatsResponse.WeaponFeatureResponse?): WeaponStatsDto.WeaponFeatureDto =
+        when (from) {
+            WeaponStatsResponse.WeaponFeatureResponse.SILENCED -> WeaponStatsDto.WeaponFeatureDto.SILENCED
+            WeaponStatsResponse.WeaponFeatureResponse.DUAL_ZOOM -> WeaponStatsDto.WeaponFeatureDto.DUAL_ZOOM
+            WeaponStatsResponse.WeaponFeatureResponse.ROF_INCREASE -> WeaponStatsDto.WeaponFeatureDto.ROF_INCREASE
+            else -> WeaponStatsDto.WeaponFeatureDto.UNKNOWN
+        }
+
+    private fun mapFireMode(from: WeaponStatsResponse.FireModeResponse?): WeaponStatsDto.FireModeDto =
+        when (from) {
+            WeaponStatsResponse.FireModeResponse.SEMI_AUTOMATIC -> WeaponStatsDto.FireModeDto.SEMI_AUTOMATIC
+            else -> WeaponStatsDto.FireModeDto.UNKNOWN
+        }
+
+    private fun mapAltFireType(from: WeaponStatsResponse.AltFireTypeResponse?): WeaponStatsDto.AltFireTypeDto =
+        when (from) {
+            WeaponStatsResponse.AltFireTypeResponse.ADS -> WeaponStatsDto.AltFireTypeDto.ADS
+            WeaponStatsResponse.AltFireTypeResponse.SHOTGUN -> WeaponStatsDto.AltFireTypeDto.SHOTGUN
+            WeaponStatsResponse.AltFireTypeResponse.AIR_BURST -> WeaponStatsDto.AltFireTypeDto.AIR_BURST
+            else -> WeaponStatsDto.AltFireTypeDto.UNKNOWN
         }
 }
 

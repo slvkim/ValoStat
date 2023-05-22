@@ -1,8 +1,7 @@
 package com.mikyegresl.valostat.repository
 
-import org.junit.Test
-
 import org.junit.Assert.*
+import org.junit.Test
 
 /**
  * mikyegresl local unit test, which will execute on the development machine (host).

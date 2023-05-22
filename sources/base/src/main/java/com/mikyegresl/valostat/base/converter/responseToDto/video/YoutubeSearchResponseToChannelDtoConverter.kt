@@ -3,8 +3,8 @@ package com.mikyegresl.valostat.base.converter.responseToDto.video
 import com.mikyegresl.valostat.base.common.converter.Converter
 import com.mikyegresl.valostat.base.common.converter.Converter.Companion.EMPTY_STRING
 import com.mikyegresl.valostat.base.model.video.ChannelDto
-import com.mikyegresl.valostat.base.network.model.video.channel.ChannelItemResponse
 import com.mikyegresl.valostat.base.network.model.video.YoutubeGeneralResponse
+import com.mikyegresl.valostat.base.network.model.video.channel.ChannelItemResponse
 
 object YoutubeSearchResponseToChannelDtoConverter : Converter<YoutubeGeneralResponse<ChannelItemResponse>, ChannelDto?> {
 

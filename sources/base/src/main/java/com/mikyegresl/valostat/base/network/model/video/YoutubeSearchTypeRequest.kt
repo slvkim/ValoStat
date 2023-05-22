@@ -2,11 +2,11 @@ package com.mikyegresl.valostat.base.network.model.video
 
 import com.google.gson.annotations.SerializedName
 
-enum class YoutubeSearchTypeRequest(value: String) {
+enum class YoutubeSearchTypeRequest {
     @SerializedName("channel")
-    channel("channel"),
+    CHANNEL,
     @SerializedName("video")
-    video("video"),
+    VIDEO,
     @SerializedName("playlist")
-    playlist("playlist")
+    PLAYLIST
 }

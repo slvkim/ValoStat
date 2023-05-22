@@ -4,13 +4,23 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mikyegresl.valostat.R
-import com.mikyegresl.valostat.common.state.BaseState
-import com.mikyegresl.valostat.common.state.GlobalViewState
 import com.mikyegresl.valostat.base.error.NoInternetException
 import com.mikyegresl.valostat.base.error.ValoStatException
 import com.mikyegresl.valostat.base.network.Response
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import com.mikyegresl.valostat.common.state.BaseState
+import com.mikyegresl.valostat.common.state.GlobalViewState
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
+import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
 abstract class BaseStateViewModel<T : BaseState>(

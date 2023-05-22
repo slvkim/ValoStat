@@ -1,8 +1,8 @@
 package com.mikyegresl.valostat.base.network.service
 
-import com.mikyegresl.valostat.base.network.model.agent.AgentsResponse
+import com.google.gson.JsonElement
 
 interface AgentsRemoteDataSource {
 
-    suspend fun getAgents(): AgentsResponse
+    suspend fun getAgents(): JsonElement
 }

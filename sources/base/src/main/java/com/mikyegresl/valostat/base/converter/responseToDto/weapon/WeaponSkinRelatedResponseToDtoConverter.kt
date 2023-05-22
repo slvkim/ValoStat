@@ -17,10 +17,8 @@ object WeaponSkinRelatedResponseToDtoConverter : Converter<WeaponSkinResponse?, 
                 uuid = this?.uuid ?: EMPTY_STRING,
                 themeUuid = this?.themeUuid ?: EMPTY_STRING,
                 contentTierUuid = this?.contentTierUuid ?: EMPTY_STRING,
-                name = this?.name ?: EMPTY_STRING,
+                displayName = this?.name ?: EMPTY_STRING,
                 iconPath = this?.iconPath ?: EMPTY_STRING,
-                wallpaperPath = this?.wallpaperPath ?: EMPTY_STRING,
-                assetPath = this?.assetPath ?: EMPTY_STRING,
                 chromas = SkinChromaResponseToDtoConveter.convert(this?.chromas),
                 levels = SkinLevelResponseToDtoConverter.convert(this?.levels)
             )
@@ -33,7 +31,7 @@ object SkinChromaResponseToDtoConveter : Converter<WeaponSkinChromaResponse?, We
         with(from) {
             WeaponSkinChromaDto(
                 uuid = this?.uuid ?: EMPTY_STRING,
-                name = this?.name ?: EMPTY_STRING,
+                displayName = this?.name ?: EMPTY_STRING,
                 assetPath = this?.assetPath ?: EMPTY_STRING,
                 iconPath = this?.iconPath ?: EMPTY_STRING,
                 fullRenderPath = this?.fullRenderPath ?: EMPTY_STRING,

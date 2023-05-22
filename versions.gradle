@@ -28,4 +28,6 @@ ext.versions = [
         'accompanist'       : "0.31.1-alpha",
 
         'youtube_player'    : "12.0.0",
+
+        'datastore'         : "1.0.0"
 ]

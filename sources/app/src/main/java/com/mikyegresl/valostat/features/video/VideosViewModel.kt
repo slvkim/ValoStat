@@ -1,7 +1,7 @@
 package com.mikyegresl.valostat.features.video
 
-import com.mikyegresl.valostat.common.viewmodel.BaseNavigationViewModel
 import com.mikyegresl.valostat.base.repository.VideosRepository
+import com.mikyegresl.valostat.common.viewmodel.BaseNavigationViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class VideosViewModel

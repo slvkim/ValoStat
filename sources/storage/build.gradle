@@ -35,4 +35,5 @@ android {
 
 dependencies {
     implementation project(":base")
+    implementation deps.androidx.datastore
 }

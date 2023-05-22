@@ -13,6 +13,13 @@ sealed class NavigationItem(
     ) {
         const val agentId = "agentId"
     }
+
+    object WeaponDetails: NavigationItem(
+        title = R.string.weapon_details,
+        route = "weaponDetails"
+    ) {
+        const val weaponId = "weaponId"
+    }
 }
 
 

@@ -47,6 +47,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import com.mikyegresl.valostat.R
+import com.mikyegresl.valostat.base.model.agent.AgentAbilityDto
+import com.mikyegresl.valostat.base.model.agent.AgentDto
+import com.mikyegresl.valostat.base.model.agent.AgentOriginDto
+import com.mikyegresl.valostat.base.model.agent.AgentRoleDto
+import com.mikyegresl.valostat.base.model.agent.AgentVoiceLineDto
 import com.mikyegresl.valostat.common.compose.ShowErrorState
 import com.mikyegresl.valostat.common.compose.ShowLoadingState
 import com.mikyegresl.valostat.common.compose.vertical
@@ -54,11 +59,6 @@ import com.mikyegresl.valostat.ui.dimen.Padding
 import com.mikyegresl.valostat.ui.theme.ValoStatTypography
 import com.mikyegresl.valostat.ui.theme.abilitiesBackgroundDark
 import com.mikyegresl.valostat.ui.theme.secondaryTextDark
-import com.mikyegresl.valostat.base.model.agent.AgentAbilityDto
-import com.mikyegresl.valostat.base.model.agent.AgentDto
-import com.mikyegresl.valostat.base.model.agent.AgentOriginDto
-import com.mikyegresl.valostat.base.model.agent.AgentRoleDto
-import com.mikyegresl.valostat.base.model.agent.AgentVoiceLineDto
 import kotlinx.coroutines.flow.StateFlow
 
 private const val TAG = "AgentsScreen"
@@ -215,7 +215,7 @@ fun AgentItem(
                 .fillMaxHeight()
                 .weight(4.5f)
         ) {
-            Box() {
+            Box {
                 AsyncImage(
                     modifier = Modifier
                         .fillMaxSize()

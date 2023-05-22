@@ -21,10 +21,8 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Card
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
-import androidx.compose.material.Snackbar
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -42,13 +40,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import com.mikyegresl.valostat.R
-import com.mikyegresl.valostat.common.compose.ShowErrorState
-import com.mikyegresl.valostat.common.compose.ShowLoadingState
-import com.mikyegresl.valostat.ui.dimen.Padding
-import com.mikyegresl.valostat.ui.theme.ValoStatTypography
-import com.mikyegresl.valostat.ui.theme.mainTextDark
-import com.mikyegresl.valostat.ui.theme.secondaryBackgroundDark
-import com.mikyegresl.valostat.ui.theme.secondaryTextDark
 import com.mikyegresl.valostat.base.model.weapon.WeaponDto
 import com.mikyegresl.valostat.base.model.weapon.shop.WeaponShopDataDto
 import com.mikyegresl.valostat.base.model.weapon.shop.WeaponShopGridPositionDto
@@ -56,6 +47,13 @@ import com.mikyegresl.valostat.base.model.weapon.skin.WeaponSkinDto
 import com.mikyegresl.valostat.base.model.weapon.stats.WeaponAdsStatsDto
 import com.mikyegresl.valostat.base.model.weapon.stats.WeaponDamageRangeDto
 import com.mikyegresl.valostat.base.model.weapon.stats.WeaponStatsDto
+import com.mikyegresl.valostat.common.compose.ShowErrorState
+import com.mikyegresl.valostat.common.compose.ShowLoadingState
+import com.mikyegresl.valostat.ui.dimen.Padding
+import com.mikyegresl.valostat.ui.theme.ValoStatTypography
+import com.mikyegresl.valostat.ui.theme.mainTextDark
+import com.mikyegresl.valostat.ui.theme.secondaryBackgroundDark
+import com.mikyegresl.valostat.ui.theme.secondaryTextDark
 import kotlinx.coroutines.flow.StateFlow
 
 @Preview
@@ -74,7 +72,8 @@ fun PreviewWeaponItem(
 
 @Composable
 fun WeaponsScreen(
-    weaponsScreenState: StateFlow<WeaponsScreenState>
+    weaponsScreenState: StateFlow<WeaponsScreenState>,
+    onClick: (String) -> Unit
 ) {
     val viewState = remember { weaponsScreenState }.collectAsStateWithLifecycle()
     val state = viewState.value
@@ -96,7 +95,8 @@ fun WeaponsScreen(
             is WeaponsScreenState.WeaponsScreenDataState -> {
                 ShowWeaponsScreenAsDataState(
                     modifier = Modifier.padding(paddingValues),
-                    state = state
+                    state = state,
+                    onClick = onClick
                 )
             }
         }
@@ -106,7 +106,8 @@ fun WeaponsScreen(
 @Composable
 fun ShowWeaponsScreenAsDataState(
     modifier: Modifier = Modifier,
-    state: WeaponsScreenState.WeaponsScreenDataState
+    state: WeaponsScreenState.WeaponsScreenDataState,
+    onClick: (String) -> Unit
 ) {
     Column(
         modifier = modifier
@@ -114,7 +115,8 @@ fun ShowWeaponsScreenAsDataState(
     ) {
         WeaponsList(
             modifier = Modifier,
-            weapons = state.weapons
+            weapons = state.weapons,
+            onClick = onClick
         )
     }
 }
@@ -146,7 +148,8 @@ fun WeaponsScreenTopBar(
 fun WeaponsList(
     modifier: Modifier = Modifier,
     listState: LazyListState = rememberLazyListState(),
-    weapons: List<WeaponDto>
+    weapons: List<WeaponDto>,
+    onClick: (String) -> Unit
 ) {
     CompositionLocalProvider(
         LocalOverscrollConfiguration provides null
@@ -158,7 +161,7 @@ fun WeaponsList(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             items(weapons) { weapon ->
-                WeaponItem(weapon = weapon, onClick = {})
+                WeaponItem(weapon = weapon, onClick = onClick)
                 Spacer(modifier = Modifier.padding(vertical = Padding.Dp8))
             }
         }
@@ -169,14 +172,14 @@ fun WeaponsList(
 fun WeaponItem(
     modifier: Modifier = Modifier,
     weapon: WeaponDto,
-    onClick: (WeaponDto) -> Unit
+    onClick: (String) -> Unit
 ) {
     Card(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
             .padding(horizontal = Padding.Dp16)
-            .clickable { onClick(weapon) },
+            .clickable { onClick(weapon.uuid) },
         border = BorderStroke(1.dp, color = secondaryTextDark)
     ) {
         Column {
@@ -184,7 +187,7 @@ fun WeaponItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 104.dp, max = 120.dp),
-                model = weapon.iconPath,
+                model = weapon.displayIcon,
                 imageLoader = ImageLoader(LocalContext.current),
                 contentScale = ContentScale.Inside,
                 contentDescription = stringResource(id = R.string.weapons)
@@ -198,8 +201,8 @@ fun WeaponItem(
             ) {
                 Text(
                     modifier = Modifier.padding(start = Padding.Dp8),
-                    text = weapon.name.uppercase(),
-                    style = ValoStatTypography.body1
+                    text = weapon.displayName.uppercase(),
+                    style = ValoStatTypography.subtitle2
                 )
                 Icon(
                     modifier = Modifier
@@ -218,11 +221,9 @@ fun WeaponItem(
 private fun weaponItemMock(): WeaponDto =
     WeaponDto(
         uuid = "9c82e19d-4575-0200-1a81-3eacf00cf872",
-        name = "Vandal",
-        category = "EEquippableCategory::Rifle",
-        assetPath = "ShooterGame/Content/Equippables/Guns/Rifles/AK/AKPrimaryAsset",
-        iconPath = "27f21d97-4c4b-bd1c-1f08-31830ab0be84",
-        killStreamIcon = "ShooterGame/Content/Equippables/Guns/Rifles/AK/AKPrimaryAsset",
+        displayName = "Vandal",
+        category = WeaponDto.WeaponCategoryDto.RIFLE,
+        displayIcon = "27f21d97-4c4b-bd1c-1f08-31830ab0be84",
         stats = weaponStatsMock(),
         skins = weaponSkinsMock(),
         shopData = weaponShopDataMock(),
@@ -255,10 +256,10 @@ private fun weaponStatsMock(): WeaponStatsDto =
                 rangeStartMeters = 50
             )
         ),
-        altFireType = "EWeaponAltFireDisplayType::ADS",
-        feature = "",
-        fireMode = "",
-        wallPenetration = "EWallPenetrationDisplayType::Medium",
+        altFireType = WeaponStatsDto.AltFireTypeDto.AIR_BURST,
+        feature = WeaponStatsDto.WeaponFeatureDto.SILENCED,
+        fireMode = WeaponStatsDto.FireModeDto.SEMI_AUTOMATIC,
+        wallPenetration = WeaponStatsDto.WallPenetrationDto.HIGH,
     )
 
 private fun weaponSkinsMock(): List<WeaponSkinDto> =

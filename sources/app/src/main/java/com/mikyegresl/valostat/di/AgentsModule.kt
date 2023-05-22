@@ -1,4 +1,4 @@
-package com.mikyegresl.valostat.features.weapon.di
+package com.mikyegresl.valostat.di
 
 import com.mikyegresl.valostat.features.agent.AgentsViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel

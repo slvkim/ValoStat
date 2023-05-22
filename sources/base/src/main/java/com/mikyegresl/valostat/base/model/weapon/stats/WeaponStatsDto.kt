@@ -12,16 +12,34 @@ data class WeaponStatsDto(
     val airBurstStats: WeaponAirBurstStatsDto?,
     val altShotgunStats: WeaponAltShotgunStatsDto?,
     val damageRanges: List<WeaponDamageRangeDto>,
+    val wallPenetration: WallPenetrationDto,
+    val feature: WeaponFeatureDto,
+    val fireMode: FireModeDto,
+    val altFireType: AltFireTypeDto
+) {
+    enum class WallPenetrationDto(val title: String) {
+        HIGH("High"),
+        MEDIUM("Medium"),
+        LOW("Low"),
+        UNKNOWN("Unknown")
+    }
 
-    //TODO: enum
-    val altFireType: String,
+    enum class WeaponFeatureDto(val title: String) {
+        SILENCED("Silenced"),
+        DUAL_ZOOM("Dual Zoom"),
+        ROF_INCREASE("ROF Increase"),
+        UNKNOWN("Unknown")
+    }
 
-    //TODO: enum
-    val feature: String,
+    enum class FireModeDto(val title: String) {
+        SEMI_AUTOMATIC("Semi Automatic"),
+        UNKNOWN("Unknown")
+    }
 
-    //TODO: enum
-    val fireMode: String,
-
-    //TODO: enum
-    val wallPenetration: String
-)
+    enum class AltFireTypeDto(val title: String) {
+        ADS("ADS"),
+        AIR_BURST("Air Burst"),
+        SHOTGUN("Shotgun"),
+        UNKNOWN("Unknown")
+    }
+}
