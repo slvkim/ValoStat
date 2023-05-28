@@ -1,5 +1,9 @@
 package com.mikyegresl.valostat.base.model.weapon.shop
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class WeaponShopDataDto(
     val categoryText: String,
     val cost: Int,
@@ -12,4 +16,4 @@ data class WeaponShopDataDto(
 
     //TODO: enum
     val category: String,
-)
+) : Parcelable

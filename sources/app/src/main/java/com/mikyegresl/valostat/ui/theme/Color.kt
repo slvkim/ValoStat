@@ -17,5 +17,6 @@ val onBackgroundDark = Color(0xFFFFFFFF)
 val errorDark = Color(0xFFFF375F)
 val onErrorDark = Color(0xFFFFFFFF)
 val washWhite = Color(0xFFFAFAFA)
+val playerBackgroundDark = Color(0xFF2C2C2C)
 
 val abilitiesBackgroundDark = Color(0xFF1F2326)

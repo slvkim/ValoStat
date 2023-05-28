@@ -3,7 +3,6 @@ package com.mikyegresl.valostat.features.weapon
 import com.mikyegresl.valostat.base.model.weapon.WeaponDto
 import com.mikyegresl.valostat.base.repository.WeaponsRepository
 import com.mikyegresl.valostat.common.viewmodel.BaseNavigationViewModel
-import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsScreenState
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class WeaponsViewModel(
@@ -40,12 +39,8 @@ class WeaponsViewModel(
             }
         )
 
-    fun getWeaponDetailsState(weaponId: String): WeaponDetailsScreenState? =
+    fun getWeaponDetails(weaponId: String): WeaponDto? =
         (currentState as? WeaponsScreenState.WeaponsScreenDataState)?.let { dataState ->
-            val details = dataState.weapons.find { it.uuid == weaponId } ?: return null
-
-            WeaponDetailsScreenState(
-                details = details
-            )
+            return@let dataState.weapons.find<WeaponDto> { it.uuid == weaponId }
         }
 }

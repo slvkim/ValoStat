@@ -31,7 +31,14 @@ ext.deps = [
                         'coil' : "io.coil-kt:coil-compose:$versions.coil",
                 ],
 
-                'datastore' : "androidx.datastore:datastore-preferences:$versions.datastore"
+                'datastore' : "androidx.datastore:datastore-preferences:$versions.datastore",
+
+                'exoPlayer' : [
+                        'core' : "androidx.media3:media3-exoplayer:$versions.exoPlayer",
+                        'dash' : "androidx.media3:media3-exoplayer-dash:$versions.exoPlayer",
+                        'hls' : "androidx.media3:media3-exoplayer-hls:$versions.exoPlayer",
+                        'ui' : "androidx.media3:media3-ui:$versions.exoPlayer",
+                ],
         ],
 
         'accompanist' : "com.google.accompanist:accompanist-systemuicontroller:$versions.accompanist",

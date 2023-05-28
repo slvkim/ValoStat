@@ -11,6 +11,7 @@ import com.mikyegresl.valostat.base.repository.WeaponsRepository
 import com.mikyegresl.valostat.base.storage.service.WeaponsLocalDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -67,4 +68,23 @@ class WeaponsRepositoryImpl(
         }
     }.flowOn(Dispatchers.IO)
 
+    override fun getWeaponDetails(weaponId: String): Flow<Response<WeaponDto>> = flow<Response<WeaponDto>> {
+        coroutineScope {
+            emit(Response.Loading())
+
+            try {
+                val json = localDataSource.getWeapons()
+                val data = gson.fromJson(json, WeaponsResponse::class.java)
+                val weapons = WeaponsResponseToDtoConverter.convert(data)
+                val weapon = weapons.firstOrNull { it.uuid == weaponId }
+
+                emit(Response.SuccessLocal(weapon))
+
+            } catch (localEx: Exception) {
+                Log.e(TAG, "Could not load cache: ${localEx.message}")
+                emit(Response.Error(localEx))
+            }
+
+        }
+    }.flowOn(Dispatchers.IO)
 }

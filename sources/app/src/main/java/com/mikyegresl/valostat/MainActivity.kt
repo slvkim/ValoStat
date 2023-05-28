@@ -143,12 +143,29 @@ class MainActivity : ComponentActivity() {
                 WeaponsScreen(weaponsViewModel.state) {
                     navController.navigate("${NavigationItem.WeaponDetails.route}/$it") {
                         navController.graph.startDestinationRoute?.let { screenRoute ->
-                            popUpTo(screenRoute) {
+                            popUpTo(GlobalNavItem.Weapons.route) {
                                 saveState = true
                             }
                         }
                         launchSingleTop = true
                         restoreState = true
+                    }
+                }
+            }
+            composable(
+                route = "${NavigationItem.WeaponDetails.route}/{${NavigationItem.WeaponDetails.weaponId}}",
+                arguments = listOf(
+                    navArgument(NavigationItem.WeaponDetails.weaponId) {
+                        type = NavType.StringType
+                    }
+                )
+            ) {
+
+                it.arguments?.getString(NavigationItem.WeaponDetails.weaponId)?.let { weaponId ->
+                    WeaponDetailsScreen(
+                        weaponId = weaponId
+                    ) {
+                        navController.navigateUp()
                     }
                 }
             }
@@ -177,22 +194,6 @@ class MainActivity : ComponentActivity() {
                 it.arguments?.getString(NavigationItem.AgentDetails.agentId)?.let { agentId ->
                     AgentDetailsScreen(
                         agentsViewModel.getAgentDetailsState(agentId)
-                    ) {
-                        navController.navigateUp()
-                    }
-                }
-            }
-            composable(
-                route = "${NavigationItem.WeaponDetails.route}/{${NavigationItem.WeaponDetails.weaponId}}",
-                arguments = listOf(
-                    navArgument(NavigationItem.WeaponDetails.weaponId) {
-                        type = NavType.StringType
-                    }
-                )
-            ) {
-                it.arguments?.getString(NavigationItem.WeaponDetails.weaponId)?.let { weaponId ->
-                    WeaponDetailsScreen(
-                        weaponsViewModel.getWeaponDetailsState(weaponId)
                     ) {
                         navController.navigateUp()
                     }

@@ -1,5 +1,9 @@
 package com.mikyegresl.valostat.base.model.weapon.stats
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class WeaponStatsDto(
     val equipTimeSeconds: Double,
     val fireRate: Double,
@@ -16,7 +20,7 @@ data class WeaponStatsDto(
     val feature: WeaponFeatureDto,
     val fireMode: FireModeDto,
     val altFireType: AltFireTypeDto
-) {
+) : Parcelable {
     enum class WallPenetrationDto(val title: String) {
         HIGH("High"),
         MEDIUM("Medium"),

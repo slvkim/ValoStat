@@ -7,7 +7,7 @@ sealed class WeaponsScreenState: BaseState {
 
     object WeaponsScreenLoadingState : WeaponsScreenState()
 
-    class WeaponsScreenErrorState(val t: Throwable) : WeaponsScreenState()
+    data class WeaponsScreenErrorState(val t: Throwable) : WeaponsScreenState()
 
     data class WeaponsScreenDataState(
         val weapons: List<WeaponDto> = emptyList()

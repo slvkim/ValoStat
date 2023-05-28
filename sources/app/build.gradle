@@ -91,6 +91,12 @@ dependencies {
     // Youtube
     implementation deps.youtube.player
 
+    // ExoPlayer
+    implementation deps.androidx.exoPlayer.core
+    implementation deps.androidx.exoPlayer.dash
+    implementation deps.androidx.exoPlayer.hls
+    implementation deps.androidx.exoPlayer.ui
+
     // Test
     androidTestImplementation platform(deps.androidx.compose.bom)
     debugImplementation deps.androidx.compose.uiTestManifest
