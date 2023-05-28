@@ -3,7 +3,6 @@ package com.mikyegresl.valostat.features.weapon.details
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,8 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
@@ -28,24 +25,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.media3.ui.PlayerView
 import coil.compose.AsyncImage
 import com.mikyegresl.valostat.R
 import com.mikyegresl.valostat.base.model.weapon.WeaponDto
 import com.mikyegresl.valostat.base.model.weapon.skin.WeaponSkinChromaDto
-import com.mikyegresl.valostat.base.model.weapon.skin.WeaponSkinDto
 import com.mikyegresl.valostat.base.model.weapon.stats.WeaponDamageRangeDto
 import com.mikyegresl.valostat.base.model.weapon.stats.WeaponStatsDto
 import com.mikyegresl.valostat.common.compose.ShowErrorState
@@ -66,6 +65,8 @@ import kotlin.math.roundToInt
 
 internal val LocalWeaponsDetailsViewModel = compositionLocalOf<WeaponDetailsViewModel?> { null }
 internal val LocalProviderOfVideoPlayer = compositionLocalOf<ExoVideoPlayer?> { null }
+
+private const val TAG = "WeaponsDetailsScreen"
 
 @Composable
 fun WeaponDetailsScreen(
@@ -514,12 +515,40 @@ fun WeaponSkinItemContainer(
 
 @Composable
 fun WeaponSkinVideoItem(
+    modifier: Modifier = Modifier,
     chroma: WeaponSkinChromaDto,
 ) {
-    val player = key(chroma) { ExoVideoPlayer() }
-    CompositionLocalProvider(LocalProviderOfVideoPlayer provides player) {
-        player.InflatePlayerView(videoUri = chroma.streamedVideo)
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    val player = remember { ExoVideoPlayer() }
+
+    Box(modifier = modifier) {
+        DisposableEffect(
+            key1 = chroma,
+            key2 = lifecycleOwner,
+            AndroidView(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                factory = { context ->
+                    PlayerView(context).apply {
+                        player.initialize(context, this, chroma.streamedVideo)
+                        this.player = player.exoPlayer
+                    }
+                }
+            )
+        ) {
+            val lifecycleObserver = LifecycleEventObserver { _, event ->
+                player.onStateChanged(event)
+            }
+            lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
+            onDispose {
+                lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
+                player.releaseResources()
+            }
+        }
     }
+
 }
 
 @Composable
