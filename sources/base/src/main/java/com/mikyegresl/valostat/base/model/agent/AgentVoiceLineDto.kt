@@ -7,7 +7,7 @@ import kotlinx.parcelize.Parcelize
 data class AgentVoiceLineDto(
     val minDuration: Double,
     val maxDuration: Double,
-    val mediaList: List<VoiceLineMediaDto>
+    val voiceline: VoiceLineMediaDto
 ) : Parcelable {
 
     @Parcelize

@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.ImageLoader
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.mikyegresl.valostat.R
 import com.mikyegresl.valostat.base.model.agent.AgentAbilityDto
 import com.mikyegresl.valostat.base.model.agent.AgentDto
@@ -194,6 +195,7 @@ fun AgentItem(
     agent: AgentDto,
     onAgentClicked: (String) -> Unit
 ) {
+    val context = LocalContext.current
     val screenWidth = LocalConfiguration.current.screenWidthDp
     val containerMinWidth by remember {
         mutableStateOf((screenWidth / 1.6).dp)
@@ -220,9 +222,11 @@ fun AgentItem(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(Brush.linearGradient(colors)),
-                    model = agent.displayIcon,
+                    model = ImageRequest.Builder(context)
+                        .data(agent.displayIcon)
+                        .build(),
                     imageLoader = ImageLoader(LocalContext.current),
-                    contentScale = ContentScale.FillWidth,
+                    contentScale = ContentScale.Inside,
                     contentDescription = stringResource(id = R.string.agents)
                 )
                 Row(
@@ -346,12 +350,10 @@ private fun voiceLineMock(): AgentVoiceLineDto =
     AgentVoiceLineDto(
         minDuration = 4.105177,
         maxDuration = 4.105177,
-        mediaList = listOf(
-            AgentVoiceLineDto.VoiceLineMediaDto(
-                id = 107320642,
-                wave = "https://media.valorant-api.com/sounds/107320642.wav",
-                wwise = "https://media.valorant-api.com/sounds/107320642.wem",
-            )
+        voiceline = AgentVoiceLineDto.VoiceLineMediaDto(
+            id = 107320642,
+            wave = "https://media.valorant-api.com/sounds/107320642.wav",
+            wwise = "https://media.valorant-api.com/sounds/107320642.wem",
         )
     )
 

@@ -139,6 +139,22 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+            composable(
+                route = "${NavigationItem.AgentDetails.route}/{${NavigationItem.AgentDetails.agentId}}",
+                arguments = listOf(
+                    navArgument(NavigationItem.AgentDetails.agentId) {
+                        type = NavType.StringType
+                    }
+                )
+            ) {
+                it.arguments?.getString(NavigationItem.AgentDetails.agentId)?.let { agentId ->
+                    AgentDetailsScreen(
+                        agentId = agentId
+                    ) {
+                        navController.navigateUp()
+                    }
+                }
+            }
             composable(GlobalNavItem.Weapons.route) {
                 WeaponsScreen(weaponsViewModel.state) {
                     navController.navigate("${NavigationItem.WeaponDetails.route}/$it") {
@@ -160,7 +176,6 @@ class MainActivity : ComponentActivity() {
                     }
                 )
             ) {
-
                 it.arguments?.getString(NavigationItem.WeaponDetails.weaponId)?.let { weaponId ->
                     WeaponDetailsScreen(
                         weaponId = weaponId
@@ -182,22 +197,6 @@ class MainActivity : ComponentActivity() {
                         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
                     }
                 )
-            }
-            composable(
-                route = "${NavigationItem.AgentDetails.route}/{${NavigationItem.AgentDetails.agentId}}",
-                arguments = listOf(
-                    navArgument(NavigationItem.AgentDetails.agentId) {
-                        type = NavType.StringType
-                    }
-                )
-            ) {
-                it.arguments?.getString(NavigationItem.AgentDetails.agentId)?.let { agentId ->
-                    AgentDetailsScreen(
-                        agentsViewModel.getAgentDetailsState(agentId)
-                    ) {
-                        navController.navigateUp()
-                    }
-                }
             }
         }
     }

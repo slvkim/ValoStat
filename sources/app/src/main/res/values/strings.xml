@@ -29,5 +29,6 @@
     <string name="head">Head</string>
     <string name="body">Body</string>
     <string name="legs">Legs</string>
+    <string name="voiceline">Voiceline</string>
 
 </resources>

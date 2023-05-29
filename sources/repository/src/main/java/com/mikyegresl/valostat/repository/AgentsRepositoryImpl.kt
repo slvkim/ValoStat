@@ -12,6 +12,7 @@ import com.mikyegresl.valostat.base.repository.AgentsRepository
 import com.mikyegresl.valostat.base.storage.service.AgentsLocalDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -70,9 +71,35 @@ class AgentsRepositoryImpl(
         }
     }.flowOn(Dispatchers.IO)
 
+    override fun getAgentsOrigin(id: String): AgentOriginDto =
+        localDataSource.getAgentOrigin(id)
+
     override fun getAgentsOrigin(ids: List<String>): Map<String, AgentOriginDto> =
         ids.associateWith { localDataSource.getAgentOrigin(it) }
 
+    override fun getPointsForUltimate(id: String): Int =
+        localDataSource.getPointsForUltimate(id)
+
     override fun getPointsForUltimate(ids: List<String>): Map<String, Int> =
         ids.associateWith { localDataSource.getPointsForUltimate(it) }
+
+    override fun getAgentDetails(agentId: String): Flow<Response<AgentDto>> = flow<Response<AgentDto>> {
+        coroutineScope {
+            emit(Response.Loading())
+
+            try {
+                val json = localDataSource.getAgents()
+                val data = gson.fromJson(json, AgentsResponse::class.java)
+                val agents = AgentsResponseToDtoConverter.convert(data)
+                val agent = agents.firstOrNull { it.uuid == agentId }
+
+                emit(Response.SuccessLocal(agent))
+
+            } catch (localEx: Exception) {
+                Log.e(TAG, "Could not load cache: ${localEx.message}")
+                emit(Response.Error(localEx))
+            }
+
+        }
+    }.flowOn(Dispatchers.IO)
 }

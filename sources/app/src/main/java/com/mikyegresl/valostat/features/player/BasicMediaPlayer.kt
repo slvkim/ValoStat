@@ -1,4 +1,4 @@
-package com.mikyegresl.valostat.features.video.player
+package com.mikyegresl.valostat.features.player
 
 import android.content.Context
 import android.util.Log
@@ -13,7 +13,7 @@ import androidx.media3.extractor.ExtractorsFactory
 import androidx.media3.ui.PlayerView
 import androidx.media3.ui.PlayerView.SHOW_BUFFERING_ALWAYS
 
-class ExoVideoPlayer {
+class BasicMediaPlayer {
 
     companion object {
         private const val TAG = "ExoVideoPlayer"
@@ -52,51 +52,78 @@ class ExoVideoPlayer {
     }
 
     @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
-    private fun initPlayerUi(playerView: PlayerView) = with(playerView) {
-        setShowBuffering(SHOW_BUFFERING_ALWAYS)
-        useArtwork = true
-        useController = true
-        controllerHideOnTouch = true
-        controllerAutoShow = true
-        setControllerHideDuringAds(true)
+    private fun initPlayerUi(playerView: PlayerView, isVideoPlayer: Boolean) {
+        if (isVideoPlayer) {
+            with(playerView) {
+                setShowBuffering(SHOW_BUFFERING_ALWAYS)
+                useArtwork = true
+                useController = true
+                controllerHideOnTouch = true
+                controllerAutoShow = true
+                setControllerHideDuringAds(true)
+                return
+            }
+        }
+        playerView.useController = false
+        playerView.hideController()
     }
 
     @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
-    fun initialize(context: Context, playerView: PlayerView, videoUri: String) {
-        initPlayerUi(playerView)
+    fun initialize(
+        context: Context,
+        playerView: PlayerView,
+        isVideoPlayer: Boolean,
+        mediaUri: String
+    ) {
+        initPlayerUi(playerView, isVideoPlayer)
         initPlayerSources(context)
 
         if (exoPlayer != null) {
             return
         }
         if (dataSourceFactory != null && extractorsFactory != null) {
-            val mediaItem = MediaItem.fromUri(videoUri)
+            val mediaItem = MediaItem.fromUri(mediaUri)
             val mediaSourceFactory = DefaultMediaSourceFactory(
                 dataSourceFactory!!, extractorsFactory!!
             )
             exoPlayer = ExoPlayer.Builder(context)
                 .setMediaSourceFactory(mediaSourceFactory)
                 .build()
-            exoPlayer?.apply {
-                setMediaItem(mediaItem)
-                prepare()
-                play()
-            }
+            exoPlayer?.setMediaItem(mediaItem)
         }
+    }
+
+    fun playMedia() {
+        exoPlayer?.run {
+            prepare()
+            play()
+        }
+    }
+
+    private fun startPlayback() {
+        exoPlayer?.prepare()
+    }
+
+    private fun pausePlayback() {
+        exoPlayer?.stop()
+    }
+
+    private fun resumePlayback() {
+        exoPlayer?.play()
     }
 
     fun onStateChanged(event: Lifecycle.Event) {
         when (event) {
             Lifecycle.Event.ON_START -> {
-                Log.e(TAG, "onStateChanged(): ON_START")
+                startPlayback()
             }
             Lifecycle.Event.ON_RESUME -> {
                 Log.e(TAG, "onStateChanged(): ON_RESUME")
-//                resumePlayback()
+                resumePlayback()
             }
             Lifecycle.Event.ON_PAUSE -> {
                 Log.e(TAG, "onStateChanged(): ON_PAUSE")
-//                pausePlayback()
+                pausePlayback()
             }
             Lifecycle.Event.ON_STOP -> {
                 Log.e(TAG, "onStateChanged(): ON_STOP")
@@ -106,18 +133,8 @@ class ExoVideoPlayer {
                 Log.e(TAG, "onStateChanged(): ON_DESTROY")
                 releaseResources()
             }
-            else -> {
-
-            }
+            else -> {}
         }
-    }
-
-    private fun pausePlayback() {
-        exoPlayer?.stop()
-    }
-
-    private fun resumePlayback() {
-        exoPlayer?.play()
     }
 
     @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)

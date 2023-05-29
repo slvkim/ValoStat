@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material.Card
@@ -20,6 +21,8 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -33,14 +36,17 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.mikyegresl.valostat.R
 import com.mikyegresl.valostat.base.model.agent.AgentAbilityDto
-import com.mikyegresl.valostat.base.model.agent.AgentDto
 import com.mikyegresl.valostat.base.model.agent.AgentOriginDto
+import com.mikyegresl.valostat.base.model.agent.AgentRoleDto
+import com.mikyegresl.valostat.base.model.agent.AgentVoiceLineDto
+import com.mikyegresl.valostat.common.compose.ShowErrorState
+import com.mikyegresl.valostat.common.compose.ShowLoadingState
 import com.mikyegresl.valostat.features.agent.agentAbilitiesMock
-import com.mikyegresl.valostat.features.agent.agentMock
-import com.mikyegresl.valostat.features.agent.agentOriginMock
+import com.mikyegresl.valostat.features.player.ComposablePlayerView
 import com.mikyegresl.valostat.ui.dimen.ElemSize
 import com.mikyegresl.valostat.ui.dimen.Padding
 import com.mikyegresl.valostat.ui.theme.ValoStatTypography
@@ -50,17 +56,10 @@ import com.mikyegresl.valostat.ui.theme.secondaryTextDark
 import com.mikyegresl.valostat.ui.theme.surfaceDark
 import com.mikyegresl.valostat.ui.theme.washWhite
 import com.mikyegresl.valostat.ui.widget.gradientModifier
+import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
-@Preview
-@Composable
-fun PreviewAgentDetailsAsDataState() {
-    AgentDescriptionItem(
-        modifier = Modifier,
-        agentMock(),
-        agentOriginMock(),
-        7
-    )
-}
+internal val LocalDetailsAgentsViewModel = compositionLocalOf<AgentDetailsViewModel?> { null }
 
 @Preview
 @Composable
@@ -73,17 +72,34 @@ fun PreviewAgentAbilityItem() {
 
 @Composable
 fun AgentDetailsScreen(
-    state: AgentDetailsScreenState?,
+    agentId: String,
+    viewModel: AgentDetailsViewModel = koinViewModel {
+        parametersOf(
+            agentId
+        )
+    },
     onBackPressed: () -> Unit
 ) {
-    if (state == null) return
-    AgentDetailsAsDataState(
-        modifier = Modifier,
-        details = state.details,
-        origin = state.origin,
-        pointsForUltimate = state.pointsForUltimate
-    ) {
-        onBackPressed()
+    CompositionLocalProvider(LocalDetailsAgentsViewModel provides viewModel) {
+        val state = remember { viewModel.state }.collectAsStateWithLifecycle()
+
+        when (val viewState = state.value) {
+            is AgentDetailsScreenState.AgentDetailsDataState -> {
+                AgentDetailsAsDataState(
+                    modifier = Modifier,
+                    state = viewState
+                ) {
+                    onBackPressed()
+                }
+            }
+            is AgentDetailsScreenState.AgentDetailsLoadingState -> {
+                ShowLoadingState()
+            }
+            is AgentDetailsScreenState.AgentDetailsErrorState -> {
+                ShowErrorState(errorMessage = viewState.t.message)
+
+            }
+        }
     }
 }
 
@@ -91,42 +107,41 @@ fun AgentDetailsScreen(
 @Composable
 fun AgentDetailsAsDataState(
     modifier: Modifier = Modifier,
-    details: AgentDto,
-    origin: AgentOriginDto,
-    pointsForUltimate: Int,
+    state: AgentDetailsScreenState.AgentDetailsDataState,
     onBackPressed: () -> Unit
 ) {
-    CompositionLocalProvider(
-        LocalOverscrollConfiguration provides null
-    ) {
+    val viewModel = LocalDetailsAgentsViewModel.current ?: return
+
+    CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
         LazyColumn(
             modifier = modifier
                 .fillMaxSize()
         ) {
             item {
                 AgentDetailsTopBar(
-                    title = details.displayName,
-                    imageSrc = details.fullPortrait
+                    title = state.details.displayName,
+                    imageSrc = state.details.fullPortrait
                 ) {
                     onBackPressed()
                 }
             }
             item {
                 AgentDescriptionItem(
-                    Modifier
+                    modifier = Modifier
                         .fillMaxWidth()
                         .padding(
                             top = Padding.Dp16,
                             start = Padding.Dp32,
                             end = Padding.Dp32
                         ),
-                    details,
-                    origin,
-                    pointsForUltimate
+                    state = state,
+                    onPlayIconClicked = {
+                        viewModel.dispatchIntent(AgentDetailsIntent.AudioClickedIntent(it))
+                    }
                 )
             }
             agentAbilities(
-                abilities = details.abilities
+                abilities = state.details.abilities
             ).invoke(this)
         }
     }
@@ -183,100 +198,201 @@ fun AgentDetailsTopBar(
 @Composable
 fun AgentDescriptionItem(
     modifier: Modifier = Modifier,
-    details: AgentDto,
-    origin: AgentOriginDto,
-    pointsForUltimate: Int
+    state: AgentDetailsScreenState.AgentDetailsDataState,
+    onPlayIconClicked: (AgentVoiceLineDto.VoiceLineMediaDto) -> Unit
 ) {
+    val commonRowModifier = Modifier.fillMaxWidth()
+    val dividerModifier = Modifier.padding(vertical = Padding.Dp8)
+
     Column(
         modifier = modifier
     ) {
         Spacer(Modifier.padding(vertical = Padding.Dp16))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "${stringResource(id = R.string.origin)}:",
-                style = ValoStatTypography.caption.copy(color = secondaryTextDark)
-            )
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                AsyncImage(
-                    model = origin.iconUrl,
-                    contentDescription = origin.countryName
-                )
-                Spacer(modifier = Modifier.padding(horizontal = Padding.Dp4))
-                Text(
-                    text = origin.countryName,
-                    style = ValoStatTypography.caption
-                )
-            }
-        }
+        AgentOriginSection(
+            modifier = commonRowModifier,
+            origin = state.origin
+        )
         Divider(
-            modifier = Modifier.padding(vertical = Padding.Dp8),
+            modifier = dividerModifier,
             color = washWhite,
             thickness = 1.dp
         )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "${stringResource(id = R.string.role)}:",
-                style = ValoStatTypography.caption.copy(color = secondaryTextDark)
-            )
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                AsyncImage(
-                    modifier = Modifier.size(ElemSize.Dp16),
-                    model = details.role.displayIcon,
-                    contentScale = ContentScale.Fit,
-                    contentDescription = stringResource(id = R.string.role)
-                )
-                Spacer(modifier = Modifier.padding(horizontal = Padding.Dp4))
-
-                Text(
-                    text = details.role.displayName,
-                    style = ValoStatTypography.caption
-                )
-            }
-        }
+        AgentRoleSection(
+            modifier = commonRowModifier,
+            role = state.details.role
+        )
         Divider(
-            modifier = Modifier.padding(vertical = Padding.Dp8),
+            modifier = dividerModifier,
             color = washWhite,
             thickness = 1.dp
         )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "${stringResource(id = R.string.points_for_ulti)}:",
-                style = ValoStatTypography.caption.copy(color = secondaryTextDark)
-            )
-            Text(
-                text = pointsForUltimate.toString(),
-                style = ValoStatTypography.caption
-            )
-        }
+        PointsForUltimateSection(
+            modifier = commonRowModifier,
+            pointsForUltimate = state.pointsForUltimate.toString()
+        )
         Divider(
-            modifier = Modifier.padding(vertical = Padding.Dp8),
+            modifier = dividerModifier,
+            color = washWhite,
+            thickness = 1.dp
+        )
+        VoiceLineSection(
+            modifier = commonRowModifier,
+            state = state,
+            onPlayIconClicked = onPlayIconClicked
+        )
+        Divider(
+            modifier = dividerModifier,
             color = washWhite,
             thickness = 1.dp
         )
         Text(
-            text = details.description,
+            text = state.details.description,
             style = ValoStatTypography.caption
         )
         Divider(
-            modifier = Modifier.padding(vertical = Padding.Dp8),
+            modifier = dividerModifier,
             color = washWhite,
             thickness = 1.dp
         )
     }
+}
+
+@Composable
+fun AgentOriginSection(
+    modifier: Modifier = Modifier,
+    origin: AgentOriginDto
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = "${stringResource(id = R.string.origin)}:",
+            style = ValoStatTypography.caption.copy(color = secondaryTextDark)
+        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AsyncImage(
+                model = origin.iconUrl,
+                contentDescription = origin.countryName
+            )
+            Spacer(modifier = Modifier.padding(horizontal = Padding.Dp4))
+            Text(
+                text = origin.countryName,
+                style = ValoStatTypography.caption
+            )
+        }
+    }
+}
+
+@Composable
+fun AgentRoleSection(
+    modifier: Modifier = Modifier,
+    role: AgentRoleDto
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = "${stringResource(id = R.string.role)}:",
+            style = ValoStatTypography.caption.copy(color = secondaryTextDark)
+        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AsyncImage(
+                modifier = Modifier.size(ElemSize.Dp16),
+                model = role.displayIcon,
+                contentScale = ContentScale.Fit,
+                contentDescription = stringResource(id = R.string.role)
+            )
+            Spacer(modifier = Modifier.padding(horizontal = Padding.Dp4))
+
+            Text(
+                text = role.displayName,
+                style = ValoStatTypography.caption
+            )
+        }
+    }
+}
+
+@Composable
+fun PointsForUltimateSection(
+    modifier: Modifier = Modifier,
+    pointsForUltimate: String,
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = "${stringResource(id = R.string.points_for_ulti)}:",
+            style = ValoStatTypography.caption.copy(color = secondaryTextDark)
+        )
+        Text(
+            text = pointsForUltimate,
+            style = ValoStatTypography.caption
+        )
+    }
+}
+
+@Composable
+fun VoiceLineSection(
+    modifier: Modifier = Modifier,
+    state: AgentDetailsScreenState.AgentDetailsDataState,
+    onPlayIconClicked: (AgentVoiceLineDto.VoiceLineMediaDto) -> Unit
+) {
+
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = "${stringResource(id = R.string.voiceline)}:",
+            style = ValoStatTypography.caption.copy(color = secondaryTextDark)
+        )
+        VoiceLineItemContainer(
+            state = state,
+            onPlayIconClicked = onPlayIconClicked
+        )
+    }
+}
+
+@Composable
+fun VoiceLineItemContainer(
+    state: AgentDetailsScreenState.AgentDetailsDataState,
+    onPlayIconClicked: (AgentVoiceLineDto.VoiceLineMediaDto) -> Unit
+) {
+    if (state.activeVoiceline != state.details.voiceLine.voiceline) {
+        VoiceLineIconItem(
+            voiceline = state.details.voiceLine.voiceline,
+            onPlayIconClicked = onPlayIconClicked
+        )
+    } else {
+        ComposablePlayerView(
+            playerModifier = Modifier.wrapContentSize(),
+            mediaUri = state.details.voiceLine.voiceline.wave,
+            isVideoPlayer = false
+        )
+    }
+
+}
+
+@Composable
+fun VoiceLineIconItem(
+    voiceline: AgentVoiceLineDto.VoiceLineMediaDto,
+    onPlayIconClicked: (AgentVoiceLineDto.VoiceLineMediaDto) -> Unit
+) {
+    Icon(
+        modifier = Modifier.clickable {
+            onPlayIconClicked(voiceline)
+        },
+        painter = painterResource(id = R.drawable.ic_play_button),
+        contentDescription = stringResource(id = R.string.voiceline)
+    )
 }
 
 fun agentAbilities(

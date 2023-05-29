@@ -32,7 +32,7 @@ import com.mikyegresl.valostat.base.model.video.VideoDto
 import com.mikyegresl.valostat.base.model.video.VideoStatDto
 import com.mikyegresl.valostat.common.compose.ShowErrorState
 import com.mikyegresl.valostat.common.compose.ShowLoadingState
-import com.mikyegresl.valostat.features.video.player.YoutubeVideoPlayer
+import com.mikyegresl.valostat.features.player.YoutubeVideoPlayer
 import com.mikyegresl.valostat.ui.dimen.Padding
 import com.mikyegresl.valostat.ui.theme.ValoStatTypography
 import com.mikyegresl.valostat.ui.theme.mainTextDark

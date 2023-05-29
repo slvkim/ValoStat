@@ -49,7 +49,8 @@ import com.mikyegresl.valostat.base.model.weapon.stats.WeaponDamageRangeDto
 import com.mikyegresl.valostat.base.model.weapon.stats.WeaponStatsDto
 import com.mikyegresl.valostat.common.compose.ShowErrorState
 import com.mikyegresl.valostat.common.compose.ShowLoadingState
-import com.mikyegresl.valostat.features.video.player.ExoVideoPlayer
+import com.mikyegresl.valostat.features.player.BasicMediaPlayer
+import com.mikyegresl.valostat.features.player.ComposablePlayerView
 import com.mikyegresl.valostat.ui.dimen.ElemSize
 import com.mikyegresl.valostat.ui.dimen.Padding
 import com.mikyegresl.valostat.ui.theme.ValoStatTypography
@@ -64,7 +65,7 @@ import org.koin.core.parameter.parametersOf
 import kotlin.math.roundToInt
 
 internal val LocalWeaponsDetailsViewModel = compositionLocalOf<WeaponDetailsViewModel?> { null }
-internal val LocalProviderOfVideoPlayer = compositionLocalOf<ExoVideoPlayer?> { null }
+internal val LocalProviderOfVideoPlayer = compositionLocalOf<BasicMediaPlayer?> { null }
 
 private const val TAG = "WeaponsDetailsScreen"
 
@@ -508,47 +509,14 @@ fun WeaponSkinItemContainer(
         if (state.activeChroma != chroma) {
             WeaponSkinCardItem(chroma = chroma)
         } else {
-            WeaponSkinVideoItem(chroma = chroma)
-        }
-    }
-}
-
-@Composable
-fun WeaponSkinVideoItem(
-    modifier: Modifier = Modifier,
-    chroma: WeaponSkinChromaDto,
-) {
-    val lifecycleOwner = LocalLifecycleOwner.current
-
-    val player = remember { ExoVideoPlayer() }
-
-    Box(modifier = modifier) {
-        DisposableEffect(
-            key1 = chroma,
-            key2 = lifecycleOwner,
-            AndroidView(
-                modifier = Modifier
+            ComposablePlayerView(
+                playerModifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight(),
-                factory = { context ->
-                    PlayerView(context).apply {
-                        player.initialize(context, this, chroma.streamedVideo)
-                        this.player = player.exoPlayer
-                    }
-                }
+                mediaUri = chroma.streamedVideo
             )
-        ) {
-            val lifecycleObserver = LifecycleEventObserver { _, event ->
-                player.onStateChanged(event)
-            }
-            lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
-            onDispose {
-                lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
-                player.releaseResources()
-            }
         }
     }
-
 }
 
 @Composable

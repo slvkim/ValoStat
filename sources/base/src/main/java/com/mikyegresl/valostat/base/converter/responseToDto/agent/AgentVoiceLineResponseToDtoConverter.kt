@@ -10,7 +10,7 @@ object AgentVoiceLineResponseToDtoConverter : Converter<AgentVoiceLineResponse?,
         AgentVoiceLineDto(
             minDuration = from?.minDuration ?: 0.0,
             maxDuration = from?.maxDuration ?: 0.0,
-            mediaList = VoiceMediaResponseToDtoConverter.convert(from?.mediaList),
+            voiceline = VoiceMediaResponseToDtoConverter.convert(from?.mediaList?.firstOrNull()),
         )
 }
 

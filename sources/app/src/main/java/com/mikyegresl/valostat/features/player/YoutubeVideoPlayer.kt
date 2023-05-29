@@ -1,4 +1,4 @@
-package com.mikyegresl.valostat.features.video.player
+package com.mikyegresl.valostat.features.player
 
 import android.os.Looper
 import android.util.Log
