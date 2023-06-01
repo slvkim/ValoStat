@@ -46,7 +46,7 @@ import com.mikyegresl.valostat.base.model.agent.AgentVoiceLineDto
 import com.mikyegresl.valostat.common.compose.ShowErrorState
 import com.mikyegresl.valostat.common.compose.ShowLoadingState
 import com.mikyegresl.valostat.features.agent.agentAbilitiesMock
-import com.mikyegresl.valostat.features.player.ComposablePlayerView
+import com.mikyegresl.valostat.features.player.exoplayer.newer.ComposablePlayerView
 import com.mikyegresl.valostat.ui.dimen.ElemSize
 import com.mikyegresl.valostat.ui.dimen.Padding
 import com.mikyegresl.valostat.ui.theme.ValoStatTypography

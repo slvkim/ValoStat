@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.mikyegresl.valostat.R
+import com.mikyegresl.valostat.ui.theme.secondaryTextDark
 
 @Composable
 fun ShowLoadingState(
@@ -21,7 +22,9 @@ fun ShowLoadingState(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        CircularProgressIndicator()
+        CircularProgressIndicator(
+            color = secondaryTextDark,
+        )
     }
 }
 

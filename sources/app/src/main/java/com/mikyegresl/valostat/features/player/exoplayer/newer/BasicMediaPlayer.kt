@@ -1,4 +1,4 @@
-package com.mikyegresl.valostat.features.player
+package com.mikyegresl.valostat.features.player.exoplayer.newer
 
 import android.content.Context
 import android.util.Log
@@ -16,10 +16,9 @@ import androidx.media3.ui.PlayerView.SHOW_BUFFERING_ALWAYS
 class BasicMediaPlayer {
 
     companion object {
-        private const val TAG = "ExoVideoPlayer"
+        private const val TAG = "ExoMediaPlayer"
         private const val CACHE_CONTENT_DIRECTORY = "downloads"
         private const val CACHE_MAX_BYTES_ALLOWED = 100*1024*1024L
-        private const val EXOPLAYER_USER_AGENT = "Exoplayer"
     }
 
     var exoPlayer: ExoPlayer? = null

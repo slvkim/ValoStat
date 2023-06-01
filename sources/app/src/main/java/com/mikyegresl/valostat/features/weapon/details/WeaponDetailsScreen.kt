@@ -31,16 +31,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.media3.ui.PlayerView
 import coil.compose.AsyncImage
 import com.mikyegresl.valostat.R
 import com.mikyegresl.valostat.base.model.weapon.WeaponDto
@@ -49,8 +45,9 @@ import com.mikyegresl.valostat.base.model.weapon.stats.WeaponDamageRangeDto
 import com.mikyegresl.valostat.base.model.weapon.stats.WeaponStatsDto
 import com.mikyegresl.valostat.common.compose.ShowErrorState
 import com.mikyegresl.valostat.common.compose.ShowLoadingState
-import com.mikyegresl.valostat.features.player.BasicMediaPlayer
-import com.mikyegresl.valostat.features.player.ComposablePlayerView
+import com.mikyegresl.valostat.features.player.exoplayer.newer.BasicMediaPlayer
+import com.mikyegresl.valostat.features.player.exoplayer.newer.ComposableExoPlayer
+import com.mikyegresl.valostat.features.player.exoplayer.newer.ComposablePlayerView
 import com.mikyegresl.valostat.ui.dimen.ElemSize
 import com.mikyegresl.valostat.ui.dimen.Padding
 import com.mikyegresl.valostat.ui.theme.ValoStatTypography
@@ -96,7 +93,6 @@ fun WeaponDetailsScreen(
             }
             is WeaponDetailsScreenState.WeaponDetailsErrorState -> {
                 ShowErrorState(errorMessage = viewState.t.message)
-
             }
         }
     }
@@ -509,8 +505,8 @@ fun WeaponSkinItemContainer(
         if (state.activeChroma != chroma) {
             WeaponSkinCardItem(chroma = chroma)
         } else {
-            ComposablePlayerView(
-                playerModifier = Modifier
+            ComposableExoPlayer(
+                modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight(),
                 mediaUri = chroma.streamedVideo

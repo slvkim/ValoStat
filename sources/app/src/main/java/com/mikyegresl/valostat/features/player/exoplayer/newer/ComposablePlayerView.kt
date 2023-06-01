@@ -1,14 +1,16 @@
-package com.mikyegresl.valostat.features.player
+package com.mikyegresl.valostat.features.player.exoplayer.newer
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.media3.ui.PlayerView
+import com.mikyegresl.valostat.features.player.exoplayer.ExoPlayerPearsonVideoPlayer
 
 @Composable
 fun ComposablePlayerView(
@@ -49,4 +51,24 @@ fun ComposablePlayerView(
             }
         }
     }
+}
+
+@Composable
+fun ComposableExoPlayer(
+    modifier: Modifier = Modifier,
+    mediaUri: String,
+    isVideoPlayer: Boolean = true
+) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val scope = rememberCoroutineScope()
+
+    val player = remember {
+        ExoPlayerPearsonVideoPlayer(
+            mediaUrl = mediaUri,
+            lifecycleOwner = lifecycleOwner,
+            uiCoroutineScope = scope,
+            fullScreenListener = null
+        )
+    }
+    player.InflatePlayer(modifier = modifier)
 }
