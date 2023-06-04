@@ -3,10 +3,13 @@ package com.mikyegresl.valostat.features.weapon.details
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -14,9 +17,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
@@ -25,29 +33,36 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.mikyegresl.valostat.R
 import com.mikyegresl.valostat.base.model.weapon.WeaponDto
 import com.mikyegresl.valostat.base.model.weapon.skin.WeaponSkinChromaDto
+import com.mikyegresl.valostat.base.model.weapon.skin.WeaponSkinDto
 import com.mikyegresl.valostat.base.model.weapon.stats.WeaponDamageRangeDto
 import com.mikyegresl.valostat.base.model.weapon.stats.WeaponStatsDto
 import com.mikyegresl.valostat.common.compose.ShowErrorState
 import com.mikyegresl.valostat.common.compose.ShowLoadingState
 import com.mikyegresl.valostat.features.player.exoplayer.newer.BasicMediaPlayer
 import com.mikyegresl.valostat.features.player.exoplayer.newer.ComposableExoPlayer
-import com.mikyegresl.valostat.features.player.exoplayer.newer.ComposablePlayerView
 import com.mikyegresl.valostat.ui.dimen.ElemSize
 import com.mikyegresl.valostat.ui.dimen.Padding
 import com.mikyegresl.valostat.ui.theme.ValoStatTypography
@@ -143,6 +158,10 @@ fun WeaponDetailsAsDataState(
             weaponDamageRanges(stats = state.details.stats).invoke(this)
 
             weaponSkins(
+                chromas = state.skinsWithChromas,
+            ).invoke(this)
+
+            weaponVideos(
                 state = state,
                 chromas = state.skinsWithVideo,
                 onVideoItemClicked = { chroma ->
@@ -451,16 +470,14 @@ fun DamageRangeItem(
 }
 
 fun weaponSkins(
-    state: WeaponDetailsScreenState.WeaponDetailsDataState,
-    chromas: List<WeaponSkinChromaDto>,
-    onVideoItemClicked: (WeaponSkinChromaDto) -> Unit,
-    onSkinLeftFocus: (WeaponSkinChromaDto) -> Unit
+    chromas: List<WeaponSkinDto>,
 ) : LazyListScope.() -> Unit = {
 
     item {
         Text(
             modifier = Modifier.padding(
                 top = Padding.Dp16,
+                bottom = Padding.Dp8,
                 start = Padding.Dp32,
                 end = Padding.Dp32
             ),
@@ -469,46 +486,199 @@ fun weaponSkins(
             style = ValoStatTypography.caption.copy(color = secondaryTextDark)
         )
     }
-    chromas.forEachIndexed { i, item ->
-        item {
-            DisposableEffect(
-                WeaponSkinItemContainer(
-                    state = state,
-                    chroma = item,
-                    onVideoItemClicked = onVideoItemClicked
+    item {
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = Padding.Dp16),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            itemsIndexed(chromas) { i, item ->
+                WeaponSkinCardItem(
+                    skin = item,
                 )
-            ) {
-                onDispose {
-                    onSkinLeftFocus(item)
+                if (i != chromas.lastIndex) {
+                    Spacer(modifier = Modifier.padding(horizontal = Padding.Dp8))
                 }
             }
-            Spacer(modifier = Modifier.padding(vertical = Padding.Dp24))
+        }
+        Spacer(modifier = Modifier.padding(vertical = Padding.Dp8))
+    }
+}
+
+@Composable
+fun WeaponSkinCardItem(
+    modifier: Modifier = Modifier,
+    skin: WeaponSkinDto
+) {
+    val screenWidth = LocalConfiguration.current.screenWidthDp
+    val containerMinWidth by remember {
+        mutableStateOf((screenWidth / 1.9).dp)
+    }
+    val containerMaxWidth by remember {
+        mutableStateOf((screenWidth / 1.7).dp)
+    }
+    var selectedWeaponImage by rememberSaveable {
+        mutableStateOf(skin.iconPath)
+    }
+
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.Start
+    ) {
+        Text(
+            modifier = Modifier
+                .padding(Padding.Dp4),
+            text = skin.displayName,
+            style = ValoStatTypography.body1.copy(fontSize = 12.sp),
+            maxLines = 1,
+            textAlign = TextAlign.Start,
+            overflow = TextOverflow.Ellipsis
+        )
+        Card(
+            modifier = modifier
+                .widthIn(containerMinWidth, containerMaxWidth)
+                .aspectRatio(1.5f),
+            shape = RoundedCornerShape(Padding.Dp8),
+            border = BorderStroke(1.dp, secondaryTextDark),
+            backgroundColor = playerBackgroundDark
+        ) {
+            AsyncImage(
+                modifier = Modifier
+                    .weight(3f)
+                    .padding(
+                        top = Padding.Dp4,
+                        start = Padding.Dp16,
+                        end = Padding.Dp16
+                    )
+                    .alpha(75f),
+                model = selectedWeaponImage,
+                contentScale = ContentScale.Inside,
+                contentDescription = skin.displayName
+            )
+        }
+        SkinChromasPanel(
+            chromas = skin.chromas,
+            onChromaSelected = {
+                selectedWeaponImage = it.fullRenderPath
+            }
+        )
+    }
+}
+
+@Composable
+fun SkinChromasPanel(
+    modifier: Modifier = Modifier,
+    chromas: List<WeaponSkinChromaDto>,
+    onChromaSelected: (WeaponSkinChromaDto) -> Unit
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(
+                start = Padding.Dp4,
+                end = Padding.Dp8,
+                top = Padding.Dp4,
+                bottom = Padding.Dp4
+            ),
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        chromas.forEach {
+            SkinChromaChip(
+                chroma = it,
+                onChromaSelected = onChromaSelected
+            )
         }
     }
 }
 
 @Composable
-fun WeaponSkinItemContainer(
+fun SkinChromaChip(
+    chroma: WeaponSkinChromaDto,
+    onChromaSelected: (WeaponSkinChromaDto) -> Unit
+) {
+    AsyncImage(
+        modifier = Modifier
+            .clickable {
+                onChromaSelected(chroma)
+            }
+            .size(ElemSize.Dp24)
+            .padding(Padding.Dp2)
+            .clip(CircleShape),
+        model = chroma.swatchPath,
+        alignment = Alignment.Center,
+        contentScale = ContentScale.FillBounds,
+        contentDescription = chroma.displayName
+    )
+    Spacer(modifier = Modifier.padding(horizontal = Padding.Dp4))
+}
+
+fun weaponVideos(
+    state: WeaponDetailsScreenState.WeaponDetailsDataState,
+    chromas: List<WeaponSkinChromaDto>,
+    onVideoItemClicked: (WeaponSkinChromaDto) -> Unit,
+    onSkinLeftFocus: (WeaponSkinChromaDto) -> Unit
+): LazyListScope.() -> Unit = {
+    item {
+        Text(
+            modifier = Modifier.padding(
+                vertical = Padding.Dp8,
+                horizontal = Padding.Dp32
+            ),
+            textAlign = TextAlign.Start,
+            text = "${stringResource(id = R.string.videos)}:",
+            style = ValoStatTypography.caption.copy(color = secondaryTextDark)
+        )
+    }
+    chromas.forEachIndexed { _, chroma ->
+        item {
+            DisposableEffect(
+                SkinVideoContainer(
+                    state = state,
+                    chroma = chroma,
+                    onVideoItemClicked = onVideoItemClicked
+                )
+            ) {
+                onDispose {
+                    onSkinLeftFocus(chroma)
+                }
+            }
+            Spacer(modifier = Modifier.padding(vertical = Padding.Dp8))
+        }
+    }
+}
+
+@Composable
+fun SkinVideoContainer(
     modifier: Modifier = Modifier,
     state: WeaponDetailsScreenState.WeaponDetailsDataState,
     chroma: WeaponSkinChromaDto,
     onVideoItemClicked: (WeaponSkinChromaDto) -> Unit
 ) {
-    Box(
+    Column(
         modifier = modifier
             .fillMaxWidth()
             .aspectRatio(16 / 9f)
             .padding(horizontal = Padding.Dp32)
             .clickable { onVideoItemClicked(chroma) },
-        contentAlignment = Alignment.Center
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.Start
     ) {
-        if (state.activeChroma != chroma) {
-            WeaponSkinCardItem(chroma = chroma)
+        Text(
+            modifier = Modifier
+                .padding(Padding.Dp4),
+            text = chroma.displayName,
+            style = ValoStatTypography.body1.copy(fontSize = 12.sp),
+            maxLines = 1,
+            textAlign = TextAlign.Start,
+            overflow = TextOverflow.Ellipsis
+        )
+
+        if (state.activeVideoChroma != chroma) {
+            SkinVideoItem(chroma = chroma)
         } else {
             ComposableExoPlayer(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
+                    .fillMaxSize(),
                 mediaUri = chroma.streamedVideo
             )
         }
@@ -516,43 +686,37 @@ fun WeaponSkinItemContainer(
 }
 
 @Composable
-fun WeaponSkinCardItem(
+fun SkinVideoItem(
     modifier: Modifier = Modifier,
     chroma: WeaponSkinChromaDto
 ) {
-    Column(
-        modifier = modifier
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(Padding.Dp8),
+        border = BorderStroke(1.dp, secondaryTextDark),
+        backgroundColor = playerBackgroundDark
     ) {
-        Card(
-            border = BorderStroke(1.dp, secondaryTextDark),
-            backgroundColor = playerBackgroundDark
+        Box(
+            contentAlignment = Alignment.Center
         ) {
-            Box(
-                contentAlignment = Alignment.Center
-            ) {
-                AsyncImage(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .alpha(75f),
-                    model = chroma.fullRenderPath,
-                    contentScale = ContentScale.Inside,
-                    contentDescription = chroma.displayName
-                )
-                Icon(
-                    modifier = Modifier.size(ElemSize.Dp48),
-                    painter = painterResource(id = R.drawable.ic_play_button),
-                    contentDescription = stringResource(id = R.string.videos)
-                )
-            }
+            AsyncImage(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(
+                        top = Padding.Dp4,
+                        start = Padding.Dp16,
+                        end = Padding.Dp16
+                    )
+                    .alpha(75f),
+                model = chroma.fullRenderPath,
+                contentScale = ContentScale.Inside,
+                contentDescription = chroma.displayName
+            )
+            Icon(
+                modifier = Modifier.size(ElemSize.Dp48),
+                painter = painterResource(id = R.drawable.ic_play_button),
+                contentDescription = stringResource(id = R.string.videos)
+            )
         }
-        Text(
-            modifier = Modifier
-                .padding(top = Padding.Dp4, start = Padding.Dp4),
-            text = chroma.displayName,
-            style = ValoStatTypography.subtitle2,
-            textAlign = TextAlign.Start,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
     }
 }

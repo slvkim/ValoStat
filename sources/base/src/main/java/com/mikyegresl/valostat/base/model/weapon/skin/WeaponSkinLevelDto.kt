@@ -14,4 +14,10 @@ data class WeaponSkinLevelDto(
     val levelItem: String,
 
     val streamedVideo: String
-) : Parcelable
+) : Parcelable {
+
+    @Parcelize
+    enum class LevelItemDto(val title: String) : Parcelable {
+        //TODO: add levelItem enum
+    }
+}

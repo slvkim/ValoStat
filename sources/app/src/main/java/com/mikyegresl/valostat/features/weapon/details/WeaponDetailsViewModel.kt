@@ -39,13 +39,13 @@ class WeaponDetailsViewModel(
         when (intent) {
             is WeaponDetailsIntent.VideoClickedIntent -> {
                 (currentState as? WeaponDetailsScreenState.WeaponDetailsDataState)?.let {
-                    updateState(it.copy(activeChroma = intent.chroma))
+                    updateState(it.copy(activeVideoChroma = intent.chroma))
                 }
             }
             is WeaponDetailsIntent.VideoDisposeIntent -> {
                 val dataState = (currentState as? WeaponDetailsScreenState.WeaponDetailsDataState) ?: return
-                if (dataState.activeChroma == intent.chroma) {
-                    updateState(dataState.copy(activeChroma = null))
+                if (dataState.activeVideoChroma == intent.chroma) {
+                    updateState(dataState.copy(activeVideoChroma = null))
                 }
             }
             is WeaponDetailsIntent.RefreshWeaponDetailsIntent -> {

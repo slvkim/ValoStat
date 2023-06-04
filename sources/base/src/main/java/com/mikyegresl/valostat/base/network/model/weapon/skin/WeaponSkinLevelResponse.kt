@@ -11,11 +11,20 @@ data class WeaponSkinLevelResponse(
     val assetPath: String? = null,
     @SerializedName("displayIcon")
     val iconPath: String? = null,
-
-    //TODO: enum
     @SerializedName("levelItem")
     val levelItem: String? = null,
-
     @SerializedName("streamedVideo")
     val streamedVideo: String? = null
-)
+) {
+    enum class SkinLevelResponse {
+        //TODO: add level item enums
+//    "EEquippableSkinLevelItem::HeartbeatAndMapSensor",
+//    "EEquippableSkinLevelItem::VFX",
+//    "EEquippableSkinLevelItem::Finisher",
+//    "EEquippableSkinLevelItem::Animation",
+//    "EEquippableSkinLevelItem::KillEffect",
+//    "EEquippableSkinLevelItem::SoundEffects",
+//    "EEquippableSkinLevelItem::Voiceover",
+//    "EEquippableSkinLevelItem::TopFrag",
+    }
+}

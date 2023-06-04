@@ -64,12 +64,6 @@ import kotlinx.coroutines.flow.StateFlow
 
 private const val TAG = "AgentsScreen"
 
-//@Preview
-//@Composable
-//fun PreviewAgentsScreen() {
-//    AgentsScreen(MutableStateFlow(AgentsScreenState.AgentsScreenDataState()))
-//}
-
 @Preview
 @Composable
 fun PreviewAgentItem() {
@@ -226,7 +220,7 @@ fun AgentItem(
                         .data(agent.displayIcon)
                         .build(),
                     imageLoader = ImageLoader(LocalContext.current),
-                    contentScale = ContentScale.Inside,
+                    contentScale = ContentScale.FillWidth,
                     contentDescription = stringResource(id = R.string.agents)
                 )
                 Row(
