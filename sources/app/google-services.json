@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "641914049533",
+    "project_id": "valostat",
+    "storage_bucket": "valostat.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:641914049533:android:7f5f9272a3ed6fb6307f94",
+        "android_client_info": {
+          "package_name": "com.mikyegresl.valostat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "641914049533-fb5bpgp959fbt1ed61q9tv7t97rvc1bg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDy8bxwyI2bbLsIYU5jnVi3oeSoAsqZ8M8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "641914049533-fb5bpgp959fbt1ed61q9tv7t97rvc1bg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

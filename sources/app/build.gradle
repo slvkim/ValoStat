@@ -52,7 +52,6 @@ android {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
-    buildToolsVersion '33.0.1'
 }
 
 dependencies {
@@ -96,6 +95,11 @@ dependencies {
     implementation deps.androidx.exoPlayer.dash
     implementation deps.androidx.exoPlayer.hls
     implementation deps.androidx.exoPlayer.ui
+
+    // Firebase
+    def firebaseBom = platform(deps.firebase.bom)
+    implementation firebaseBom
+    implementation deps.firebase.analytics
 
     // Test
     androidTestImplementation platform(deps.androidx.compose.bom)

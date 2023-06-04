@@ -1,5 +1,6 @@
 package com.mikyegresl.valostat.features.agent
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.background
@@ -206,57 +207,59 @@ fun AgentItem(
             .widthIn(containerMinWidth, containerMaxWidth)
             .clickable { onAgentClicked(agent.uuid) }
     ) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxHeight()
                 .weight(4.5f)
+                .background(Brush.linearGradient(colors)),
+            contentAlignment = Alignment.BottomStart
         ) {
-            Box {
-                AsyncImage(
+            Log.e(TAG, "AgentItem: ${agent.displayIcon}")
+
+            AsyncImage(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                model = ImageRequest.Builder(context)
+                    .data(agent.displayIcon)
+                    .build(),
+                imageLoader = ImageLoader(LocalContext.current),
+                contentScale = ContentScale.FillWidth,
+                contentDescription = stringResource(id = R.string.agents)
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(top = Padding.Dp24)
+                    .offset(x = -(Padding.Dp32)),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.Top
+            ) {
+                Text(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .background(Brush.linearGradient(colors)),
-                    model = ImageRequest.Builder(context)
-                        .data(agent.displayIcon)
-                        .build(),
-                    imageLoader = ImageLoader(LocalContext.current),
-                    contentScale = ContentScale.FillWidth,
-                    contentDescription = stringResource(id = R.string.agents)
-                )
-                Row(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .padding(top = Padding.Dp24)
-                        .offset(x = -(Padding.Dp32)),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.Top
-                ) {
-                    Text(
-                        modifier = Modifier
-                            .vertical()
-                            .rotate(-270f)
-                            .offset(y = -(20).dp),
-                        text = agent.displayName,
-                        style = ValoStatTypography.h3.copy(
-                            shadow = Shadow(
-                                color = Color.Black,
-                                offset = Offset(x = 2f, y = 4f),
-                                blurRadius = 0.2f
-                            )
+                        .vertical()
+                        .rotate(-270f)
+                        .offset(y = -(20).dp),
+                    text = agent.displayName,
+                    style = ValoStatTypography.h3.copy(
+                        shadow = Shadow(
+                            color = Color.Black,
+                            offset = Offset(x = 2f, y = 4f),
+                            blurRadius = 0.2f
                         )
                     )
-                    Text(
-                        modifier = Modifier
-                            .vertical()
-                            .padding(top = Padding.Dp4)
-                            .rotate(-270f),
-                        text = agent.role.displayName,
-                        color = secondaryTextDark,
-                        style = ValoStatTypography.subtitle1,
-                    )
-                }
+                )
+                Text(
+                    modifier = Modifier
+                        .vertical()
+                        .padding(top = Padding.Dp4)
+                        .rotate(-270f),
+                    text = agent.role.displayName,
+                    color = secondaryTextDark,
+                    style = ValoStatTypography.subtitle1,
+                )
             }
         }
+
         val abilityModifier = Modifier
             .aspectRatio(1f)
             .padding(horizontal = Padding.Dp8, vertical = Padding.Dp8)

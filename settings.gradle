@@ -5,13 +5,30 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+
     repositories {
         google()
         mavenCentral()
     }
 }
+
+buildscript {
+
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        apply from: "$rootDir/versions.gradle"
+
+        classpath "com.google.gms:google-services:$versions.googleServices"
+    }
+}
+
 rootProject.name = "ValoStat"
 include ':app'
 project(':app').projectDir = new File(rootDir, 'sources/app')

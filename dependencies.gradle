@@ -63,7 +63,7 @@ ext.deps = [
         ],
 
         'firebase' : [
-                'bom' : "com.google.firebase:firebase-bom:$versions.firebase_bom",
+                'bom' : "com.google.firebase:firebase-bom:$versions.firebaseBom",
                 'analytics' : "com.google.firebase:firebase-analytics",
                 'crashlytics' : "com.google.firebase:firebase-crashlytics",
         ],
