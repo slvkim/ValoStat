@@ -90,8 +90,8 @@ class MainActivity : ComponentActivity() {
         val items = listOf(
             GlobalNavItem.Agents,
             GlobalNavItem.Weapons,
-            GlobalNavItem.Maps,
-            GlobalNavItem.Videos,
+//            GlobalNavItem.Maps,
+//            GlobalNavItem.Videos,
             GlobalNavItem.Settings
         )
         BottomNavigation(
@@ -161,20 +161,20 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
-            composable(GlobalNavItem.Maps.route) {
-                MapsScreen()
-            }
-            composable(GlobalNavItem.Videos.route) {
-                VideosScreen(
-                    videosScreenState = videosViewModel.state,
-                    onEnterFullscreen = {
-                        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                    },
-                    onExitFullscreen = {
-                        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                    }
-                )
-            }
+//            composable(GlobalNavItem.Maps.route) {
+//                MapsScreen()
+//            }
+//            composable(GlobalNavItem.Videos.route) {
+//                VideosScreen(
+//                    videosScreenState = videosViewModel.state,
+//                    onEnterFullscreen = {
+//                        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+//                    },
+//                    onExitFullscreen = {
+//                        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+//                    }
+//                )
+//            }
             composable(GlobalNavItem.Settings.route) {
                 SettingsScreen()
             }
