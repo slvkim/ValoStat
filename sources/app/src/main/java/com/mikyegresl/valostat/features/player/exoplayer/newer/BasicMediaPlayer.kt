@@ -1,7 +1,6 @@
 package com.mikyegresl.valostat.features.player.exoplayer.newer
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.media3.common.MediaItem
 import androidx.media3.datasource.DataSource
@@ -117,19 +116,15 @@ class BasicMediaPlayer {
                 startPlayback()
             }
             Lifecycle.Event.ON_RESUME -> {
-                Log.e(TAG, "onStateChanged(): ON_RESUME")
                 resumePlayback()
             }
             Lifecycle.Event.ON_PAUSE -> {
-                Log.e(TAG, "onStateChanged(): ON_PAUSE")
                 pausePlayback()
             }
             Lifecycle.Event.ON_STOP -> {
-                Log.e(TAG, "onStateChanged(): ON_STOP")
                 releaseResources()
             }
             Lifecycle.Event.ON_DESTROY -> {
-                Log.e(TAG, "onStateChanged(): ON_DESTROY")
                 releaseResources()
             }
             else -> {}
@@ -138,10 +133,6 @@ class BasicMediaPlayer {
 
     @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     fun releaseResources() {
-        Log.e(TAG, "releaseResources()")
-//        downloadCache?.release()
-//        downloadCache = null
-
         exoPlayer?.release()
         exoPlayer = null
 

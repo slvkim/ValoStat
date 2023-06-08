@@ -35,5 +35,7 @@ ext.versions = [
 
         'firebaseBom'       : "32.1.0",
 
-        'googleServices'    : "4.3.15"
+        'googleServices'    : "4.3.15",
+
+        'processPhoenix'    : "2.1.2"
 ]

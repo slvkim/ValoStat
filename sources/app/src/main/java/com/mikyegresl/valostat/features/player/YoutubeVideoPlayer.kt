@@ -93,10 +93,7 @@ class YoutubeVideoPlayer(
         setUpPlayer(youtubePlayerView!!, onReady = {
             Log.d(TAG, "Youtube Player init: OK!")
             youtubePlayer = it
-//            generateVideoId(videoUrl)?.let { videoId ->
-//                Log.e(TAG, "initialize(): videoId = $videoId")
                 it.loadVideo(videoUrl, JS_READY_DELAY_MS)
-//            }
         })
     }
 
@@ -115,9 +112,7 @@ class YoutubeVideoPlayer(
         it.initialize(listener!!, iFramePlayerOptions)
         it.addFullscreenListener(object : FullscreenListener {
             override fun onEnterFullscreen(fullscreenView: View, exitFullscreen: () -> Unit) {
-                Log.e(TAG, "viewId: ${fullscreenView.id}, hash: ${fullscreenView.hashCode()}")
                 onYoutubeEnterFullscreen()
-                Log.e(TAG, "viewId: ${fullscreenView.id}, hash: ${fullscreenView.hashCode()}")
                 youtubePlayer?.toggleFullscreen()
             }
 

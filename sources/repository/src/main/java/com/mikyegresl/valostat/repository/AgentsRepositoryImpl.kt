@@ -29,14 +29,12 @@ class AgentsRepositoryImpl(
         private const val TAG = "AgentsRepository"
     }
 
-    override fun getAgents(): Flow<Response<List<AgentDto>>> = flow {
+    override fun getAgents(locale: ValoStatLocale): Flow<Response<List<AgentDto>>> = flow {
         supervisorScope {
             emit(Response.Loading())
 
             val localRequest = async { localDataSource.getAgents() }
-            val remoteRequest = async { remoteDataSource.getAgents(
-                lang = ValoStatLocale.RU
-            ) }
+            val remoteRequest = async { remoteDataSource.getAgents(locale) }
 
             var cacheLoadingSuccessful: Boolean?
             var localAgents: List<AgentDto>? = null

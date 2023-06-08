@@ -7,12 +7,17 @@ import com.mikyegresl.valostat.base.network.config.NetworkConfigProvider
 
 internal class NetworkConfigProviderImpl(
     private val valoStatConfigProvider: ValoStatConfigProvider,
-    private val appConfigProvider: AppConfigProvider
+    private val appConfigProvider: AppConfigProvider,
 ) : NetworkConfigProvider {
+
+    companion object {
+        private const val TAG = "NetworkConfigProvider"
+    }
+
     override fun getNetworkConfig(): NetworkConfig =
         NetworkConfig(
             apiUrl = valoStatConfigProvider.apiUrl,
             videoApiUrl = valoStatConfigProvider.videoApiUrl,
-            isDebug = appConfigProvider.isDebug
+            isDebug = appConfigProvider.isDebug,
         )
 }

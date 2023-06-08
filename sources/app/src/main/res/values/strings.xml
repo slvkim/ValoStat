@@ -1,5 +1,8 @@
 <resources>
-    <string name="app_name">ValoStat</string>
+    <!-- non-translatable-->
+    <string name="app_name" translatable="false">ValoStat</string>
+    <string name="agent_details" translatable="false">Agent details</string>
+    <string name="weapon_details" translatable="false">Weapon details</string>
 
     <string name="agents">Agents</string>
     <string name="weapons">Weapons</string>
@@ -13,10 +16,8 @@
     <string name="origin">Origin</string>
     <string name="description">Description</string>
     <string name="points_for_ulti">Points for ultimate</string>
-    <string name="agent_details">Agent details</string>
     <string name="abilities">Abilities</string>
     <string name="type">Type</string>
-    <string name="weapon_details">Weapon details</string>
     <string name="damage">Damage</string>
     <string name="skins">Skins</string>
     <string name="creds">Creds</string>
@@ -31,6 +32,11 @@
     <string name="legs">Legs</string>
     <string name="voiceline">Voiceline</string>
     <string name="settings">Settings</string>
-    <string name="language">Language</string>
+
+    <!--Language support-->
+    <string name="current_language">English</string>
+    <string name="en" translatable="false">English</string>
+    <string name="ru" translatable="false">Русский</string>
+    <string name="kr" translatable="false">한국어</string>
 
 </resources>

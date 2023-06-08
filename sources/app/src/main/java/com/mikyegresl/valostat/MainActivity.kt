@@ -1,9 +1,8 @@
 package com.mikyegresl.valostat
 
-import android.content.pm.ActivityInfo
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -30,12 +29,13 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.jakewharton.processphoenix.ProcessPhoenix
+import com.mikyegresl.valostat.base.model.ValoStatLocale
 import com.mikyegresl.valostat.features.agent.AgentsScreen
 import com.mikyegresl.valostat.features.agent.AgentsViewModel
 import com.mikyegresl.valostat.features.agent.details.AgentDetailsScreen
-import com.mikyegresl.valostat.features.map.MapsScreen
 import com.mikyegresl.valostat.features.settings.SettingsScreen
-import com.mikyegresl.valostat.features.video.VideosScreen
+import com.mikyegresl.valostat.features.settings.SettingsViewModel
 import com.mikyegresl.valostat.features.video.VideosViewModel
 import com.mikyegresl.valostat.features.weapon.WeaponsScreen
 import com.mikyegresl.valostat.features.weapon.WeaponsViewModel
@@ -47,13 +47,19 @@ import com.mikyegresl.valostat.ui.theme.ValoStatTheme
 import com.mikyegresl.valostat.ui.theme.mainBackgroundDark
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
+
+    companion object {
+        private const val TAG = "MainActivityClass"
+    }
 
     private val agentsViewModel by viewModel<AgentsViewModel>()
 
     private val weaponsViewModel by viewModel<WeaponsViewModel>()
 
     private val videosViewModel by viewModel<VideosViewModel>()
+
+    private val settingsViewModel by viewModel<SettingsViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -176,7 +182,12 @@ class MainActivity : ComponentActivity() {
 //                )
 //            }
             composable(GlobalNavItem.Settings.route) {
-                SettingsScreen()
+                SettingsScreen(
+                    state = settingsViewModel.state,
+                    onAppLangSwitched = {
+                        onAppLanguageChanged(it)
+                    }
+                )
             }
             composable(
                 route = "${NavigationItem.WeaponDetails.route}/{${NavigationItem.WeaponDetails.weaponId}}",
@@ -210,6 +221,12 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+        }
+    }
+
+    private fun onAppLanguageChanged(locale: ValoStatLocale) {
+        settingsViewModel.saveCurrentLocale(locale) {
+            ProcessPhoenix.triggerRebirth(this@MainActivity)
         }
     }
 }

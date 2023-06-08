@@ -6,6 +6,7 @@ import com.mikyegresl.valostat.providers.NetworkConfigProviderImpl
 import org.koin.dsl.module
 
 val networkModule = module {
+
     single<NetworkConfigProvider> { NetworkConfigProviderImpl(get(), get()) }
 
     single {

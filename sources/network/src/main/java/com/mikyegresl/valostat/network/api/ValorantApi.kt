@@ -1,7 +1,6 @@
 package com.mikyegresl.valostat.network.api
 
 import com.google.gson.JsonElement
-import com.mikyegresl.valostat.base.model.ValoStatLocale
 import retrofit2.http.GET
 import retrofit2.http.Query
 

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.preferences.preferencesDataStore
 import com.google.gson.Gson
 import com.mikyegresl.valostat.base.manager.FileManager
+import com.mikyegresl.valostat.base.storage.AppConfigStorage
 import com.mikyegresl.valostat.base.storage.ValorantStorage
 import com.mikyegresl.valostat.base.storage.service.AgentsLocalDataSource
 import com.mikyegresl.valostat.base.storage.service.WeaponsLocalDataSource
@@ -26,6 +27,10 @@ class StorageFactory(
         ValorantStorageImpl(
             context.cacheDir.absolutePath, fileManager, gson
         )
+    }
+
+    val appConfigStorage: AppConfigStorage by lazy {
+        AppConfigStorageImpl(context.mainDataStore, gson)
     }
 
     val agentsLocalDataSource: AgentsLocalDataSource by lazy {

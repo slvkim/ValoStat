@@ -79,5 +79,7 @@ ext.deps = [
                 'compose' : "io.insert-koin:koin-androidx-compose:$versions.koinCompose",
                 'annotations' : "io.insert-koin:koin-annotations:$versions.koinKsp",
                 'compiler' : "io.insert-koin:koin-ksp-compiler:$versions.koinKsp",
-        ]
+        ],
+
+        'processPhoenix' : "com.jakewharton:process-phoenix:$versions.processPhoenix"
 ]

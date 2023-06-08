@@ -3,8 +3,6 @@ package com.mikyegresl.valostat.features.weapon.details
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -92,7 +90,7 @@ fun WeaponDetailsScreen(
     onBackPressed: () -> Unit
 ) {
     CompositionLocalProvider(LocalWeaponsDetailsViewModel provides viewModel) {
-        val state = remember { viewModel.state }.collectAsStateWithLifecycle()
+        val state = viewModel.state.collectAsStateWithLifecycle()
 
         when (val viewState = state.value) {
             is WeaponDetailsScreenState.WeaponDetailsDataState -> {

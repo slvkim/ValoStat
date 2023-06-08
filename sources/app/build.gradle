@@ -25,6 +25,8 @@ android {
         buildConfigField("String", "VERSION_NAME", '"0.0.1"')
         buildConfigField("String", "BASE_URL_DEV", '"https://valorant-api.com/"')
         buildConfigField("String", "VIDEO_API_URL", '"https://www.googleapis.com/youtube/"')
+
+        resourceConfigurations += ["en", "b+ru+RU", "b+ko+KR"]
     }
 
     buildTypes {
@@ -100,6 +102,9 @@ dependencies {
     def firebaseBom = platform(deps.firebase.bom)
     implementation firebaseBom
     implementation deps.firebase.analytics
+
+    // Phoenix
+    implementation deps.processPhoenix
 
     // Test
     androidTestImplementation platform(deps.androidx.compose.bom)

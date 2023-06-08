@@ -8,5 +8,6 @@ val koinModules = listOf(
     repositoryModule,
     agentsModule,
     weaponsModule,
-    videosModule
+    videosModule,
+    settingsModule
 )

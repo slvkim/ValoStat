@@ -10,4 +10,7 @@ internal val storageModule = module {
     single { get<StorageFactory>().agentsLocalDataSource }
 
     single { get<StorageFactory>().weaponsLocalDataSource }
+
+    single { get<StorageFactory>().appConfigStorage }
+
 }

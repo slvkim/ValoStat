@@ -7,6 +7,7 @@ import com.mikyegresl.valostat.providers.ValoStatConfigProviderImpl
 import org.koin.dsl.module
 
 val configModule = module {
+
     single<AppConfigProvider> { AppConfigProviderImpl }
     single<ValoStatConfigProvider> { ValoStatConfigProviderImpl }
 }

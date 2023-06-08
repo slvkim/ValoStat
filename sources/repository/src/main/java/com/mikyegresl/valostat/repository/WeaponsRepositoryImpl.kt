@@ -28,14 +28,12 @@ class WeaponsRepositoryImpl(
         private const val TAG = "WeaponsRepository"
     }
 
-    override fun getWeapons(): Flow<Response<List<WeaponDto>>> = flow {
+    override fun getWeapons(locale: ValoStatLocale): Flow<Response<List<WeaponDto>>> = flow {
         supervisorScope {
             emit(Response.Loading())
 
             val localRequest = async { localDataSource.getWeapons() }
-            val remoteRequest = async { remoteDataSource.getWeapons(
-                lang = ValoStatLocale.RU
-            ) }
+            val remoteRequest = async { remoteDataSource.getWeapons(locale) }
 
             var cacheLoadingSuccessful: Boolean?
             var localWeapons: List<WeaponDto>? = null

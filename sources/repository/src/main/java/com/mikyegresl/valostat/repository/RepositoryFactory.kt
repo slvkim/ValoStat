@@ -5,8 +5,10 @@ import com.mikyegresl.valostat.base.network.service.AgentsRemoteDataSource
 import com.mikyegresl.valostat.base.network.service.VideosRemoteDataSource
 import com.mikyegresl.valostat.base.network.service.WeaponsRemoteDataSource
 import com.mikyegresl.valostat.base.repository.AgentsRepository
+import com.mikyegresl.valostat.base.repository.SettingsRepository
 import com.mikyegresl.valostat.base.repository.VideosRepository
 import com.mikyegresl.valostat.base.repository.WeaponsRepository
+import com.mikyegresl.valostat.base.storage.AppConfigStorage
 import com.mikyegresl.valostat.base.storage.service.AgentsLocalDataSource
 import com.mikyegresl.valostat.base.storage.service.WeaponsLocalDataSource
 
@@ -32,6 +34,11 @@ object RepositoryFactory {
         gson
     )
 
+    fun getSettingsRepository(
+        storage: AppConfigStorage,
+    ): SettingsRepository = SettingsRepositoryImpl(
+        storage
+    )
 //    fun getMapsRepository(
 //        remoteDataSource: MapsRemoteDataSource,
 //        localDataSource: MapsLocalDataSource

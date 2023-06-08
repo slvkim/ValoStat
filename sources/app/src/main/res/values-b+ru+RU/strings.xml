@@ -1,5 +1,8 @@
 <resources>
-    <string name="app_name">ValoStat</string>
+    <!-- non-translatable-->
+    <string name="app_name" translatable="false">ValoStat</string>
+    <string name="agent_details" translatable="false">Agent details</string>
+    <string name="weapon_details" translatable="false">Weapon details</string>
 
     <string name="agents">Агенты</string>
     <string name="weapons">Арсенал</string>
@@ -13,10 +16,8 @@
     <string name="origin">Происхождение</string>
     <string name="description">Биография</string>
     <string name="points_for_ulti">Стоимость </string>
-    <string name="agent_details">Agent details</string>
     <string name="abilities">Особые умения</string>
     <string name="type">Тип</string>
-    <string name="weapon_details">Weapon details</string>
     <string name="damage">Урон</string>
     <string name="skins">Скины</string>
     <string name="creds">Стоимость</string>
@@ -31,6 +32,11 @@
     <string name="legs">Ноги</string>
     <string name="voiceline">Озвучка</string>
     <string name="settings">Настройки</string>
-    <string name="language">Язык</string>
+
+    <!--Language support-->
+    <string name="current_language">Русский</string>
+    <string name="en" translatable="false">English</string>
+    <string name="ru" translatable="false">Русский</string>
+    <string name="kr" translatable="false">한국어</string>
 
 </resources>

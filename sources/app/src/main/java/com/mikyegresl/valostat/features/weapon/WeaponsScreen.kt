@@ -26,7 +26,6 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -75,7 +74,7 @@ fun WeaponsScreen(
     weaponsScreenState: StateFlow<WeaponsScreenState>,
     onClick: (String) -> Unit
 ) {
-    val viewState = remember { weaponsScreenState }.collectAsStateWithLifecycle()
+    val viewState = weaponsScreenState.collectAsStateWithLifecycle()
     val state = viewState.value
 
     Scaffold(

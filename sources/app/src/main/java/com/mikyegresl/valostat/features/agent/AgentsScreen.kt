@@ -79,7 +79,7 @@ fun AgentsScreen(
     agentsScreenState: StateFlow<AgentsScreenState>,
     onAgentClicked: (String) -> Unit
 ) {
-    val viewState = remember { agentsScreenState }.collectAsStateWithLifecycle()
+    val viewState = agentsScreenState.collectAsStateWithLifecycle()
     val state = viewState.value
 
     Scaffold(

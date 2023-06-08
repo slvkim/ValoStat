@@ -6,7 +6,7 @@ import com.mikyegresl.valostat.base.storage.ValorantStorage
 import com.mikyegresl.valostat.base.storage.service.AgentsLocalDataSource
 
 class AgentsLocalDataSourceImpl(
-    private val storage: ValorantStorage
+    private val storage: ValorantStorage,
 ) : AgentsLocalDataSource {
 
     companion object {
