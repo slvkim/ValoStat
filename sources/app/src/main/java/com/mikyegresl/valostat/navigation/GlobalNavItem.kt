@@ -14,6 +14,7 @@ sealed class GlobalNavItem(
         private const val WEAPONS = "weapons"
         private const val MAPS = "maps"
         private const val VIDEOS = "videos"
+        private const val SETTINGS = "settings"
     }
 
     object Agents : GlobalNavItem(
@@ -37,5 +38,11 @@ sealed class GlobalNavItem(
         title = R.string.videos,
         icon = R.drawable.ic_videos,
         route = VIDEOS
+    )
+
+    object Settings: GlobalNavItem(
+        title = R.string.settings,
+        icon = R.drawable.ic_settings,
+        route = SETTINGS
     )
 }

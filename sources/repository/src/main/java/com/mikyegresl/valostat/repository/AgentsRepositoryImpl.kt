@@ -3,6 +3,7 @@ package com.mikyegresl.valostat.repository
 import android.util.Log
 import com.google.gson.Gson
 import com.mikyegresl.valostat.base.converter.responseToDto.agent.AgentsResponseToDtoConverter
+import com.mikyegresl.valostat.base.model.ValoStatLocale
 import com.mikyegresl.valostat.base.model.agent.AgentDto
 import com.mikyegresl.valostat.base.model.agent.AgentOriginDto
 import com.mikyegresl.valostat.base.network.Response
@@ -33,7 +34,9 @@ class AgentsRepositoryImpl(
             emit(Response.Loading())
 
             val localRequest = async { localDataSource.getAgents() }
-            val remoteRequest = async { remoteDataSource.getAgents() }
+            val remoteRequest = async { remoteDataSource.getAgents(
+                lang = ValoStatLocale.RU
+            ) }
 
             var cacheLoadingSuccessful: Boolean?
             var localAgents: List<AgentDto>? = null

@@ -2,6 +2,7 @@ package com.mikyegresl.valostat.network.service
 
 import com.google.gson.JsonElement
 import com.mikyegresl.valostat.base.error.ErrorHandler
+import com.mikyegresl.valostat.base.model.ValoStatLocale
 import com.mikyegresl.valostat.base.network.service.AgentsRemoteDataSource
 import com.mikyegresl.valostat.network.api.ValorantApi
 
@@ -10,8 +11,8 @@ class AgentsRemoteDataSourceImpl(
     private val errorHandler: ErrorHandler
 ) : AgentsRemoteDataSource {
 
-    override suspend fun getAgents(): JsonElement =
+    override suspend fun getAgents(lang: ValoStatLocale): JsonElement =
         errorHandler.handleError {
-            api.getAgents()
+            api.getAgents(lang.title)
         }
 }

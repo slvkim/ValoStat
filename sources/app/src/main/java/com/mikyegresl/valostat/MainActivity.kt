@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
@@ -33,6 +34,7 @@ import com.mikyegresl.valostat.features.agent.AgentsScreen
 import com.mikyegresl.valostat.features.agent.AgentsViewModel
 import com.mikyegresl.valostat.features.agent.details.AgentDetailsScreen
 import com.mikyegresl.valostat.features.map.MapsScreen
+import com.mikyegresl.valostat.features.settings.SettingsScreen
 import com.mikyegresl.valostat.features.video.VideosScreen
 import com.mikyegresl.valostat.features.video.VideosViewModel
 import com.mikyegresl.valostat.features.weapon.WeaponsScreen
@@ -40,6 +42,7 @@ import com.mikyegresl.valostat.features.weapon.WeaponsViewModel
 import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsScreen
 import com.mikyegresl.valostat.navigation.GlobalNavItem
 import com.mikyegresl.valostat.navigation.NavigationItem
+import com.mikyegresl.valostat.ui.dimen.ElemSize
 import com.mikyegresl.valostat.ui.theme.ValoStatTheme
 import com.mikyegresl.valostat.ui.theme.mainBackgroundDark
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -88,7 +91,8 @@ class MainActivity : ComponentActivity() {
             GlobalNavItem.Agents,
             GlobalNavItem.Weapons,
             GlobalNavItem.Maps,
-            GlobalNavItem.Videos
+            GlobalNavItem.Videos,
+            GlobalNavItem.Settings
         )
         BottomNavigation(
             backgroundColor = colorResource(id = R.color.black),
@@ -98,7 +102,12 @@ class MainActivity : ComponentActivity() {
             val currentRoute = navBackStackEntry?.destination?.route
             items.forEach { item ->
                 BottomNavigationItem(
-                    icon = { Icon(painterResource(id = item.icon), contentDescription = stringResource(id = item.title)) },
+                    icon = {
+                        Icon(
+                            modifier = Modifier.size(ElemSize.Dp16),
+                            painter = painterResource(id = item.icon),
+                            contentDescription = stringResource(id = item.title)
+                    ) },
                     label = { Text(text = stringResource(id = item.title), fontSize = 9.sp) },
                     selectedContentColor = Color.White,
                     unselectedContentColor = Color.Gray,
@@ -139,22 +148,6 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
-            composable(
-                route = "${NavigationItem.AgentDetails.route}/{${NavigationItem.AgentDetails.agentId}}",
-                arguments = listOf(
-                    navArgument(NavigationItem.AgentDetails.agentId) {
-                        type = NavType.StringType
-                    }
-                )
-            ) {
-                it.arguments?.getString(NavigationItem.AgentDetails.agentId)?.let { agentId ->
-                    AgentDetailsScreen(
-                        agentId = agentId
-                    ) {
-                        navController.navigateUp()
-                    }
-                }
-            }
             composable(GlobalNavItem.Weapons.route) {
                 WeaponsScreen(weaponsViewModel.state) {
                     navController.navigate("${NavigationItem.WeaponDetails.route}/$it") {
@@ -167,6 +160,23 @@ class MainActivity : ComponentActivity() {
                         restoreState = true
                     }
                 }
+            }
+            composable(GlobalNavItem.Maps.route) {
+                MapsScreen()
+            }
+            composable(GlobalNavItem.Videos.route) {
+                VideosScreen(
+                    videosScreenState = videosViewModel.state,
+                    onEnterFullscreen = {
+                        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                    },
+                    onExitFullscreen = {
+                        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                    }
+                )
+            }
+            composable(GlobalNavItem.Settings.route) {
+                SettingsScreen()
             }
             composable(
                 route = "${NavigationItem.WeaponDetails.route}/{${NavigationItem.WeaponDetails.weaponId}}",
@@ -184,19 +194,21 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
-            composable(GlobalNavItem.Maps.route) {
-                MapsScreen()
-            }
-            composable(GlobalNavItem.Videos.route) {
-                VideosScreen(
-                    videosScreenState = videosViewModel.state,
-                    onEnterFullscreen = {
-                        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                    },
-                    onExitFullscreen = {
-                        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            composable(
+                route = "${NavigationItem.AgentDetails.route}/{${NavigationItem.AgentDetails.agentId}}",
+                arguments = listOf(
+                    navArgument(NavigationItem.AgentDetails.agentId) {
+                        type = NavType.StringType
                     }
                 )
+            ) {
+                it.arguments?.getString(NavigationItem.AgentDetails.agentId)?.let { agentId ->
+                    AgentDetailsScreen(
+                        agentId = agentId
+                    ) {
+                        navController.navigateUp()
+                    }
+                }
             }
         }
     }

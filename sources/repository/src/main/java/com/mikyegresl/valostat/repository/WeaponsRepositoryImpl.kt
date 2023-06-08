@@ -3,6 +3,7 @@ package com.mikyegresl.valostat.repository
 import android.util.Log
 import com.google.gson.Gson
 import com.mikyegresl.valostat.base.converter.responseToDto.weapon.WeaponsResponseToDtoConverter
+import com.mikyegresl.valostat.base.model.ValoStatLocale
 import com.mikyegresl.valostat.base.model.weapon.WeaponDto
 import com.mikyegresl.valostat.base.network.Response
 import com.mikyegresl.valostat.base.network.model.weapon.WeaponsResponse
@@ -32,7 +33,9 @@ class WeaponsRepositoryImpl(
             emit(Response.Loading())
 
             val localRequest = async { localDataSource.getWeapons() }
-            val remoteRequest = async { remoteDataSource.getWeapons() }
+            val remoteRequest = async { remoteDataSource.getWeapons(
+                lang = ValoStatLocale.RU
+            ) }
 
             var cacheLoadingSuccessful: Boolean?
             var localWeapons: List<WeaponDto>? = null
