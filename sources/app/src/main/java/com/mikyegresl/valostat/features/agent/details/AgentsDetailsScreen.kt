@@ -277,11 +277,11 @@ fun AgentOriginSection(
         ) {
             AsyncImage(
                 model = origin.iconUrl,
-                contentDescription = origin.countryName
+                contentDescription = stringResource(id = origin.countryName)
             )
             Spacer(modifier = Modifier.padding(horizontal = Padding.Dp4))
             Text(
-                text = origin.countryName,
+                text = stringResource(id = origin.countryName),
                 style = ValoStatTypography.caption
             )
         }

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--Country names-->
+    <string name="usa">США</string>
+    <string name="uk">Великобритания</string>
+    <string name="germany">Германия</string>
+    <string name="morocco">Морокко</string>
+    <string name="russia">Россия</string>
+    <string name="china">Китай</string>
+    <string name="japan">Япония</string>
+    <string name="south_korea">Южная Корея</string>
+    <string name="brazil">Бразилия</string>
+    <string name="india">Индия</string>
+    <string name="ghana">Гана</string>
+    <string name="mexico">Мексика</string>
+    <string name="australia">Австралия</string>
+    <string name="sweden">Швеция</string>
+    <string name="france">Франция</string>
+    <string name="philippines">Филиппины</string>
+    <string name="turkey">Турция</string>
+    <string name="alternative">Другая Реальность</string>
+    <string name="unknown">Неизвестно</string>
+</resources>

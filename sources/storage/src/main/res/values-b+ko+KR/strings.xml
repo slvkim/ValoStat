@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--Country names-->
+    <string name="usa">미국</string>
+    <string name="uk">영국</string>
+    <string name="germany">독일</string>
+    <string name="morocco">모로코</string>
+    <string name="russia">러시아</string>
+    <string name="china">중국</string>
+    <string name="japan">일본</string>
+    <string name="south_korea">대한민국</string>
+    <string name="brazil">브라질</string>
+    <string name="india">인도</string>
+    <string name="ghana">가나</string>
+    <string name="mexico">멕시코</string>
+    <string name="australia">호주</string>
+    <string name="sweden">스웨덴</string>
+    <string name="france">프랑스</string>
+    <string name="philippines">필리핀 제도</string>
+    <string name="turkey">터키</string>
+    <string name="alternative">대체 지구</string>
+    <string name="unknown">알려지지 않은</string>
+</resources>

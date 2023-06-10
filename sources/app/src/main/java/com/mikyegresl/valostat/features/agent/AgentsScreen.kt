@@ -387,9 +387,3 @@ fun agentAbilitiesMock(): List<AgentAbilityDto> =
             slot = "Ultimate",
         )
     )
-
-fun agentOriginMock(): AgentOriginDto =
-    AgentOriginDto(
-        countryName = "South Korea",
-        iconUrl = ""
-    )
