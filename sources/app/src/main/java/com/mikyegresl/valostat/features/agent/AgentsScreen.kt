@@ -19,11 +19,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -47,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.ImageLoader
 import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.mikyegresl.valostat.R
 import com.mikyegresl.valostat.base.model.agent.AgentAbilityDto
@@ -214,15 +217,18 @@ fun AgentItem(
                 .background(Brush.linearGradient(colors)),
             contentAlignment = Alignment.BottomStart
         ) {
-            Log.e(TAG, "AgentItem: ${agent.displayIcon}")
-
-            AsyncImage(
+            SubcomposeAsyncImage(
                 modifier = Modifier
                     .fillMaxWidth(),
                 model = ImageRequest.Builder(context)
                     .data(agent.displayIcon)
                     .build(),
-                imageLoader = ImageLoader(LocalContext.current),
+                loading = {
+                    CircularProgressIndicator(
+                        modifier = Modifier.wrapContentSize(),
+                        color = secondaryTextDark
+                    )
+                },
                 contentScale = ContentScale.FillWidth,
                 contentDescription = stringResource(id = R.string.agents)
             )
