@@ -18,6 +18,6 @@ interface AgentsRepository {
 
     fun getPointsForUltimate(ids: List<String>): Map<String, Int>
 
-    fun getAgentDetails(agentId: String): Flow<Response<AgentDto>>
+    fun getAgentDetails(agentId: String, locale: ValoStatLocale): Flow<Response<AgentDto>>
 
 }

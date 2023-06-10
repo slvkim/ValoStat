@@ -8,6 +8,7 @@ sealed class SettingsScreenState: BaseState {
     object SettingsLoadingState: SettingsScreenState()
 
     data class SettingsDataState(
-        val currentLocale: ValoStatLocale
+        val locales: Map<String, ValoStatLocale>,
+        val currentLocaleKey: String
     ) : SettingsScreenState()
 }

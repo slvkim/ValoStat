@@ -1,12 +1,16 @@
 package com.mikyegresl.valostat.features.weapon.details
 
+import androidx.lifecycle.viewModelScope
+import com.mikyegresl.valostat.base.model.ValoStatLocale
 import com.mikyegresl.valostat.base.repository.WeaponsRepository
 import com.mikyegresl.valostat.common.viewmodel.BaseNavigationViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 
 class WeaponDetailsViewModel(
     private val repository: WeaponsRepository,
-    weaponId: String
+    weaponId: String,
+    locale: ValoStatLocale
 ) : BaseNavigationViewModel<WeaponDetailsScreenState>() {
 
     companion object {
@@ -18,23 +22,27 @@ class WeaponDetailsViewModel(
     )
 
     init {
-        loadWeaponDetails(weaponId)
+        loadWeaponDetails(weaponId, locale)
     }
 
-    private fun loadWeaponDetails(weaponId: String) =
-        doBackground(
-            repository.getWeaponDetails(weaponId),
-            onLoading = {
-                _state.value = WeaponDetailsScreenState.WeaponDetailsLoadingState
-            },
-            onSuccessLocal = {
-                _state.value = WeaponDetailsScreenState.WeaponDetailsDataState(it)
-            },
-            onError = {
-                _state.value = WeaponDetailsScreenState.WeaponDetailsErrorState(it)
-                true
-            }
-        )
+    private fun loadWeaponDetails(weaponId: String, locale: ValoStatLocale) {
+        viewModelScope.launch {
+            doBackground(
+                repository.getWeaponDetails(weaponId, locale),
+                onLoading = {
+                    _state.value = WeaponDetailsScreenState.WeaponDetailsLoadingState
+                },
+                onSuccessLocal = {
+                    _state.value = WeaponDetailsScreenState.WeaponDetailsDataState(it)
+                },
+                onError = {
+                    _state.value = WeaponDetailsScreenState.WeaponDetailsErrorState(it)
+                    true
+                }
+            )
+        }
+    }
+
     fun dispatchIntent(intent: WeaponDetailsIntent) {
         when (intent) {
             is WeaponDetailsIntent.VideoClickedIntent -> {
@@ -48,8 +56,8 @@ class WeaponDetailsViewModel(
                     updateState(dataState.copy(activeVideoChroma = null))
                 }
             }
-            is WeaponDetailsIntent.RefreshWeaponDetailsIntent -> {
-                loadWeaponDetails(intent.weaponId)
+            is WeaponDetailsIntent.UpdateWeaponDetailsIntent -> {
+                loadWeaponDetails(intent.weaponId, intent.locale)
             }
         }
     }

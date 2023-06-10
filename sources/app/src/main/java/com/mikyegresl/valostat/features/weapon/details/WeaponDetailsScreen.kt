@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.mikyegresl.valostat.R
+import com.mikyegresl.valostat.base.model.ValoStatLocale
 import com.mikyegresl.valostat.base.model.weapon.WeaponDto
 import com.mikyegresl.valostat.base.model.weapon.skin.WeaponSkinChromaDto
 import com.mikyegresl.valostat.base.model.weapon.skin.WeaponSkinDto
@@ -82,9 +83,11 @@ private const val TAG = "WeaponsDetailsScreen"
 @Composable
 fun WeaponDetailsScreen(
     weaponId: String,
+    locale: ValoStatLocale,
     viewModel: WeaponDetailsViewModel = koinViewModel {
         parametersOf(
-            weaponId
+            weaponId,
+            locale
         )
     },
     onBackPressed: () -> Unit

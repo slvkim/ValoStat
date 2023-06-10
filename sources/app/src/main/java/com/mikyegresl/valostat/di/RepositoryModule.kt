@@ -8,5 +8,4 @@ val repositoryModule = module {
     single { get<RepositoryFactory>().getAgentsRepository(get(), get(), get()) }
     single { get<RepositoryFactory>().getWeaponsRepository(get(), get(), get()) }
     single { get<RepositoryFactory>().getVideosRepository(get()) }
-    single { get<RepositoryFactory>().getSettingsRepository(get()) }
 }

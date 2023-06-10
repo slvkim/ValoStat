@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.mikyegresl.valostat.R
+import com.mikyegresl.valostat.base.model.ValoStatLocale
 import com.mikyegresl.valostat.base.model.agent.AgentAbilityDto
 import com.mikyegresl.valostat.base.model.agent.AgentOriginDto
 import com.mikyegresl.valostat.base.model.agent.AgentRoleDto
@@ -72,9 +73,11 @@ fun PreviewAgentAbilityItem() {
 @Composable
 fun AgentDetailsScreen(
     agentId: String,
+    locale: ValoStatLocale,
     viewModel: AgentDetailsViewModel = koinViewModel {
         parametersOf(
-            agentId
+            agentId,
+            locale
         )
     },
     onBackPressed: () -> Unit

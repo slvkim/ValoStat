@@ -1,6 +1,7 @@
 package com.mikyegresl.valostat.storage.service
 
 import com.google.gson.JsonElement
+import com.mikyegresl.valostat.base.model.ValoStatLocale
 import com.mikyegresl.valostat.base.model.agent.AgentOriginDto
 import com.mikyegresl.valostat.base.storage.ValorantStorage
 import com.mikyegresl.valostat.base.storage.service.AgentsLocalDataSource
@@ -163,13 +164,13 @@ class AgentsLocalDataSourceImpl(
             else -> 0
         }
 
-    override suspend fun getAgents(): JsonElement? =
-        storage.getAgents()
+    override suspend fun getAgents(locale: ValoStatLocale): JsonElement? =
+        storage.getAgents(locale)
 
-    override suspend fun saveAgents(agents: JsonElement) =
-        storage.saveAgents(agents)
+    override suspend fun saveAgents(agents: JsonElement, locale: ValoStatLocale) =
+        storage.saveAgents(agents, locale)
 
-    override suspend fun removeAgents() =
-        storage.removeAgents()
+    override suspend fun removeAgents(locale: ValoStatLocale) =
+        storage.removeAgents(locale)
 
 }

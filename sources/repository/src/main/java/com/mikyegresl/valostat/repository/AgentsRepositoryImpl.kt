@@ -33,7 +33,7 @@ class AgentsRepositoryImpl(
         supervisorScope {
             emit(Response.Loading())
 
-            val localRequest = async { localDataSource.getAgents() }
+            val localRequest = async { localDataSource.getAgents(locale) }
             val remoteRequest = async { remoteDataSource.getAgents(locale) }
 
             var cacheLoadingSuccessful: Boolean?
@@ -56,7 +56,7 @@ class AgentsRepositoryImpl(
                 remoteAgents = AgentsResponseToDtoConverter.convert(remoteData)
 
                 if (cacheLoadingSuccessful == false || localAgents.hashCode() != remoteAgents.hashCode()) {
-                    localDataSource.saveAgents(remoteJson)
+                    localDataSource.saveAgents(remoteJson, locale)
                 }
                 emit(
                     Response.SuccessRemote(
@@ -84,12 +84,12 @@ class AgentsRepositoryImpl(
     override fun getPointsForUltimate(ids: List<String>): Map<String, Int> =
         ids.associateWith { localDataSource.getPointsForUltimate(it) }
 
-    override fun getAgentDetails(agentId: String): Flow<Response<AgentDto>> = flow<Response<AgentDto>> {
+    override fun getAgentDetails(agentId: String, locale: ValoStatLocale): Flow<Response<AgentDto>> = flow<Response<AgentDto>> {
         coroutineScope {
             emit(Response.Loading())
 
             try {
-                val json = localDataSource.getAgents()
+                val json = localDataSource.getAgents(locale)
                 val data = gson.fromJson(json, AgentsResponse::class.java)
                 val agents = AgentsResponseToDtoConverter.convert(data)
                 val agent = agents.firstOrNull { it.uuid == agentId }

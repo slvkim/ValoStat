@@ -8,10 +8,10 @@ import org.koin.dsl.module
 val agentsModule = module {
 
     viewModel {
-        AgentsViewModel(get(), get())
+        AgentsViewModel(get())
     }
 
     viewModel { params ->
-        AgentDetailsViewModel(get(), params.get())
+        AgentDetailsViewModel(get(), get(), params.get())
     }
 }

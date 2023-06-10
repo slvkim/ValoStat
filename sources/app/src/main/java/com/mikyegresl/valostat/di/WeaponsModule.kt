@@ -8,10 +8,10 @@ import org.koin.dsl.module
 val weaponsModule = module {
 
     viewModel {
-        WeaponsViewModel(get(), get())
+        WeaponsViewModel(get())
     }
 
     viewModel { params ->
-        WeaponDetailsViewModel(get(), params.get())
+        WeaponDetailsViewModel(get(), get(), params.get())
     }
 }

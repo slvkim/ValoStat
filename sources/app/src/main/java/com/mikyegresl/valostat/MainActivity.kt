@@ -1,8 +1,10 @@
 package com.mikyegresl.valostat
 
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -20,6 +22,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
+import androidx.core.os.LocaleListCompat
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -29,23 +32,25 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.jakewharton.processphoenix.ProcessPhoenix
 import com.mikyegresl.valostat.base.model.ValoStatLocale
+import com.mikyegresl.valostat.features.agent.AgentsIntent
 import com.mikyegresl.valostat.features.agent.AgentsScreen
 import com.mikyegresl.valostat.features.agent.AgentsViewModel
 import com.mikyegresl.valostat.features.agent.details.AgentDetailsScreen
 import com.mikyegresl.valostat.features.settings.SettingsScreen
-import com.mikyegresl.valostat.features.settings.SettingsViewModel
 import com.mikyegresl.valostat.features.video.VideosViewModel
+import com.mikyegresl.valostat.features.weapon.WeaponsIntent
 import com.mikyegresl.valostat.features.weapon.WeaponsScreen
 import com.mikyegresl.valostat.features.weapon.WeaponsViewModel
 import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsScreen
 import com.mikyegresl.valostat.navigation.GlobalNavItem
 import com.mikyegresl.valostat.navigation.NavigationItem
+import com.mikyegresl.valostat.providers.AppLocaleProvider
 import com.mikyegresl.valostat.ui.dimen.ElemSize
 import com.mikyegresl.valostat.ui.theme.ValoStatTheme
 import com.mikyegresl.valostat.ui.theme.mainBackgroundDark
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.parameter.parametersOf
 
 class MainActivity : AppCompatActivity() {
 
@@ -53,16 +58,33 @@ class MainActivity : AppCompatActivity() {
         private const val TAG = "MainActivityClass"
     }
 
-    private val agentsViewModel by viewModel<AgentsViewModel>()
+    private val localeConfigProvider by lazy {
+        AppLocaleProvider(
+            mapOf(
+                R.string.en to ValoStatLocale.EN,
+                R.string.ru to ValoStatLocale.RU,
+                R.string.kr to ValoStatLocale.KR
+            ).mapKeys { getString(it.key) }
+        )
+    }
 
-    private val weaponsViewModel by viewModel<WeaponsViewModel>()
+    private val agentsViewModel by viewModel<AgentsViewModel> {
+        parametersOf(
+            localeConfigProvider.appLocale
+        )
+    }
+
+    private val weaponsViewModel by viewModel<WeaponsViewModel> {
+        parametersOf(
+            localeConfigProvider.appLocale
+        )
+    }
 
     private val videosViewModel by viewModel<VideosViewModel>()
 
-    private val settingsViewModel by viewModel<SettingsViewModel>()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             ValoStatTheme {
                 val systemUiController = rememberSystemUiController()
@@ -183,7 +205,7 @@ class MainActivity : AppCompatActivity() {
 //            }
             composable(GlobalNavItem.Settings.route) {
                 SettingsScreen(
-                    state = settingsViewModel.state,
+                    locales = localeConfigProvider.locales,
                     onAppLangSwitched = {
                         onAppLanguageChanged(it)
                     }
@@ -199,7 +221,8 @@ class MainActivity : AppCompatActivity() {
             ) {
                 it.arguments?.getString(NavigationItem.WeaponDetails.weaponId)?.let { weaponId ->
                     WeaponDetailsScreen(
-                        weaponId = weaponId
+                        weaponId = weaponId,
+                        locale = localeConfigProvider.appLocale
                     ) {
                         navController.navigateUp()
                     }
@@ -215,7 +238,8 @@ class MainActivity : AppCompatActivity() {
             ) {
                 it.arguments?.getString(NavigationItem.AgentDetails.agentId)?.let { agentId ->
                     AgentDetailsScreen(
-                        agentId = agentId
+                        agentId = agentId,
+                        locale = localeConfigProvider.appLocale
                     ) {
                         navController.navigateUp()
                     }
@@ -225,8 +249,36 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onAppLanguageChanged(locale: ValoStatLocale) {
-        settingsViewModel.saveCurrentLocale(locale) {
-            ProcessPhoenix.triggerRebirth(this@MainActivity)
-        }
+        AppCompatDelegate.setApplicationLocales(
+            LocaleListCompat.forLanguageTags(locale.title)
+        )
+    }
+
+    override fun onStart() {
+        super.onStart()
+        weaponsViewModel.dispatchIntent(
+            WeaponsIntent.UpdateWeaponsIntent(
+                localeConfigProvider.appLocale
+            )
+        )
+        agentsViewModel.dispatchIntent(
+            AgentsIntent.UpdateAgentsIntent(
+                localeConfigProvider.appLocale
+            )
+        )
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        weaponsViewModel.dispatchIntent(
+            WeaponsIntent.UpdateWeaponsIntent(
+                localeConfigProvider.appLocale
+            )
+        )
+        agentsViewModel.dispatchIntent(
+            AgentsIntent.UpdateAgentsIntent(
+                localeConfigProvider.appLocale
+            )
+        )
     }
 }

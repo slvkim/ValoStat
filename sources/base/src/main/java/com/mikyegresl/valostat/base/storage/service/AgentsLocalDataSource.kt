@@ -1,6 +1,7 @@
 package com.mikyegresl.valostat.base.storage.service
 
 import com.google.gson.JsonElement
+import com.mikyegresl.valostat.base.model.ValoStatLocale
 import com.mikyegresl.valostat.base.model.agent.AgentOriginDto
 
 interface AgentsLocalDataSource {
@@ -9,9 +10,9 @@ interface AgentsLocalDataSource {
 
     fun getPointsForUltimate(id: String): Int
 
-    suspend fun getAgents(): JsonElement?
+    suspend fun getAgents(locale: ValoStatLocale): JsonElement?
 
-    suspend fun saveAgents(agents: JsonElement)
+    suspend fun saveAgents(agents: JsonElement, locale: ValoStatLocale)
 
-    suspend fun removeAgents()
+    suspend fun removeAgents(locale: ValoStatLocale)
 }

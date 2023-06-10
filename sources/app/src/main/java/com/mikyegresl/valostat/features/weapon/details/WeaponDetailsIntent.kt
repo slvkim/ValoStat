@@ -1,5 +1,6 @@
 package com.mikyegresl.valostat.features.weapon.details
 
+import com.mikyegresl.valostat.base.model.ValoStatLocale
 import com.mikyegresl.valostat.base.model.weapon.skin.WeaponSkinChromaDto
 
 sealed class WeaponDetailsIntent {
@@ -12,7 +13,8 @@ sealed class WeaponDetailsIntent {
         val chroma: WeaponSkinChromaDto
     ) : WeaponDetailsIntent()
 
-    data class RefreshWeaponDetailsIntent(
-        val weaponId: String
+    data class UpdateWeaponDetailsIntent(
+        val weaponId: String,
+        val locale: ValoStatLocale
     ) : WeaponDetailsIntent()
 }

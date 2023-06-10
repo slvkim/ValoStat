@@ -32,7 +32,7 @@ class WeaponsRepositoryImpl(
         supervisorScope {
             emit(Response.Loading())
 
-            val localRequest = async { localDataSource.getWeapons() }
+            val localRequest = async { localDataSource.getWeapons(locale) }
             val remoteRequest = async { remoteDataSource.getWeapons(locale) }
 
             var cacheLoadingSuccessful: Boolean?
@@ -55,7 +55,7 @@ class WeaponsRepositoryImpl(
                 remoteWeapons = WeaponsResponseToDtoConverter.convert(remoteData)
 
                 if (cacheLoadingSuccessful == false || localWeapons.hashCode() != remoteWeapons.hashCode()) {
-                    localDataSource.saveWeapons(remoteJson)
+                    localDataSource.saveWeapons(remoteJson, locale)
                 }
                 emit(
                     Response.SuccessRemote(remoteWeapons)
@@ -69,12 +69,12 @@ class WeaponsRepositoryImpl(
         }
     }.flowOn(Dispatchers.IO)
 
-    override fun getWeaponDetails(weaponId: String): Flow<Response<WeaponDto>> = flow<Response<WeaponDto>> {
+    override fun getWeaponDetails(weaponId: String, locale: ValoStatLocale): Flow<Response<WeaponDto>> = flow<Response<WeaponDto>> {
         coroutineScope {
             emit(Response.Loading())
 
             try {
-                val json = localDataSource.getWeapons()
+                val json = localDataSource.getWeapons(locale)
                 val data = gson.fromJson(json, WeaponsResponse::class.java)
                 val weapons = WeaponsResponseToDtoConverter.convert(data)
                 val weapon = weapons.firstOrNull { it.uuid == weaponId }

@@ -1,12 +1,14 @@
 package com.mikyegresl.valostat.features.agent.details
 
+import com.mikyegresl.valostat.base.model.ValoStatLocale
 import com.mikyegresl.valostat.base.repository.AgentsRepository
 import com.mikyegresl.valostat.common.viewmodel.BaseNavigationViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class AgentDetailsViewModel(
     private val repository: AgentsRepository,
-    agentId: String
+    agentId: String,
+    locale: ValoStatLocale
 ) : BaseNavigationViewModel<AgentDetailsScreenState>() {
 
     companion object {
@@ -18,32 +20,31 @@ class AgentDetailsViewModel(
     )
 
     init {
-        loadAgentDetails(agentId)
+        loadAgentDetails(agentId, locale)
     }
 
-    private fun loadAgentDetails(agentId: String) =
-        doBackground(
-            repository.getAgentDetails(agentId),
-            onLoading = {
-                _state.value = AgentDetailsScreenState.AgentDetailsLoadingState
-            },
-            onSuccessLocal = {
-                _state.value = AgentDetailsScreenState.AgentDetailsDataState(
-                    details = it,
-                    origin = repository.getAgentsOrigin(it.uuid),
-                    pointsForUltimate = repository.getPointsForUltimate(it.uuid)
-                )
-            },
-            onError = {
-                _state.value = AgentDetailsScreenState.AgentDetailsErrorState(it)
-                true
-            }
-        )
+    private fun loadAgentDetails(agentId: String, locale: ValoStatLocale) = doBackground(
+        repository.getAgentDetails(agentId, locale),
+        onLoading = {
+            _state.value = AgentDetailsScreenState.AgentDetailsLoadingState
+        },
+        onSuccessLocal = {
+            _state.value = AgentDetailsScreenState.AgentDetailsDataState(
+                details = it,
+                origin = repository.getAgentsOrigin(it.uuid),
+                pointsForUltimate = repository.getPointsForUltimate(it.uuid)
+            )
+        },
+        onError = {
+            _state.value = AgentDetailsScreenState.AgentDetailsErrorState(it)
+            true
+        }
+    )
 
     fun dispatchIntent(intent: AgentDetailsIntent) {
         when (intent) {
-            is AgentDetailsIntent.RefreshAgentDetailsIntent -> {
-
+            is AgentDetailsIntent.UpdateAgentDetailsIntent -> {
+                loadAgentDetails(intent.agentId, intent.locale)
             }
             is AgentDetailsIntent.AudioClickedIntent -> {
                 (currentState as? AgentDetailsScreenState.AgentDetailsDataState)?.let {

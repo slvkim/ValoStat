@@ -9,5 +9,5 @@ interface WeaponsRepository {
 
     fun getWeapons(locale: ValoStatLocale): Flow<Response<List<WeaponDto>>>
 
-    fun getWeaponDetails(weaponId: String): Flow<Response<WeaponDto>>
+    fun getWeaponDetails(weaponId: String, locale: ValoStatLocale): Flow<Response<WeaponDto>>
 }

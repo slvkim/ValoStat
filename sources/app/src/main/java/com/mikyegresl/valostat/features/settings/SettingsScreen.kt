@@ -1,6 +1,5 @@
 package com.mikyegresl.valostat.features.settings
 
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,53 +21,36 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.core.os.LocaleListCompat
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.text.style.TextAlign
 import com.mikyegresl.valostat.R
 import com.mikyegresl.valostat.base.model.ValoStatLocale
-import com.mikyegresl.valostat.common.compose.ShowLoadingState
 import com.mikyegresl.valostat.ui.dimen.Padding
 import com.mikyegresl.valostat.ui.theme.ValoStatTypography
-import kotlinx.coroutines.flow.StateFlow
 
 /* Supported languages:
-
 *  en-US
 *  ko-KR
 *  ru-RU
-*  zh-CN
-*  fr-FR
-*  es-ES
-*  de-DE
-*  ja-JP
-*
 * */
 
 private const val TAG = "SettingsScreen"
 
 @Composable
 fun SettingsScreen(
-    state: StateFlow<SettingsScreenState>,
+    locales: Map<String, ValoStatLocale>,
     onAppLangSwitched: (ValoStatLocale) -> Unit
 ) {
-    when (val viewState = state.collectAsStateWithLifecycle().value) {
-        is SettingsScreenState.SettingsLoadingState -> {
-            ShowLoadingState()
+    Scaffold(
+        modifier = Modifier,
+        topBar = {
+            SettingsTopBar()
         }
-        is SettingsScreenState.SettingsDataState -> {
-            Scaffold(
-                modifier = Modifier,
-                topBar = {
-                    SettingsTopBar()
-                }
-            ) { paddingValues ->
-                SettingsScreenContent(
-                    modifier = Modifier.padding(paddingValues),
-                    viewState,
-                    onAppLangSwitched
-                )
-            }
-        }
+    ) { paddingValues ->
+        SettingsScreenContent(
+            modifier = Modifier.padding(paddingValues),
+            locales = locales,
+            onAppLangSwitched = onAppLangSwitched
+        )
     }
 }
 
@@ -97,7 +79,7 @@ fun SettingsTopBar(
 @Composable
 fun SettingsScreenContent(
     modifier: Modifier = Modifier,
-    state: SettingsScreenState.SettingsDataState,
+    locales: Map<String, ValoStatLocale>,
     onAppLangSwitched: (ValoStatLocale) -> Unit
 ) {
     Column(
@@ -108,21 +90,16 @@ fun SettingsScreenContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        LocaleDropdownMenu(onAppLangSwitched)
+        LocaleDropdownMenu(locales, onAppLangSwitched)
     }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LocaleDropdownMenu(
+    locales: Map<String, ValoStatLocale>,
     onAppLangSwitched: (ValoStatLocale) -> Unit
 ) {
-    val locales = mapOf(
-        R.string.en to ValoStatLocale.EN,
-        R.string.ru to ValoStatLocale.RU,
-        R.string.kr to ValoStatLocale.KR
-    ).mapKeys { stringResource(it.key) }
-
     var expanded by remember { mutableStateOf(false) }
 
     Row(
@@ -154,19 +131,19 @@ fun LocaleDropdownMenu(
                     expanded = false
                 }
             ) {
-                locales.keys.forEach { selectionLocale ->
+                locales.keys.forEach { locale ->
                     DropdownMenuItem(
                         onClick = {
                             expanded = false
-
-                            locales[selectionLocale]?.let {
-                                AppCompatDelegate.setApplicationLocales(
-                                    LocaleListCompat.forLanguageTags(it.title)
-                                )
-                                onAppLangSwitched(it)
-                            }
+                            locales[locale]?.let(onAppLangSwitched)
                         },
-                        content = { Text(selectionLocale) }
+                        content = {
+                            Text(
+                                text = locale,
+                                style = ValoStatTypography.caption,
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     )
                 }
             }
