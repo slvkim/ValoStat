@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material.Card
@@ -21,6 +20,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,7 +46,7 @@ import com.mikyegresl.valostat.base.model.agent.AgentVoiceLineDto
 import com.mikyegresl.valostat.common.compose.ShowErrorState
 import com.mikyegresl.valostat.common.compose.ShowLoadingState
 import com.mikyegresl.valostat.features.agent.agentAbilitiesMock
-import com.mikyegresl.valostat.features.player.exoplayer.newer.ComposablePlayerView
+import com.mikyegresl.valostat.features.player.exoplayer.ComposableExoPlayer
 import com.mikyegresl.valostat.ui.dimen.ElemSize
 import com.mikyegresl.valostat.ui.dimen.Padding
 import com.mikyegresl.valostat.ui.theme.ValoStatTypography
@@ -139,6 +139,9 @@ fun AgentDetailsAsDataState(
                     state = state,
                     onPlayIconClicked = {
                         viewModel.dispatchIntent(AgentDetailsIntent.AudioClickedIntent(it))
+                    },
+                    onVoicelineLeftFocus = {
+                        viewModel.dispatchIntent(AgentDetailsIntent.AudioDisposeIntent)
                     }
                 )
             }
@@ -201,7 +204,8 @@ fun AgentDetailsTopBar(
 fun AgentDescriptionItem(
     modifier: Modifier = Modifier,
     state: AgentDetailsScreenState.AgentDetailsDataState,
-    onPlayIconClicked: (AgentVoiceLineDto.VoiceLineMediaDto) -> Unit
+    onPlayIconClicked: (AgentVoiceLineDto.VoiceLineMediaDto) -> Unit,
+    onVoicelineLeftFocus: () -> Unit
 ) {
     val commonRowModifier = Modifier.fillMaxWidth()
     val dividerModifier = Modifier.padding(vertical = Padding.Dp8)
@@ -240,7 +244,8 @@ fun AgentDescriptionItem(
         VoiceLineSection(
             modifier = commonRowModifier,
             state = state,
-            onPlayIconClicked = onPlayIconClicked
+            onPlayIconClicked = onPlayIconClicked,
+            onVoicelineLeftFocus = onVoicelineLeftFocus
         )
         Divider(
             modifier = dividerModifier,
@@ -345,7 +350,8 @@ fun PointsForUltimateSection(
 fun VoiceLineSection(
     modifier: Modifier = Modifier,
     state: AgentDetailsScreenState.AgentDetailsDataState,
-    onPlayIconClicked: (AgentVoiceLineDto.VoiceLineMediaDto) -> Unit
+    onPlayIconClicked: (AgentVoiceLineDto.VoiceLineMediaDto) -> Unit,
+    onVoicelineLeftFocus: () -> Unit
 ) {
 
     Row(
@@ -356,10 +362,16 @@ fun VoiceLineSection(
             text = "${stringResource(id = R.string.voiceline)}:",
             style = ValoStatTypography.caption.copy(color = secondaryTextDark)
         )
-        VoiceLineItemContainer(
-            state = state,
-            onPlayIconClicked = onPlayIconClicked
-        )
+        DisposableEffect(
+            VoiceLineItemContainer(
+                state = state,
+                onPlayIconClicked = onPlayIconClicked
+            )
+        ) {
+            onDispose {
+                onVoicelineLeftFocus()
+            }
+        }
     }
 }
 
@@ -371,14 +383,20 @@ fun VoiceLineItemContainer(
     if (state.activeVoiceline != state.details.voiceLine.voiceline) {
         VoiceLineIconItem(
             voiceline = state.details.voiceLine.voiceline,
+            isPlaying = false,
             onPlayIconClicked = onPlayIconClicked
         )
     } else {
-        ComposablePlayerView(
-            playerModifier = Modifier.wrapContentSize(),
-            mediaUri = state.details.voiceLine.voiceline.wave,
-            isVideoPlayer = false
+        ComposableExoPlayer(
+            modifier = Modifier
+                .fillMaxSize(),
+            mediaUri = state.details.voiceLine.voiceline.wave
         )
+//        ComposablePlayerView(
+//            playerModifier = Modifier.size(ElemSize.Dp36),
+//            mediaUri = state.details.voiceLine.voiceline.wave,
+//            isVideoPlayer = false
+//        )
     }
 
 }
@@ -386,13 +404,19 @@ fun VoiceLineItemContainer(
 @Composable
 fun VoiceLineIconItem(
     voiceline: AgentVoiceLineDto.VoiceLineMediaDto,
+    isPlaying: Boolean,
     onPlayIconClicked: (AgentVoiceLineDto.VoiceLineMediaDto) -> Unit
 ) {
+    val iconDrawable = if (isPlaying) R.drawable.ic_pause_button
+    else R.drawable.ic_play_button
+
     Icon(
         modifier = Modifier.clickable {
             onPlayIconClicked(voiceline)
         },
-        painter = painterResource(id = R.drawable.ic_play_button),
+        painter = painterResource(
+            id = iconDrawable
+        ),
         contentDescription = stringResource(id = R.string.voiceline)
     )
 }

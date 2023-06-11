@@ -8,9 +8,7 @@ sealed class AgentDetailsIntent {
         val voiceline: AgentVoiceLineDto.VoiceLineMediaDto
     ) : AgentDetailsIntent()
 
-    data class AudioDisposeIntent(
-        val voiceline: AgentVoiceLineDto.VoiceLineMediaDto
-    ) : AgentDetailsIntent()
+    object AudioDisposeIntent : AgentDetailsIntent()
 
     data class UpdateAgentDetailsIntent(
         val agentId: String,

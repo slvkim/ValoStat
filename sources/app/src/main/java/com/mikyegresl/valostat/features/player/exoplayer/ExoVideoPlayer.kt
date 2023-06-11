@@ -4,23 +4,14 @@ import android.content.Context
 import android.media.session.PlaybackState
 import android.os.Looper
 import android.util.Log
-import android.widget.ImageView
-import androidx.appcompat.content.res.AppCompatResources
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import android.view.View
+import android.widget.ImageButton
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -38,7 +29,6 @@ import com.mikyegresl.valostat.features.player.exoplayer.VideoPlayerContentState
 import com.mikyegresl.valostat.features.player.exoplayer.VideoPlayerContentState.VideoPlayerReadyContentState
 import com.mikyegresl.valostat.features.player.exoplayer.VideoPlayerIntent.*
 import com.mikyegresl.valostat.features.player.exoplayer.VideoPlayerIntent.VideoReadyPlayerIntent.*
-import com.mikyegresl.valostat.ui.theme.mainTextDark
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -52,7 +42,7 @@ private val VIDEO_EXTENSIONS = listOf( "avi", "mp4" )
 
 private const val USER_AGENT = "Exoplayer"
 
-class ExoPlayerPearsonVideoPlayer(
+class ExoVideoPlayer(
     private val mediaUrl: String,
     private val lifecycleOwner: LifecycleOwner,
     val uiCoroutineScope: CoroutineScope,
@@ -72,7 +62,7 @@ class ExoPlayerPearsonVideoPlayer(
     private var playerView: PlayerView? = null
 
     // data-related and player configuration-related variables
-    private var config: PearsonVideoPlayerConfig = PearsonVideoPlayerConfig.DEFAULT_PLAYER_CONFIG
+    private var config: ExoPlayerConfig = ExoPlayerConfig.DEFAULT_PLAYER_CONFIG
     private var dispatchedPlayOnInit = false
 
     private var isFullScreen: Boolean = fullScreenListener?.let { config.areInFullscreenFromStart } ?: false
@@ -100,7 +90,7 @@ class ExoPlayerPearsonVideoPlayer(
         }
     }
 
-    private fun withConfig(config: PearsonVideoPlayerConfig) = this.also {
+    private fun withConfig(config: ExoPlayerConfig) = this.also {
         it.config = config
         isFullScreen = fullScreenListener?.let { config.areInFullscreenFromStart } ?: false
     }
@@ -158,8 +148,7 @@ class ExoPlayerPearsonVideoPlayer(
                 key1 = lifecycleOwner,
                 AndroidView(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
+                        .fillMaxSize(),
                     factory = { context ->
                         PlayerView(context).let {
                             setPlayerUi(context, it)
@@ -180,68 +169,44 @@ class ExoPlayerPearsonVideoPlayer(
                     releaseResources()
                 }
             }
-            val isBuffering = (state.value as? VideoPlayerReadyContentState)?.isLoadingVideo ?: false
-            AnimatedVisibility(
-                visible = state.value is VideoPlayerLoadingContentState || isBuffering,
-                modifier = Modifier.align(Alignment.Center),
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(36.dp),
-                    color = mainTextDark
-                )
-            }
         }
     }
 
+    @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     private fun setPlayerUi(
         context: Context,
         playerView: PlayerView
     ) {
-//        val fullScreenBtn = playerView.findViewById<ImageView>(com.mikyegresl.valostat.R.id.exo_fullscreen_icon)
-//        fullScreenBtn.isVisible = fullScreenListener != null
+        val prevBtn = playerView.findViewById<ImageButton>(androidx.media3.ui.R.id.exo_prev)
+        val nextBtn = playerView.findViewById<ImageButton>(androidx.media3.ui.R.id.exo_next)
+        val repeatToggleBtn = playerView.findViewById<ImageButton>(androidx.media3.ui.R.id.exo_repeat_toggle)
+        val subtitleBtn = playerView.findViewById<ImageButton>(androidx.media3.ui.R.id.exo_subtitle)
+        val overflowBtn = playerView.findViewById<ImageButton>(androidx.media3.ui.R.id.exo_overflow_hide)
+        val fullScreenBtn = playerView.findViewById<ImageButton>(androidx.media3.ui.R.id.exo_fullscreen)
+        val settingsBtn = playerView.findViewById<ImageButton>(androidx.media3.ui.R.id.exo_settings)
 
-//        fullScreenBtn.takeIf { it.isVisible }?.setOnClickListener {
-//            val params = playerView.layoutParams
-//            val playOnInit = (playerState as? VideoPlayerReadyContentState)?.isPlaying ?: false
-//
-//            isFullScreen = if (fullScreenListener == null) false
-//            else if (isFullScreen) {
-//                fullScreenListener.onExitFullScreen(
-//                    exoPlayer?.currentPosition ?: 0,
-//                    playOnInit
-//                )
-//                params.height = ViewGroup.LayoutParams.WRAP_CONTENT
-//                false
-//            } else {
-//                fullScreenListener.onEnterFullScreen(
-//                    exoPlayer?.currentPosition ?: 0,
-//                    playOnInit
-//                )
-//                params.height = ViewGroup.LayoutParams.MATCH_PARENT
-//                true
-//            }
-//            params.width = ViewGroup.LayoutParams.MATCH_PARENT
-//            playerView.layoutParams = params
-//            setFullscreenImageByFullscreenState(context, playerView)
-//        }
-//        setFullscreenImageByFullscreenState(context, playerView)
+        prevBtn.visibility = View.GONE
+        nextBtn.visibility = View.GONE
+        repeatToggleBtn.visibility = View.GONE
+        subtitleBtn.visibility = View.GONE
+        overflowBtn.visibility = View.GONE
+        fullScreenBtn.visibility = View.VISIBLE
+        settingsBtn.visibility = View.VISIBLE
     }
 
     private fun setFullscreenImageByFullscreenState(context: Context, playerView: PlayerView) {
-        val fullScreenBtn = playerView.findViewById<ImageView>(com.mikyegresl.valostat.R.id.exo_fullscreen_icon) ?: return
-
-        fullScreenBtn.takeIf { it.isVisible }?.let {
-            if (fullScreenListener == null) return
-
-            val res = if (isFullScreen) com.mikyegresl.valostat.R.drawable.ic_disable_fullscreen
-            else com.mikyegresl.valostat.R.drawable.ic_enable_fullscreen
-
-            fullScreenBtn.setImageDrawable(
-                AppCompatResources.getDrawable(context, res)
-            )
-        }
+//        val fullScreenBtn = playerView.findViewById<ImageView>(com.mikyegresl.valostat.R.id.exo_fullscreen_icon) ?: return
+//
+//        fullScreenBtn.takeIf { it.isVisible }?.let {
+//            if (fullScreenListener == null) return
+//
+//            val res = if (isFullScreen) com.mikyegresl.valostat.R.drawable.ic_disable_fullscreen
+//            else com.mikyegresl.valostat.R.drawable.ic_enable_fullscreen
+//
+//            fullScreenBtn.setImageDrawable(
+//                AppCompatResources.getDrawable(context, res)
+//            )
+//        }
     }
 
     private fun reactOnVideoReadyStateOnPlayer(
@@ -295,7 +260,7 @@ class ExoPlayerPearsonVideoPlayer(
         }
     }
 
-    protected fun changeContentState(contentState: VideoPlayerContentState) {
+    private fun changeContentState(contentState: VideoPlayerContentState) {
         uiCoroutineScope.launch { _playerStateFlow.value.emit(contentState) }
     }
 
@@ -358,8 +323,7 @@ class ExoPlayerPearsonVideoPlayer(
                 )
             )
         } else {
-            Log.e(ExoPlayerPearsonVideoPlayer::class.java.name, "Player has not been initialized")
-            // TODO based on flag show error on view if smth went wrong
+            Log.e(ExoVideoPlayer::class.java.name, "Player has not been initialized")
         }
     }
 
@@ -413,7 +377,7 @@ enum class OnResumePlayerStrategy {
     VIDEO_PAUSED
 }
 
-class PearsonVideoPlayerConfig(
+class ExoPlayerConfig(
     val onResumePlayerStrategy: OnResumePlayerStrategy = OnResumePlayerStrategy.VIDEO_PAUSED,
     val playOnInit: Boolean = false,
     val millisOnInit: Long = VideoPlayerIntent.VIDEO_START_MILLISECOND_DEFAULT,
@@ -421,6 +385,6 @@ class PearsonVideoPlayerConfig(
     val keepScreenOnWhenPlayerInitialized: Boolean = true
 ) {
     companion object {
-        val DEFAULT_PLAYER_CONFIG = PearsonVideoPlayerConfig()
+        val DEFAULT_PLAYER_CONFIG = ExoPlayerConfig(playOnInit = true)
     }
 }

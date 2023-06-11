@@ -53,9 +53,7 @@ class AgentDetailsViewModel(
             }
             is AgentDetailsIntent.AudioDisposeIntent -> {
                 val dataState = (currentState as? AgentDetailsScreenState.AgentDetailsDataState) ?: return
-                if (dataState.activeVoiceline == intent.voiceline) {
-                    updateState(dataState.copy(activeVoiceline = null))
-                }
+                updateState(dataState.copy(activeVoiceline = null))
             }
         }
     }

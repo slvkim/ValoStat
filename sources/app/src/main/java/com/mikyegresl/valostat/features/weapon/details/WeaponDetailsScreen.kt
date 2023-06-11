@@ -65,8 +65,7 @@ import com.mikyegresl.valostat.base.model.weapon.stats.WeaponDamageRangeDto
 import com.mikyegresl.valostat.base.model.weapon.stats.WeaponStatsDto
 import com.mikyegresl.valostat.common.compose.ShowErrorState
 import com.mikyegresl.valostat.common.compose.ShowLoadingState
-import com.mikyegresl.valostat.features.player.exoplayer.newer.BasicMediaPlayer
-import com.mikyegresl.valostat.features.player.exoplayer.newer.ComposableExoPlayer
+import com.mikyegresl.valostat.features.player.exoplayer.ComposableExoPlayer
 import com.mikyegresl.valostat.ui.dimen.ElemSize
 import com.mikyegresl.valostat.ui.dimen.Padding
 import com.mikyegresl.valostat.ui.theme.ValoStatTypography
@@ -81,7 +80,6 @@ import org.koin.core.parameter.parametersOf
 import kotlin.math.roundToInt
 
 internal val LocalWeaponsDetailsViewModel = compositionLocalOf<WeaponDetailsViewModel?> { null }
-internal val LocalProviderOfVideoPlayer = compositionLocalOf<BasicMediaPlayer?> { null }
 
 private const val TAG = "WeaponsDetailsScreen"
 
