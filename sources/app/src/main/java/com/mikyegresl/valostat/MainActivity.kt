@@ -1,6 +1,7 @@
 package com.mikyegresl.valostat
 
 import android.content.res.Configuration
+import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
@@ -18,6 +19,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -102,7 +104,13 @@ class MainActivity : AppCompatActivity() {
         val navController = rememberNavController()
         Scaffold(
             topBar = {  },
-            bottomBar = { BottomNavigationBar(navController = navController) }
+            bottomBar = {
+                val currentOrientation = LocalConfiguration.current.orientation
+
+                if (currentOrientation != ORIENTATION_LANDSCAPE) {
+                    BottomNavigationBar(navController = navController)
+                }
+            }
         ) { offset ->
             Box(modifier = Modifier.padding(offset)) {
                 GlobalNavGraph(navController = navController)

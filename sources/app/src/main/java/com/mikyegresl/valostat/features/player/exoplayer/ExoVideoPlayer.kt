@@ -35,6 +35,7 @@ import androidx.media3.datasource.cache.SimpleCache
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.ui.PlayerView
+import androidx.media3.ui.PlayerView.SHOW_BUFFERING_ALWAYS
 import com.mikyegresl.valostat.features.player.exoplayer.VideoPlayerContentState.VideoPlayerLoadingContentState
 import com.mikyegresl.valostat.features.player.exoplayer.VideoPlayerContentState.VideoPlayerReadyContentState
 import com.mikyegresl.valostat.features.player.exoplayer.VideoPlayerIntent.*
@@ -168,6 +169,9 @@ class ExoVideoPlayer(
         context: Context,
         playerView: PlayerView
     ) {
+        playerView.controllerAutoShow = false
+        playerView.setShowBuffering(SHOW_BUFFERING_ALWAYS)
+
         val layoutParams = if (isFullScreen) {
             FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
         } else {
