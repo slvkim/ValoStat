@@ -43,10 +43,11 @@ import com.mikyegresl.valostat.base.model.agent.AgentAbilityDto
 import com.mikyegresl.valostat.base.model.agent.AgentOriginDto
 import com.mikyegresl.valostat.base.model.agent.AgentRoleDto
 import com.mikyegresl.valostat.base.model.agent.AgentVoiceLineDto
-import com.mikyegresl.valostat.common.compose.ShowErrorState
-import com.mikyegresl.valostat.common.compose.ShowLoadingState
+import com.mikyegresl.valostat.common.compose.ShowingErrorState
+import com.mikyegresl.valostat.common.compose.ShowingLoadingState
 import com.mikyegresl.valostat.features.agent.agentAbilitiesMock
 import com.mikyegresl.valostat.features.player.exoplayer.ComposableExoPlayer
+import com.mikyegresl.valostat.features.player.exoplayer.ExoPlayerConfig
 import com.mikyegresl.valostat.ui.dimen.ElemSize
 import com.mikyegresl.valostat.ui.dimen.Padding
 import com.mikyegresl.valostat.ui.theme.ValoStatTypography
@@ -95,10 +96,10 @@ fun AgentDetailsScreen(
                 }
             }
             is AgentDetailsScreenState.AgentDetailsLoadingState -> {
-                ShowLoadingState()
+                ShowingLoadingState()
             }
             is AgentDetailsScreenState.AgentDetailsErrorState -> {
-                ShowErrorState(errorMessage = viewState.t.message)
+                ShowingErrorState(errorMessage = viewState.t.message)
 
             }
         }
@@ -390,13 +391,9 @@ fun VoiceLineItemContainer(
         ComposableExoPlayer(
             modifier = Modifier
                 .fillMaxSize(),
-            mediaUri = state.details.voiceLine.voiceline.wave
+            mediaUri = state.details.voiceLine.voiceline.wave,
+            playerConfig = ExoPlayerConfig.DEFAULT_PLAYER_CONFIG
         )
-//        ComposablePlayerView(
-//            playerModifier = Modifier.size(ElemSize.Dp36),
-//            mediaUri = state.details.voiceLine.voiceline.wave,
-//            isVideoPlayer = false
-//        )
     }
 
 }

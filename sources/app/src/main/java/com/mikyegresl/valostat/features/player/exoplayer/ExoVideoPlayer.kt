@@ -2,28 +2,38 @@ package com.mikyegresl.valostat.features.player.exoplayer
 
 import android.content.Context
 import android.media.session.PlaybackState
+import android.net.Uri
 import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.widget.FrameLayout
 import android.widget.ImageButton
+import android.widget.ImageView
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.database.StandaloneDatabaseProvider
 import androidx.media3.datasource.DataSource
 import androidx.media3.datasource.DefaultDataSource
+import androidx.media3.datasource.cache.Cache
+import androidx.media3.datasource.cache.CacheDataSource
+import androidx.media3.datasource.cache.LeastRecentlyUsedCacheEvictor
+import androidx.media3.datasource.cache.SimpleCache
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
-import androidx.media3.exoplayer.trackselection.TrackSelector
-import androidx.media3.extractor.DefaultExtractorsFactory
-import androidx.media3.extractor.ExtractorsFactory
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.ui.PlayerView
 import com.mikyegresl.valostat.features.player.exoplayer.VideoPlayerContentState.VideoPlayerLoadingContentState
 import com.mikyegresl.valostat.features.player.exoplayer.VideoPlayerContentState.VideoPlayerReadyContentState
@@ -33,36 +43,35 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.io.File
 
-private const val TAG = "PlayerVideoPlayer"
-private const val PEARSON_JS_PLAYER_SIGNATURE = "mediaplayer.pearsoncmg.com"
-private const val PEARSON_JS_PLAYER_URL = "https://mediaplayer.pearsoncmg.com/assets/_pmd.true/"
-
-private val VIDEO_EXTENSIONS = listOf( "avi", "mp4" )
-
-private const val USER_AGENT = "Exoplayer"
-
+@UnstableApi
 class ExoVideoPlayer(
     private val mediaUrl: String,
     private val lifecycleOwner: LifecycleOwner,
     val uiCoroutineScope: CoroutineScope,
-    private val fullScreenListener: ExoPlayerFullScreenListener?
+    private val fullScreenListener: ExoPlayerFullScreenListener?,
+    private val config: ExoPlayerConfig
 ) {
-
     companion object {
+        private const val TAG = "PlayerVideoPlayer"
         private const val DOWNLOAD_CONTENT_DIRECTORY = "downloads"
+        private const val ALLOWED_CACHE_SIZE: Long = 90 * 1024 * 1024
+
+        private val cacheEvictor by lazy {
+            LeastRecentlyUsedCacheEvictor(ALLOWED_CACHE_SIZE)
+        }
+
+        private var simpleCache: Cache? = null
+
+        private var databaseProvider: StandaloneDatabaseProvider? = null
+        private var dataSourceFactory: CacheDataSource.Factory? = null
+        private var upstreamFactory: DataSource.Factory? = null
     }
 
-    private var dataSourceFactory: DataSource.Factory? = null
-    private var extractorsFactory: ExtractorsFactory? = null
-
-    // player-related variables
     private var exoPlayer: ExoPlayer? = null
-    private var trackSelector: TrackSelector? = null
     private var playerView: PlayerView? = null
 
-    // data-related and player configuration-related variables
-    private var config: ExoPlayerConfig = ExoPlayerConfig.DEFAULT_PLAYER_CONFIG
     private var dispatchedPlayOnInit = false
 
     private var isFullScreen: Boolean = fullScreenListener?.let { config.areInFullscreenFromStart } ?: false
@@ -72,64 +81,47 @@ class ExoVideoPlayer(
     val state get() = _playerStateFlow.value.asStateFlow()
     private val playerState: VideoPlayerContentState get() = state.value
 
-    private fun initializeWithParams(mediaUrl: String, onPlayerReady: (ExoPlayer) -> Unit): Boolean {
+    private fun initializeWithParams(mediaUrl: String): Boolean {
         return exoPlayer?.let {
-            loadVideoAndPreparePlayer(mediaUrl, onPlayerReady)
+            loadVideoAndPreparePlayer(mediaUrl)
             true
         } ?: false
     }
 
     @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
-    private fun loadVideoAndPreparePlayer(uri: String, onPlayerReady: (ExoPlayer) -> Unit) {
-        val mediaItem = MediaItem.fromUri(uri)
-//        val mediaSource = DefaultDataSource.Factory(dataSourceFactory!!).createMediaSource(mediaItem)
+    private fun loadVideoAndPreparePlayer(uri: String) {
+        val videoSource = DefaultMediaSourceFactory(dataSourceFactory!!)
+            .createMediaSource(MediaItem.fromUri(Uri.parse(uri)))
         exoPlayer?.let {
-            onPlayerReady(it)
-            it.setMediaItem(mediaItem)
+            it.setMediaSource(videoSource, config.playbackPosition)
             it.prepare()
         }
     }
 
-    private fun withConfig(config: ExoPlayerConfig) = this.also {
-        it.config = config
-        isFullScreen = fullScreenListener?.let { config.areInFullscreenFromStart } ?: false
-    }
-
     @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     private fun initVideoPlaybackObjects(context: Context) {
-//        val downloadContentDirectory = File(context.getExternalFilesDir(null), DOWNLOAD_CONTENT_DIRECTORY)
-//        val downloadCache = SimpleCache(downloadContentDirectory, NoOpCacheEvictor())
-//        val upstreamFactory = DefaultDataSourceFactory(context, Util.getUserAgent(context, USER_AGENT))
-        dataSourceFactory = dataSourceFactory
-            ?:  DefaultDataSource.Factory(context)
-//                .setCache(downloadCache).setUpstreamDataSourceFactory(upstreamFactory)
-        extractorsFactory = extractorsFactory ?: DefaultExtractorsFactory()
-    }
+        val downloadContentDirectory = File(context.getExternalFilesDir(null), DOWNLOAD_CONTENT_DIRECTORY)
 
-    @Composable
-    fun InflatePlayer(modifier: Modifier) =
-        RenderPlayerView(
-            modifier = modifier,
-            playbackPosition = 0
+        upstreamFactory = upstreamFactory ?: DefaultDataSource.Factory(context)
+        databaseProvider = databaseProvider ?: StandaloneDatabaseProvider(context)
+
+        simpleCache = simpleCache ?: SimpleCache(
+            downloadContentDirectory,
+            cacheEvictor,
+            databaseProvider!!
         )
-
-    @Composable
-    fun ContinuePlayback(
-        modifier: Modifier,
-        playbackPosition: Long
-    ) = RenderPlayerView(
-        modifier = modifier,
-        playbackPosition = playbackPosition
-    )
+        dataSourceFactory = dataSourceFactory ?: CacheDataSource.Factory()
+            .setCache(simpleCache!!)
+            .setUpstreamDataSourceFactory(upstreamFactory)
+            .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
+    }
 
     @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     @Composable
-    private fun RenderPlayerView(
-        modifier: Modifier,
-        playbackPosition: Long
+    fun RenderPlayerView(
+        modifier: Modifier
     ) {
         initVideoPlaybackObjects(LocalContext.current)
-        trackSelector = trackSelector ?: DefaultTrackSelector(LocalContext.current)
 
         val state = _playerStateFlow.value.collectAsState()
         val dispatchedState = remember { mutableStateOf<VideoPlayerContentState?>(null) }
@@ -147,21 +139,20 @@ class ExoVideoPlayer(
             DisposableEffect(
                 key1 = lifecycleOwner,
                 AndroidView(
-                    modifier = Modifier
-                        .fillMaxSize(),
                     factory = { context ->
                         PlayerView(context).let {
                             setPlayerUi(context, it)
-                            initialize(playbackPosition)
+                            initialize(config.playbackPosition)
                             it.keepScreenOn = config.keepScreenOnWhenPlayerInitialized
                             playerView = it
                             it
                         }
-                    }
+                    },
+                    modifier = Modifier.fillMaxSize()
                 )
             ) {
                 val lifecycleObserver = LifecycleEventObserver { _, event ->
-                    onStateChanged(event, playbackPosition)
+                    onStateChanged(event, config.playbackPosition)
                 }
                 lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
                 onDispose {
@@ -177,12 +168,18 @@ class ExoVideoPlayer(
         context: Context,
         playerView: PlayerView
     ) {
+        val layoutParams = if (isFullScreen) {
+            FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+        } else {
+            FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+        }
+        playerView.layoutParams = layoutParams
+
         val prevBtn = playerView.findViewById<ImageButton>(androidx.media3.ui.R.id.exo_prev)
         val nextBtn = playerView.findViewById<ImageButton>(androidx.media3.ui.R.id.exo_next)
         val repeatToggleBtn = playerView.findViewById<ImageButton>(androidx.media3.ui.R.id.exo_repeat_toggle)
         val subtitleBtn = playerView.findViewById<ImageButton>(androidx.media3.ui.R.id.exo_subtitle)
         val overflowBtn = playerView.findViewById<ImageButton>(androidx.media3.ui.R.id.exo_overflow_hide)
-        val fullScreenBtn = playerView.findViewById<ImageButton>(androidx.media3.ui.R.id.exo_fullscreen)
         val settingsBtn = playerView.findViewById<ImageButton>(androidx.media3.ui.R.id.exo_settings)
 
         prevBtn.visibility = View.GONE
@@ -190,23 +187,44 @@ class ExoVideoPlayer(
         repeatToggleBtn.visibility = View.GONE
         subtitleBtn.visibility = View.GONE
         overflowBtn.visibility = View.GONE
-        fullScreenBtn.visibility = View.VISIBLE
         settingsBtn.visibility = View.VISIBLE
+
+        val fullScreenBtn = playerView.findViewById<ImageView>(androidx.media3.ui.R.id.exo_fullscreen)
+        fullScreenBtn.isVisible = fullScreenListener != null
+
+        fullScreenBtn.takeIf { it.isVisible }?.setOnClickListener {
+            val params = playerView.layoutParams
+            val playOnInit = exoPlayer?.isPlaying ?: false
+            val playbackPosition = exoPlayer?.currentPosition ?: 0
+
+            isFullScreen = if (fullScreenListener == null) false
+            else if (isFullScreen) {
+                fullScreenListener.onExitFullScreen(playbackPosition, playOnInit)
+                params.height = WRAP_CONTENT
+                false
+            } else {
+                fullScreenListener.onEnterFullScreen(playbackPosition, playOnInit)
+                params.height = MATCH_PARENT
+                true
+            }
+            params.width = MATCH_PARENT
+            playerView.layoutParams = params
+            setFullscreenImageByFullscreenState(context, playerView)
+        }
+        setFullscreenImageByFullscreenState(context, playerView)
     }
 
     private fun setFullscreenImageByFullscreenState(context: Context, playerView: PlayerView) {
-//        val fullScreenBtn = playerView.findViewById<ImageView>(com.mikyegresl.valostat.R.id.exo_fullscreen_icon) ?: return
-//
-//        fullScreenBtn.takeIf { it.isVisible }?.let {
-//            if (fullScreenListener == null) return
-//
-//            val res = if (isFullScreen) com.mikyegresl.valostat.R.drawable.ic_disable_fullscreen
-//            else com.mikyegresl.valostat.R.drawable.ic_enable_fullscreen
-//
-//            fullScreenBtn.setImageDrawable(
-//                AppCompatResources.getDrawable(context, res)
-//            )
-//        }
+        val fullScreenBtn = playerView.findViewById<ImageButton>(androidx.media3.ui.R.id.exo_fullscreen) ?: return
+
+        if (fullScreenListener == null) return
+
+        val res = if (isFullScreen) com.mikyegresl.valostat.R.drawable.ic_disable_fullscreen
+        else com.mikyegresl.valostat.R.drawable.ic_enable_fullscreen
+
+        fullScreenBtn.setImageDrawable(
+            AppCompatResources.getDrawable(context, res)
+        )
     }
 
     private fun reactOnVideoReadyStateOnPlayer(
@@ -311,15 +329,13 @@ class ExoVideoPlayer(
         playerView?.player = exoPlayer
         setUpPlayer(exoPlayer!!)
 
-        val isInitialized = initializeWithParams(mediaUrl) {
-            with(playbackPosition) { if (this > 0) it.seekTo(this) }
-        }
+        val isInitialized = initializeWithParams(mediaUrl)
         if (isInitialized) {
             changeContentState(
                 VideoPlayerReadyContentState(
                     isEnded = false,
                     isPlaying = false,
-                    currentMillis = config.millisOnInit
+                    currentMillis = config.playbackPosition
                 )
             )
         } else {
@@ -372,19 +388,32 @@ class ExoVideoPlayer(
     }
 }
 
-enum class OnResumePlayerStrategy {
-    VIDEO_RESUMED,
-    VIDEO_PAUSED
-}
-
-class ExoPlayerConfig(
-    val onResumePlayerStrategy: OnResumePlayerStrategy = OnResumePlayerStrategy.VIDEO_PAUSED,
-    val playOnInit: Boolean = false,
-    val millisOnInit: Long = VideoPlayerIntent.VIDEO_START_MILLISECOND_DEFAULT,
-    val areInFullscreenFromStart: Boolean = false,
-    val keepScreenOnWhenPlayerInitialized: Boolean = true
+data class ExoPlayerConfig(
+    val playOnInit: Boolean,
+    val playbackPosition: Long,
+    val areInFullscreenFromStart: Boolean,
+    val keepScreenOnWhenPlayerInitialized: Boolean
 ) {
     companion object {
-        val DEFAULT_PLAYER_CONFIG = ExoPlayerConfig(playOnInit = true)
+        val DEFAULT_PLAYER_CONFIG = ExoPlayerConfig(
+            playOnInit = true,
+            playbackPosition = 0,
+            areInFullscreenFromStart = false,
+            keepScreenOnWhenPlayerInitialized = false
+        )
+
+        fun getEnterFullscreenConfig(playbackPosition: Long, playOnInit: Boolean) = ExoPlayerConfig(
+            playbackPosition = playbackPosition,
+            playOnInit = playOnInit,
+            areInFullscreenFromStart = true,
+            keepScreenOnWhenPlayerInitialized = true
+        )
+
+        fun getExitFullscreenConfig(playbackPosition: Long, playOnInit: Boolean) = ExoPlayerConfig(
+            playbackPosition = playbackPosition,
+            playOnInit = playOnInit,
+            areInFullscreenFromStart = false,
+            keepScreenOnWhenPlayerInitialized = false
+        )
     }
 }

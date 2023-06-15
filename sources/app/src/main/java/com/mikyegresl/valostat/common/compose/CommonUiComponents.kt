@@ -14,7 +14,7 @@ import com.mikyegresl.valostat.R
 import com.mikyegresl.valostat.ui.theme.secondaryTextDark
 
 @Composable
-fun ShowLoadingState(
+fun ShowingLoadingState(
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -29,7 +29,7 @@ fun ShowLoadingState(
 }
 
 @Composable
-fun ShowErrorState(
+fun ShowingErrorState(
     modifier: Modifier = Modifier,
     errorMessage: String?
 ) {

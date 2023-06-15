@@ -46,8 +46,8 @@ import com.mikyegresl.valostat.base.model.weapon.skin.WeaponSkinDto
 import com.mikyegresl.valostat.base.model.weapon.stats.WeaponAdsStatsDto
 import com.mikyegresl.valostat.base.model.weapon.stats.WeaponDamageRangeDto
 import com.mikyegresl.valostat.base.model.weapon.stats.WeaponStatsDto
-import com.mikyegresl.valostat.common.compose.ShowErrorState
-import com.mikyegresl.valostat.common.compose.ShowLoadingState
+import com.mikyegresl.valostat.common.compose.ShowingErrorState
+import com.mikyegresl.valostat.common.compose.ShowingLoadingState
 import com.mikyegresl.valostat.ui.dimen.Padding
 import com.mikyegresl.valostat.ui.theme.ValoStatTypography
 import com.mikyegresl.valostat.ui.theme.mainTextDark
@@ -85,11 +85,11 @@ fun WeaponsScreen(
     ) { paddingValues ->
         when (state) {
             is WeaponsScreenState.WeaponsScreenLoadingState -> {
-                ShowLoadingState()
+                ShowingLoadingState()
             }
 
             is WeaponsScreenState.WeaponsScreenErrorState -> {
-                ShowErrorState(errorMessage = state.t.message)
+                ShowingErrorState(errorMessage = state.t.message)
             }
             is WeaponsScreenState.WeaponsScreenDataState -> {
                 ShowWeaponsScreenAsDataState(

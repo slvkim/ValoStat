@@ -4,6 +4,14 @@ import androidx.lifecycle.viewModelScope
 import com.mikyegresl.valostat.base.model.ValoStatLocale
 import com.mikyegresl.valostat.base.repository.WeaponsRepository
 import com.mikyegresl.valostat.common.viewmodel.BaseNavigationViewModel
+import com.mikyegresl.valostat.features.player.exoplayer.ExoPlayerConfig
+import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsIntent.ContinueVideoPlaybackIntent
+import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsIntent.UpdateWeaponDetailsIntent
+import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsScreenState.WeaponDetailsErrorState
+import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsScreenState.WeaponDetailsInGeneralState
+import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsScreenState.WeaponDetailsInGeneralState.WeaponDetailsInDataState
+import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsScreenState.WeaponDetailsInGeneralState.WeaponDetailsInFullscreenState
+import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsScreenState.WeaponDetailsLoadingState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
@@ -18,7 +26,7 @@ class WeaponDetailsViewModel(
     }
 
     override val _state = MutableStateFlow<WeaponDetailsScreenState>(
-        WeaponDetailsScreenState.WeaponDetailsLoadingState
+        WeaponDetailsLoadingState
     )
 
     init {
@@ -30,13 +38,18 @@ class WeaponDetailsViewModel(
             doBackground(
                 repository.getWeaponDetails(weaponId, locale),
                 onLoading = {
-                    _state.value = WeaponDetailsScreenState.WeaponDetailsLoadingState
+                    _state.value = WeaponDetailsLoadingState
                 },
                 onSuccessLocal = {
-                    _state.value = WeaponDetailsScreenState.WeaponDetailsDataState(it)
+                    _state.value = WeaponDetailsInDataState(
+                        details = it,
+                        activeVideoChroma = null,
+                        playerConfig = ExoPlayerConfig.DEFAULT_PLAYER_CONFIG,
+                        continuePlayback = false
+                    )
                 },
                 onError = {
-                    _state.value = WeaponDetailsScreenState.WeaponDetailsErrorState(it)
+                    _state.value = WeaponDetailsErrorState(it)
                     true
                 }
             )
@@ -46,19 +59,46 @@ class WeaponDetailsViewModel(
     fun dispatchIntent(intent: WeaponDetailsIntent) {
         when (intent) {
             is WeaponDetailsIntent.VideoClickedIntent -> {
-                (currentState as? WeaponDetailsScreenState.WeaponDetailsDataState)?.let {
-                    updateState(it.copy(activeVideoChroma = intent.chroma))
+                (currentState as? WeaponDetailsInDataState)?.let {
+                    updateState(
+                        it.copy(
+                            activeVideoChroma = intent.chroma,
+                            continuePlayback = false,
+                            playerConfig = ExoPlayerConfig.DEFAULT_PLAYER_CONFIG
+                        )
+                    )
                 }
             }
             is WeaponDetailsIntent.VideoDisposeIntent -> {
-                val dataState = (currentState as? WeaponDetailsScreenState.WeaponDetailsDataState) ?: return
+                val dataState = (currentState as? WeaponDetailsInDataState) ?: return
                 if (dataState.activeVideoChroma == intent.chroma) {
                     updateState(dataState.copy(activeVideoChroma = null))
                 }
             }
-            is WeaponDetailsIntent.UpdateWeaponDetailsIntent -> {
+            is UpdateWeaponDetailsIntent -> {
                 loadWeaponDetails(intent.weaponId, intent.locale)
             }
+            is ContinueVideoPlaybackIntent -> {
+                val dataState = (currentState as? WeaponDetailsInGeneralState) ?: return
+
+                val newState = if (intent.playerConfig.areInFullscreenFromStart) {
+                    WeaponDetailsInFullscreenState(
+                        details = dataState.details,
+                        activeVideoChroma = dataState.activeVideoChroma!!,
+                        playerConfig = intent.playerConfig,
+                        continuePlayback = true
+                    )
+                } else {
+                    WeaponDetailsInDataState(
+                        details = dataState.details,
+                        activeVideoChroma = dataState.activeVideoChroma,
+                        playerConfig = intent.playerConfig,
+                        continuePlayback = true
+                    )
+                }
+                updateState(newState)
+            }
+            else -> {}
         }
     }
 }

@@ -1,6 +1,5 @@
 package com.mikyegresl.valostat.features.agent
 
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.background
@@ -54,11 +53,10 @@ import coil.request.ImageRequest
 import com.mikyegresl.valostat.R
 import com.mikyegresl.valostat.base.model.agent.AgentAbilityDto
 import com.mikyegresl.valostat.base.model.agent.AgentDto
-import com.mikyegresl.valostat.base.model.agent.AgentOriginDto
 import com.mikyegresl.valostat.base.model.agent.AgentRoleDto
 import com.mikyegresl.valostat.base.model.agent.AgentVoiceLineDto
-import com.mikyegresl.valostat.common.compose.ShowErrorState
-import com.mikyegresl.valostat.common.compose.ShowLoadingState
+import com.mikyegresl.valostat.common.compose.ShowingErrorState
+import com.mikyegresl.valostat.common.compose.ShowingLoadingState
 import com.mikyegresl.valostat.common.compose.vertical
 import com.mikyegresl.valostat.ui.dimen.Padding
 import com.mikyegresl.valostat.ui.theme.ValoStatTypography
@@ -93,10 +91,10 @@ fun AgentsScreen(
     ) { paddingValues ->
         when (state) {
             is AgentsScreenState.AgentsScreenLoadingState -> {
-                ShowLoadingState()
+                ShowingLoadingState()
             }
             is AgentsScreenState.AgentsScreenErrorState -> {
-                ShowErrorState(errorMessage = state.t.message)
+                ShowingErrorState(errorMessage = state.t.message)
             }
             is AgentsScreenState.AgentsScreenDataState -> {
                 AgentsScreenAsDataState(

@@ -37,8 +37,8 @@ import com.mikyegresl.valostat.features.agent.AgentsIntent
 import com.mikyegresl.valostat.features.agent.AgentsScreen
 import com.mikyegresl.valostat.features.agent.AgentsViewModel
 import com.mikyegresl.valostat.features.agent.details.AgentDetailsScreen
+import com.mikyegresl.valostat.features.player.ActivityConfigHandler
 import com.mikyegresl.valostat.features.settings.SettingsScreen
-import com.mikyegresl.valostat.features.video.VideosViewModel
 import com.mikyegresl.valostat.features.weapon.WeaponsIntent
 import com.mikyegresl.valostat.features.weapon.WeaponsScreen
 import com.mikyegresl.valostat.features.weapon.WeaponsViewModel
@@ -80,8 +80,6 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    private val videosViewModel by viewModel<VideosViewModel>()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -102,7 +100,6 @@ class MainActivity : AppCompatActivity() {
     @Composable
     fun MainScreen() {
         val navController = rememberNavController()
-
         Scaffold(
             topBar = {  },
             bottomBar = { BottomNavigationBar(navController = navController) }
@@ -118,8 +115,6 @@ class MainActivity : AppCompatActivity() {
         val items = listOf(
             GlobalNavItem.Agents,
             GlobalNavItem.Weapons,
-//            GlobalNavItem.Maps,
-//            GlobalNavItem.Videos,
             GlobalNavItem.Settings
         )
         BottomNavigation(
@@ -189,20 +184,6 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
-//            composable(GlobalNavItem.Maps.route) {
-//                MapsScreen()
-//            }
-//            composable(GlobalNavItem.Videos.route) {
-//                VideosScreen(
-//                    videosScreenState = videosViewModel.state,
-//                    onEnterFullscreen = {
-//                        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-//                    },
-//                    onExitFullscreen = {
-//                        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-//                    }
-//                )
-//            }
             composable(GlobalNavItem.Settings.route) {
                 SettingsScreen(
                     locales = localeConfigProvider.locales,
@@ -221,11 +202,19 @@ class MainActivity : AppCompatActivity() {
             ) {
                 it.arguments?.getString(NavigationItem.WeaponDetails.weaponId)?.let { weaponId ->
                     WeaponDetailsScreen(
+                        activity = this@MainActivity,
                         weaponId = weaponId,
-                        locale = localeConfigProvider.appLocale
-                    ) {
-                        navController.navigateUp()
-                    }
+                        locale = localeConfigProvider.appLocale,
+                        onBackPressed = {
+                            navController.navigateUp()
+                        },
+                        onEnteredFullscreen = {
+                            ActivityConfigHandler.hideSystemUI(this@MainActivity)
+                        },
+                        onExitedFullscreen = {
+                            ActivityConfigHandler.showSystemUI(this@MainActivity)
+                        }
+                    )
                 }
             }
             composable(

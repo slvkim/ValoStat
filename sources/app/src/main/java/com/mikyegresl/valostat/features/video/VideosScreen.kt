@@ -30,9 +30,9 @@ import com.mikyegresl.valostat.base.model.video.ThumbnailDto
 import com.mikyegresl.valostat.base.model.video.ThumbnailUrl
 import com.mikyegresl.valostat.base.model.video.VideoDto
 import com.mikyegresl.valostat.base.model.video.VideoStatDto
-import com.mikyegresl.valostat.common.compose.ShowErrorState
-import com.mikyegresl.valostat.common.compose.ShowLoadingState
-import com.mikyegresl.valostat.features.player.YoutubeVideoPlayer
+import com.mikyegresl.valostat.common.compose.ShowingErrorState
+import com.mikyegresl.valostat.common.compose.ShowingLoadingState
+import com.mikyegresl.valostat.features.player.youtube.YoutubeVideoPlayer
 import com.mikyegresl.valostat.ui.dimen.Padding
 import com.mikyegresl.valostat.ui.theme.ValoStatTypography
 import com.mikyegresl.valostat.ui.theme.mainTextDark
@@ -64,10 +64,10 @@ fun VideosScreen(
     ) { paddingValues ->
         when (state) {
             is VideosScreenState.VideosScreenLoadingState -> {
-                ShowLoadingState()
+                ShowingLoadingState()
             }
             is VideosScreenState.VideosScreenErrorState -> {
-                ShowErrorState(errorMessage = state.t.message)
+                ShowingErrorState(errorMessage = state.t.message)
             }
             is VideosScreenState.VideosScreenDataState -> {
                 VideosScreenAsDataState(
