@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="connection_error_title">Проблема сети\n</string>
+    <string name="general_error_title">Что-то пошло не так</string>
+    <string name="unknown">Неизвестно</string>
+
+    <!--Wall penetration-->
+    <string name="high">Высоко</string>
+    <string name="medium">Средне</string>
+    <string name="low">Низко</string>
+
+    <!--Weapon feature-->
+    <string name="silenced">Silenced</string>
+    <string name="dual_zoom">Dual Zoom</string>
+    <string name="rof_increase">ROF Increase</string>
+
+    <!--Fire mode-->
+    <string name="semi_automatic">Одиночный</string>
+    <string name="ads">САО</string>
+    <string name="air_burst">Очередь</string>
+    <string name="shotgun">Дробовик</string>
+
+    <!--Weapon category-->
+    <string name="rifle">Автомат</string>
+    <string name="heavy">Тяжелое оружие</string>
+    <string name="sidearm">Пистолет</string>
+    <string name="sniper">Снайперская винтовка</string>
+    <string name="smg">Пистолет-пулемет</string>
+    <string name="melee">Холодное оружие</string>
+</resources>

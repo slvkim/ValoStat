@@ -1,6 +1,8 @@
 package com.mikyegresl.valostat.base.model.weapon
 
 import android.os.Parcelable
+import androidx.annotation.StringRes
+import com.mikyegresl.valostat.base.R
 import com.mikyegresl.valostat.base.model.weapon.shop.WeaponShopDataDto
 import com.mikyegresl.valostat.base.model.weapon.skin.WeaponSkinDto
 import com.mikyegresl.valostat.base.model.weapon.stats.WeaponStatsDto
@@ -18,14 +20,14 @@ data class WeaponDto(
 ) : Parcelable {
 
     @Parcelize
-    enum class WeaponCategoryDto(val title: String) : Parcelable {
-        RIFLE("Rifle"),
-        HEAVY("Heavy"),
-        SHOTGUN("Shotgun"),
-        SIDEARM("Sidearm"),
-        SNIPER("Sniper"),
-        SMG("SMG"),
-        MELEE("Melee"),
-        UNKNOWN("Unknown")
+    enum class WeaponCategoryDto(@StringRes val titleRes: Int) : Parcelable {
+        RIFLE(R.string.rifle),
+        HEAVY(R.string.heavy),
+        SHOTGUN(R.string.shotgun),
+        SIDEARM(R.string.sidearm),
+        SNIPER(R.string.sniper),
+        SMG(R.string.smg),
+        MELEE(R.string.melee),
+        UNKNOWN(R.string.unknown)
     }
 }

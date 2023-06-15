@@ -2,5 +2,30 @@
 <resources>
     <string name="connection_error_title">No Internet Connection\n</string>
     <string name="general_error_title">Something Went Wrong</string>
+    <string name="unknown">Unknown</string>
+
+    <!--Wall penetration-->
+    <string name="high">High</string>
+    <string name="medium">Medium</string>
+    <string name="low">Low</string>
+
+    <!--Weapon feature-->
+    <string name="silenced">Silenced</string>
+    <string name="dual_zoom">Dual Zoom</string>
+    <string name="rof_increase">ROF Increase</string>
+
+    <!--Fire mode-->
+    <string name="semi_automatic">Semi Automatic</string>
+    <string name="ads">ADS</string>
+    <string name="air_burst">Air Burst</string>
+    <string name="shotgun">Shotgun</string>
+
+    <!--Weapon category-->
+    <string name="rifle">Rifle</string>
+    <string name="heavy">Heavy</string>
+    <string name="sidearm">Sidearm</string>
+    <string name="sniper">Sniper</string>
+    <string name="smg">SMG</string>
+    <string name="melee">Melee</string>
 
 </resources>

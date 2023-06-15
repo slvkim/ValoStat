@@ -325,7 +325,7 @@ fun WeaponDescriptionItem(
                 style = ValoStatTypography.caption.copy(color = secondaryTextDark)
             )
             Text(
-                text = details.category.title,
+                text = stringResource(id = details.category.titleRes),
                 style = ValoStatTypography.subtitle2
             )
         }
@@ -398,7 +398,7 @@ fun WeaponDescriptionItem(
                 style = ValoStatTypography.caption.copy(color = secondaryTextDark)
             )
             Text(
-                text = details.stats.fireMode.title,
+                text = stringResource(id = details.stats.fireMode.titleRes),
                 style = ValoStatTypography.subtitle2
             )
         }
@@ -416,7 +416,7 @@ fun WeaponDescriptionItem(
                 style = ValoStatTypography.caption.copy(color = secondaryTextDark)
             )
             Text(
-                text = details.stats.altFireType.title,
+                text = stringResource(id = details.stats.altFireType.titleRes),
                 style = ValoStatTypography.subtitle2
             )
         }
@@ -434,7 +434,7 @@ fun WeaponDescriptionItem(
                 style = ValoStatTypography.caption.copy(color = secondaryTextDark)
             )
             Text(
-                text = details.stats.wallPenetration.title,
+                text = stringResource(id = details.stats.wallPenetration.titleRes),
                 style = ValoStatTypography.subtitle2
             )
         }

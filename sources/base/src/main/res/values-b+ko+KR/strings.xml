@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="connection_error_title">인터넷 없음\n</string>
+    <string name="general_error_title">뭔가 잘못됐다</string>
+    <string name="unknown">미지의</string>
+
+    <!--Wall penetration-->
+    <string name="high">높은</string>
+    <string name="medium">중간</string>
+    <string name="low">낮은</string>
+
+    <!--Weapon feature-->
+    <string name="silenced">Silenced</string>
+    <string name="dual_zoom">Dual Zoom</string>
+    <string name="rof_increase">ROF Increase</string>
+
+    <!--Fire mode-->
+    <string name="semi_automatic">반자동의</string>
+    <string name="ads">안정</string>
+    <string name="air_burst">폭발</string>
+    <string name="shotgun">엽총</string>
+
+    <!--Weapon category-->
+    <string name="rifle">라이플총</string>
+    <string name="heavy">중화기</string>
+    <string name="sidearm">권총</string>
+    <string name="sniper">저격 소총</string>
+    <string name="smg">기관단총</string>
+    <string name="melee">근접 무기</string>
+</resources>
