@@ -22,10 +22,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -46,8 +52,7 @@ import com.mikyegresl.valostat.base.model.agent.AgentVoiceLineDto
 import com.mikyegresl.valostat.common.compose.ShowingErrorState
 import com.mikyegresl.valostat.common.compose.ShowingLoadingState
 import com.mikyegresl.valostat.features.agent.agentAbilitiesMock
-import com.mikyegresl.valostat.features.player.exoplayer.ComposableExoPlayer
-import com.mikyegresl.valostat.features.player.exoplayer.ExoPlayerConfig
+import com.mikyegresl.valostat.features.player.exoplayer.ExoAudioPlayer
 import com.mikyegresl.valostat.ui.dimen.ElemSize
 import com.mikyegresl.valostat.ui.dimen.Padding
 import com.mikyegresl.valostat.ui.theme.ValoStatTypography
@@ -60,7 +65,8 @@ import com.mikyegresl.valostat.ui.widget.gradientModifier
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-internal val LocalDetailsAgentsViewModel = compositionLocalOf<AgentDetailsViewModel?> { null }
+internal val LocalProviderOfAgentDetailsViewModel = compositionLocalOf<AgentDetailsViewModel?> { null }
+internal val LocalProviderOfAudioPlayer = compositionLocalOf<ExoAudioPlayer?> { null }
 
 @Preview
 @Composable
@@ -83,7 +89,7 @@ fun AgentDetailsScreen(
     },
     onBackPressed: () -> Unit
 ) {
-    CompositionLocalProvider(LocalDetailsAgentsViewModel provides viewModel) {
+    CompositionLocalProvider(LocalProviderOfAgentDetailsViewModel provides viewModel) {
         val state = viewModel.state.collectAsStateWithLifecycle()
 
         when (val viewState = state.value) {
@@ -113,9 +119,23 @@ fun AgentDetailsAsDataState(
     state: AgentDetailsScreenState.AgentDetailsDataState,
     onBackPressed: () -> Unit
 ) {
-    val viewModel = LocalDetailsAgentsViewModel.current ?: return
+    val viewModel = LocalProviderOfAgentDetailsViewModel.current ?: return
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val scope = rememberCoroutineScope()
+    val audioPlayer = remember {
+        ExoAudioPlayer(
+            context = context,
+            mediaUrl = state.details.voiceLine.voiceline.wave,
+            lifecycleOwner = lifecycleOwner,
+            uiCoroutineScope = scope,
+        )
+    }
 
-    CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+    CompositionLocalProvider(
+        LocalOverscrollConfiguration provides null,
+        LocalProviderOfAudioPlayer provides audioPlayer
+    ) {
         LazyColumn(
             modifier = modifier
                 .fillMaxSize()
@@ -138,9 +158,6 @@ fun AgentDetailsAsDataState(
                             end = Padding.Dp32
                         ),
                     state = state,
-                    onPlayIconClicked = {
-                        viewModel.dispatchIntent(AgentDetailsIntent.AudioClickedIntent(it))
-                    },
                     onVoicelineLeftFocus = {
                         viewModel.dispatchIntent(AgentDetailsIntent.AudioDisposeIntent)
                     }
@@ -205,7 +222,7 @@ fun AgentDetailsTopBar(
 fun AgentDescriptionItem(
     modifier: Modifier = Modifier,
     state: AgentDetailsScreenState.AgentDetailsDataState,
-    onPlayIconClicked: (AgentVoiceLineDto.VoiceLineMediaDto) -> Unit,
+//    onPlayIconClicked: (AgentVoiceLineDto.VoiceLineMediaDto) -> Unit,
     onVoicelineLeftFocus: () -> Unit
 ) {
     val commonRowModifier = Modifier.fillMaxWidth()
@@ -245,7 +262,7 @@ fun AgentDescriptionItem(
         VoiceLineSection(
             modifier = commonRowModifier,
             state = state,
-            onPlayIconClicked = onPlayIconClicked,
+//            onPlayIconClicked = onPlayIconClicked,
             onVoicelineLeftFocus = onVoicelineLeftFocus
         )
         Divider(
@@ -351,7 +368,7 @@ fun PointsForUltimateSection(
 fun VoiceLineSection(
     modifier: Modifier = Modifier,
     state: AgentDetailsScreenState.AgentDetailsDataState,
-    onPlayIconClicked: (AgentVoiceLineDto.VoiceLineMediaDto) -> Unit,
+//    onPlayIconClicked: (AgentVoiceLineDto.VoiceLineMediaDto) -> Unit,
     onVoicelineLeftFocus: () -> Unit
 ) {
 
@@ -364,10 +381,11 @@ fun VoiceLineSection(
             style = ValoStatTypography.caption.copy(color = secondaryTextDark)
         )
         DisposableEffect(
-            VoiceLineItemContainer(
-                state = state,
-                onPlayIconClicked = onPlayIconClicked
-            )
+//            VoiceLineItemContainer(
+//                state = state,
+//                onPlayIconClicked = onPlayIconClicked
+//            )
+            LocalProviderOfAudioPlayer.current?.RenderPlayerView(Modifier)
         ) {
             onDispose {
                 onVoicelineLeftFocus()
@@ -381,21 +399,14 @@ fun VoiceLineItemContainer(
     state: AgentDetailsScreenState.AgentDetailsDataState,
     onPlayIconClicked: (AgentVoiceLineDto.VoiceLineMediaDto) -> Unit
 ) {
-    if (state.activeVoiceline != state.details.voiceLine.voiceline) {
-        VoiceLineIconItem(
-            voiceline = state.details.voiceLine.voiceline,
-            isPlaying = false,
-            onPlayIconClicked = onPlayIconClicked
-        )
-    } else {
-        ComposableExoPlayer(
-            modifier = Modifier
-                .fillMaxSize(),
-            mediaUri = state.details.voiceLine.voiceline.wave,
-            playerConfig = ExoPlayerConfig.DEFAULT_PLAYER_CONFIG
-        )
+    val isPlaying by remember {
+        mutableStateOf(state.activeVoiceline != state.details.voiceLine.voiceline)
     }
-
+    VoiceLineIconItem(
+        voiceline = state.details.voiceLine.voiceline,
+        isPlaying = isPlaying,
+        onPlayIconClicked = onPlayIconClicked
+    )
 }
 
 @Composable
@@ -404,18 +415,7 @@ fun VoiceLineIconItem(
     isPlaying: Boolean,
     onPlayIconClicked: (AgentVoiceLineDto.VoiceLineMediaDto) -> Unit
 ) {
-    val iconDrawable = if (isPlaying) R.drawable.ic_pause_button
-    else R.drawable.ic_play_button
 
-    Icon(
-        modifier = Modifier.clickable {
-            onPlayIconClicked(voiceline)
-        },
-        painter = painterResource(
-            id = iconDrawable
-        ),
-        contentDescription = stringResource(id = R.string.voiceline)
-    )
 }
 
 fun agentAbilities(

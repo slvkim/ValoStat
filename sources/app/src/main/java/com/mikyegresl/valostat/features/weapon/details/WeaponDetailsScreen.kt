@@ -1,6 +1,5 @@
 package com.mikyegresl.valostat.features.weapon.details
 
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -70,7 +69,7 @@ import com.mikyegresl.valostat.base.model.weapon.stats.WeaponDamageRangeDto
 import com.mikyegresl.valostat.base.model.weapon.stats.WeaponStatsDto
 import com.mikyegresl.valostat.common.compose.ShowingErrorState
 import com.mikyegresl.valostat.common.compose.ShowingLoadingState
-import com.mikyegresl.valostat.features.player.exoplayer.ComposableExoPlayer
+import com.mikyegresl.valostat.features.player.ComposableExoPlayer
 import com.mikyegresl.valostat.features.player.exoplayer.ExoPlayerConfig
 import com.mikyegresl.valostat.features.player.exoplayer.ExoPlayerFullScreenListener
 import com.mikyegresl.valostat.features.player.exoplayer.PreExecExoPlayerFullScreenListenerImpl
@@ -379,8 +378,9 @@ fun WeaponDescriptionItem(
                 text = "${stringResource(id = R.string.fire_rate)}:",
                 style = ValoStatTypography.caption.copy(color = secondaryTextDark)
             )
+            //rounds/sec
             Text(
-                text = "${details.stats.fireRate} rounds/sec",
+                text = "${details.stats.fireRate}",
                 style = ValoStatTypography.subtitle2
             )
         }
@@ -837,8 +837,6 @@ fun ShowingWeaponDetailsInFullscreenState(
     mediaUri: String,
     playerConfig: ExoPlayerConfig
 ) {
-    Log.e(TAG, "Fullscreen: config=$playerConfig")
-
     ComposableExoPlayer(
         modifier = modifier,
         mediaUri = mediaUri,

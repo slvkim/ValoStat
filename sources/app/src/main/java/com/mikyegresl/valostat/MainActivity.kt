@@ -103,7 +103,6 @@ class MainActivity : AppCompatActivity() {
     fun MainScreen() {
         val navController = rememberNavController()
         Scaffold(
-            topBar = {  },
             bottomBar = {
                 val currentOrientation = LocalConfiguration.current.orientation
 
