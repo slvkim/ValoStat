@@ -51,6 +51,7 @@ import com.mikyegresl.valostat.providers.AppLocaleProvider
 import com.mikyegresl.valostat.ui.dimen.ElemSize
 import com.mikyegresl.valostat.ui.theme.ValoStatTheme
 import com.mikyegresl.valostat.ui.theme.mainBackgroundDark
+import kotlinx.coroutines.delay
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
@@ -97,6 +98,35 @@ class MainActivity : AppCompatActivity() {
                 MainScreen()
             }
         }
+    }
+
+    data class Movie(
+        val id: Int,
+        val name: String,
+        val isSuccess: Boolean,
+    )
+
+    data class MovieResult(
+        val data: Movie
+    ) {
+        val isSuccess: Boolean get() =
+            getSuccess()
+
+        private fun getSuccess(): Boolean {
+            Thread.sleep(1000L)
+            return true
+        }
+
+    }
+    private suspend fun getMovie(id: Int): MovieResult {
+        delay(1000L)
+        return MovieResult(
+            Movie(
+                123,
+                "Hello",
+                true
+            )
+        )
     }
 
     @Composable

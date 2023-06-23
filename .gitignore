@@ -4,6 +4,7 @@
 *.aar
 *.ap_
 *.aab
+*.env
 
 # Files for the ART/Dalvik VM
 *.dex

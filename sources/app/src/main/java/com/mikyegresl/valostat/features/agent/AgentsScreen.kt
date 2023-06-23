@@ -217,9 +217,9 @@ fun AgentItem(
         ) {
             SubcomposeAsyncImage(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxSize(),
                 model = ImageRequest.Builder(context)
-                    .data(agent.displayIcon)
+                    .data(agent.fullPortrait)
                     .build(),
                 loading = {
                     CircularProgressIndicator(
@@ -227,7 +227,7 @@ fun AgentItem(
                         color = secondaryTextDark
                     )
                 },
-                contentScale = ContentScale.FillWidth,
+                contentScale = ContentScale.Crop,
                 contentDescription = stringResource(id = R.string.agents)
             )
             Row(
