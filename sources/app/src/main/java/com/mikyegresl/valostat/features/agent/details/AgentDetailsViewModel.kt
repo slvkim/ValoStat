@@ -1,14 +1,14 @@
 package com.mikyegresl.valostat.features.agent.details
 
+import android.util.Log
 import com.mikyegresl.valostat.base.model.ValoStatLocale
 import com.mikyegresl.valostat.base.repository.AgentsRepository
 import com.mikyegresl.valostat.common.viewmodel.BaseNavigationViewModel
+import com.mikyegresl.valostat.features.agent.AgentsViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class AgentDetailsViewModel(
-    private val repository: AgentsRepository,
-    agentId: String,
-    locale: ValoStatLocale
+    private val repository: AgentsRepository
 ) : BaseNavigationViewModel<AgentDetailsScreenState>() {
 
     companion object {
@@ -18,10 +18,6 @@ class AgentDetailsViewModel(
     override val _state = MutableStateFlow<AgentDetailsScreenState>(
         AgentDetailsScreenState.AgentDetailsLoadingState
     )
-
-    init {
-        loadAgentDetails(agentId, locale)
-    }
 
     private fun loadAgentDetails(agentId: String, locale: ValoStatLocale) = doBackground(
         repository.getAgentDetails(agentId, locale),

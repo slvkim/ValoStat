@@ -1,5 +1,6 @@
 package com.mikyegresl.valostat.features.agent.details
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
@@ -23,6 +24,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -71,6 +73,8 @@ import org.koin.core.parameter.parametersOf
 internal val LocalProviderOfAgentDetailsViewModel = compositionLocalOf<AgentDetailsViewModel?> { null }
 internal val LocalProviderOfAudioPlayer = compositionLocalOf<ExoAudioPlayer?> { null }
 
+private const val TAG = "AgentDetailsScreen"
+
 @Preview
 @Composable
 fun PreviewAgentAbilityItem() {
@@ -84,14 +88,13 @@ fun PreviewAgentAbilityItem() {
 fun AgentDetailsScreen(
     agentId: String,
     locale: ValoStatLocale,
-    viewModel: AgentDetailsViewModel = koinViewModel {
-        parametersOf(
-            agentId,
-            locale
-        )
-    },
+    viewModel: AgentDetailsViewModel = koinViewModel(),
     onBackPressed: () -> Unit
 ) {
+    LaunchedEffect(agentId, locale) {
+        Log.e(TAG, "launchedEffect: id=$agentId, locale=$locale")
+        viewModel.dispatchIntent(AgentDetailsIntent.UpdateAgentDetailsIntent(agentId, locale))
+    }
     CompositionLocalProvider(LocalProviderOfAgentDetailsViewModel provides viewModel) {
         val state = viewModel.state.collectAsStateWithLifecycle()
 
@@ -192,7 +195,8 @@ fun AgentDetailsTopBar(
             35f,
             .55f to surfaceDark,
             .55f to secondaryBackgroundDark
-        ).fillMaxWidth()
+        )
+            .fillMaxWidth()
             .heightIn(containerMinHeight, containerMaxHeight)
     ) {
         Row(

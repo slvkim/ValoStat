@@ -51,14 +51,13 @@ import com.mikyegresl.valostat.providers.AppLocaleProvider
 import com.mikyegresl.valostat.ui.dimen.ElemSize
 import com.mikyegresl.valostat.ui.theme.ValoStatTheme
 import com.mikyegresl.valostat.ui.theme.mainBackgroundDark
-import kotlinx.coroutines.delay
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
 class MainActivity : AppCompatActivity() {
 
     companion object {
-        private const val TAG = "MainActivityClass"
+        private const val TAG = "AgentDetailsMainActivity"
     }
 
     private val localeConfigProvider by lazy {
@@ -100,43 +99,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    data class Movie(
-        val id: Int,
-        val name: String,
-        val isSuccess: Boolean,
-    )
-
-    data class MovieResult(
-        val data: Movie
-    ) {
-        val isSuccess: Boolean get() =
-            getSuccess()
-
-        private fun getSuccess(): Boolean {
-            Thread.sleep(1000L)
-            return true
-        }
-
-    }
-    private suspend fun getMovie(id: Int): MovieResult {
-        delay(1000L)
-        return MovieResult(
-            Movie(
-                123,
-                "Hello",
-                true
-            )
-        )
-    }
-
     @Composable
     fun MainScreen() {
         val navController = rememberNavController()
         Scaffold(
             bottomBar = {
                 val currentOrientation = LocalConfiguration.current.orientation
+                val hideBottomBar = currentOrientation == ORIENTATION_LANDSCAPE
 
-                if (currentOrientation != ORIENTATION_LANDSCAPE) {
+                if (!hideBottomBar) {
                     BottomNavigationBar(navController = navController)
                 }
             }
@@ -175,10 +146,8 @@ class MainActivity : AppCompatActivity() {
                     selected = currentRoute == item.route,
                     onClick = {
                         navController.navigate(item.route) {
-                            navController.graph.startDestinationRoute?.let { screen_route ->
-                                popUpTo(screen_route) {
-                                    saveState = true
-                                }
+                            navController.graph.startDestinationRoute?.let { startRoute ->
+                                popUpTo(startRoute)
                             }
                             launchSingleTop = true
                             restoreState = true
@@ -199,9 +168,7 @@ class MainActivity : AppCompatActivity() {
                 AgentsScreen(agentsViewModel.state) {
                     navController.navigate("${NavigationItem.AgentDetails.route}/$it") {
                         navController.graph.startDestinationRoute?.let { screenRoute ->
-                            popUpTo(screenRoute) {
-                                saveState = true
-                            }
+                            popUpTo(screenRoute)
                         }
                         launchSingleTop = true
                         restoreState = true
@@ -212,9 +179,7 @@ class MainActivity : AppCompatActivity() {
                 WeaponsScreen(weaponsViewModel.state) {
                     navController.navigate("${NavigationItem.WeaponDetails.route}/$it") {
                         navController.graph.startDestinationRoute?.let { screenRoute ->
-                            popUpTo(GlobalNavItem.Weapons.route) {
-                                saveState = true
-                            }
+                            popUpTo(GlobalNavItem.Weapons.route)
                         }
                         launchSingleTop = true
                         restoreState = true
@@ -261,8 +226,8 @@ class MainActivity : AppCompatActivity() {
                         type = NavType.StringType
                     }
                 )
-            ) {
-                it.arguments?.getString(NavigationItem.AgentDetails.agentId)?.let { agentId ->
+            ) { backStackEntry ->
+                backStackEntry.arguments?.getString(NavigationItem.AgentDetails.agentId)?.let { agentId ->
                     AgentDetailsScreen(
                         agentId = agentId,
                         locale = localeConfigProvider.appLocale
