@@ -87,6 +87,8 @@ import com.mikyegresl.valostat.ui.theme.washWhite
 import com.mikyegresl.valostat.ui.widget.gradientModifier
 import kotlin.math.roundToInt
 
+private const val TAG = "WEAPON_DETAILS_SCREEN"
+
 data class WeaponDetailsScreenActions(
     val onVideoItemClicked: (WeaponSkinChromaDto) -> Unit,
     val onEnterFullscreen: (Long, Boolean) -> Unit,
@@ -133,21 +135,23 @@ fun WeaponDetailsScreen(
         )
     }
 
-    val actions = WeaponDetailsScreenActions(
-        onVideoItemClicked = {
-            viewModel.dispatchIntent(WeaponDetailsIntent.VideoClickedIntent(it))
-        },
-        onEnterFullscreen = { playbackPosition, playOnInit ->
-            exoPlayerFullScreenListener.onEnterFullScreen(playbackPosition, playOnInit)
-        },
-        onExitFullscreen = { playbackPosition, playOnInit ->
-            exoPlayerFullScreenListener.onExitFullScreen(playbackPosition, playOnInit)
-        },
-        onSkinLeftFocus = {
-            viewModel.dispatchIntent(WeaponDetailsIntent.VideoDisposeIntent(it))
-        },
-        onBackPressed = onBackPressed
-    )
+    val actions = remember {
+        WeaponDetailsScreenActions(
+            onVideoItemClicked = {
+                viewModel.dispatchIntent(WeaponDetailsIntent.VideoClickedIntent(it))
+            },
+            onEnterFullscreen = { playbackPosition, playOnInit ->
+                exoPlayerFullScreenListener.onEnterFullScreen(playbackPosition, playOnInit)
+            },
+            onExitFullscreen = { playbackPosition, playOnInit ->
+                exoPlayerFullScreenListener.onExitFullScreen(playbackPosition, playOnInit)
+            },
+            onSkinLeftFocus = {
+                viewModel.dispatchIntent(WeaponDetailsIntent.VideoDisposeIntent(it))
+            },
+            onBackPressed = onBackPressed
+        )
+    }
     LaunchedEffect(weaponId, locale) {
         viewModel.dispatchIntent(WeaponDetailsIntent.UpdateWeaponDetailsIntent(weaponId, locale))
     }

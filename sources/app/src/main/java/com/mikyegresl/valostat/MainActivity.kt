@@ -59,13 +59,7 @@ import org.koin.core.parameter.parametersOf
 class MainActivity : AppCompatActivity() {
 
     private val localeConfigProvider by lazy {
-        AppLocaleProvider(
-            mapOf(
-                R.string.en to ValoStatLocale.EN,
-                R.string.ru to ValoStatLocale.RU,
-                R.string.kr to ValoStatLocale.KR
-            ).mapKeys { getString(it.key) }
-        )
+        AppLocaleProvider(resources)
     }
 
     private val agentsViewModel by viewModel<AgentsViewModel> {
