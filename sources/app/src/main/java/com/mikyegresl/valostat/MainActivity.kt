@@ -1,5 +1,6 @@
 package com.mikyegresl.valostat
 
+import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.os.Bundle
@@ -40,11 +41,15 @@ import com.mikyegresl.valostat.features.agent.AgentsScreen
 import com.mikyegresl.valostat.features.agent.AgentsViewModel
 import com.mikyegresl.valostat.features.agent.details.AgentDetailsScreen
 import com.mikyegresl.valostat.features.player.ActivityConfigHandler
+import com.mikyegresl.valostat.features.player.exoplayer.ExoPlayerConfig
+import com.mikyegresl.valostat.features.player.exoplayer.PreExecExoPlayerFullScreenListenerImpl
 import com.mikyegresl.valostat.features.settings.SettingsScreen
 import com.mikyegresl.valostat.features.weapon.WeaponsIntent
 import com.mikyegresl.valostat.features.weapon.WeaponsScreen
 import com.mikyegresl.valostat.features.weapon.WeaponsViewModel
+import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsIntent
 import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsScreen
+import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsViewModel
 import com.mikyegresl.valostat.navigation.GlobalNavItem
 import com.mikyegresl.valostat.navigation.NavigationItem
 import com.mikyegresl.valostat.providers.AppLocaleProvider
@@ -55,10 +60,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
 class MainActivity : AppCompatActivity() {
-
-    companion object {
-        private const val TAG = "AgentDetailsMainActivity"
-    }
 
     private val localeConfigProvider by lazy {
         AppLocaleProvider(
@@ -81,6 +82,8 @@ class MainActivity : AppCompatActivity() {
             localeConfigProvider.appLocale
         )
     }
+
+    private val weaponDetailsViewModel by viewModel<WeaponDetailsViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -204,18 +207,20 @@ class MainActivity : AppCompatActivity() {
             ) {
                 it.arguments?.getString(NavigationItem.WeaponDetails.weaponId)?.let { weaponId ->
                     WeaponDetailsScreen(
-                        activity = this@MainActivity,
                         weaponId = weaponId,
                         locale = localeConfigProvider.appLocale,
+                        viewModel = weaponDetailsViewModel,
                         onBackPressed = {
                             navController.navigateUp()
                         },
-                        onEnteredFullscreen = {
-                            ActivityConfigHandler.hideSystemUI(this@MainActivity)
-                        },
-                        onExitedFullscreen = {
-                            ActivityConfigHandler.showSystemUI(this@MainActivity)
-                        }
+                        exoPlayerFullScreenListener = PreExecExoPlayerFullScreenListenerImpl(
+                            enterFullscreenMode = { position, playOnInit ->
+                                enterFullscreenMode(position, playOnInit)
+                            },
+                            exitFullscreenMode = { position, playOnInit ->
+                                exitFullscreenMode(position, playOnInit)
+                            }
+                        )
                     )
                 }
             }
@@ -269,6 +274,26 @@ class MainActivity : AppCompatActivity() {
         agentsViewModel.dispatchIntent(
             AgentsIntent.UpdateAgentsIntent(
                 localeConfigProvider.appLocale
+            )
+        )
+    }
+
+    private fun enterFullscreenMode(position: Long, playOnInit: Boolean) {
+        ActivityConfigHandler.hideSystemUI(this@MainActivity)
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        weaponDetailsViewModel.dispatchIntent(
+            WeaponDetailsIntent.ContinueVideoPlaybackIntent(
+                ExoPlayerConfig.getExitFullscreenConfig(position, playOnInit)
+            )
+        )
+    }
+
+    private fun exitFullscreenMode(position: Long, playOnInit: Boolean) {
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        ActivityConfigHandler.showSystemUI(this@MainActivity)
+        weaponDetailsViewModel.dispatchIntent(
+            WeaponDetailsIntent.ContinueVideoPlaybackIntent(
+                ExoPlayerConfig.getEnterFullscreenConfig(position, playOnInit)
             )
         )
     }

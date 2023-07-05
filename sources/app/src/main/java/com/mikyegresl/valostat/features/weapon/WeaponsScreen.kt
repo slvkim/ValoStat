@@ -13,9 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -31,7 +29,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -43,7 +40,6 @@ import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
 import coil.request.ImageRequest
-import coil.size.Precision
 import com.mikyegresl.valostat.R
 import com.mikyegresl.valostat.base.model.weapon.WeaponDto
 import com.mikyegresl.valostat.base.model.weapon.shop.WeaponShopDataDto
@@ -59,14 +55,7 @@ import com.mikyegresl.valostat.ui.theme.ValoStatTypography
 import com.mikyegresl.valostat.ui.theme.mainTextDark
 import com.mikyegresl.valostat.ui.theme.secondaryBackgroundDark
 import com.mikyegresl.valostat.ui.theme.secondaryTextDark
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.runInterruptible
-import java.lang.Error
-import kotlin.coroutines.Continuation
-import kotlin.coroutines.coroutineContext
-import kotlin.coroutines.suspendCoroutine
 
 @Preview
 @Composable
@@ -194,19 +183,17 @@ fun WeaponItem(
             .clickable { onClick(weapon.uuid) },
         border = BorderStroke(1.dp, color = secondaryTextDark)
     ) {
+        val imageRequest = ImageRequest.Builder(LocalContext.current).data(weapon.shopData.newImage).build()
         Column {
             AsyncImage(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(2.4f)
                     .padding(horizontal = Padding.Dp32, vertical = Padding.Dp16),
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(weapon.shopData.image)
-                    .build(),
+                model = imageRequest,
                 onState = {
                     when (it) {
                         is AsyncImagePainter.State.Success -> {
-
                         }
                         is AsyncImagePainter.State.Error -> {
 
@@ -241,7 +228,6 @@ fun WeaponItem(
                     tint = mainTextDark
                 )
             }
-
         }
     }
 }

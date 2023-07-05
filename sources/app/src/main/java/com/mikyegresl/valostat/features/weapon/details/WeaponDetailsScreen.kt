@@ -1,6 +1,8 @@
 package com.mikyegresl.valostat.features.weapon.details
 
-import androidx.appcompat.app.AppCompatActivity
+import android.content.res.Configuration
+import androidx.activity.addCallback
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
@@ -39,7 +41,6 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -72,7 +73,6 @@ import com.mikyegresl.valostat.common.compose.ShowingLoadingState
 import com.mikyegresl.valostat.features.player.ComposableExoPlayer
 import com.mikyegresl.valostat.features.player.exoplayer.ExoPlayerConfig
 import com.mikyegresl.valostat.features.player.exoplayer.ExoPlayerFullScreenListener
-import com.mikyegresl.valostat.features.player.exoplayer.PreExecExoPlayerFullScreenListenerImpl
 import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsScreenState.WeaponDetailsErrorState
 import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsScreenState.WeaponDetailsInGeneralState.WeaponDetailsInDataState
 import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsScreenState.WeaponDetailsInGeneralState.WeaponDetailsInFullscreenState
@@ -86,60 +86,45 @@ import com.mikyegresl.valostat.ui.theme.secondaryTextDark
 import com.mikyegresl.valostat.ui.theme.surfaceDark
 import com.mikyegresl.valostat.ui.theme.washWhite
 import com.mikyegresl.valostat.ui.widget.gradientModifier
-import org.koin.androidx.compose.koinViewModel
-import org.koin.core.parameter.parametersOf
 import kotlin.math.roundToInt
 
 internal val LocalWeaponsDetailsViewModel = compositionLocalOf<WeaponDetailsViewModel?> { null }
 internal val LocalExoFullscreenListener = compositionLocalOf<ExoPlayerFullScreenListener?> { null }
 
-private const val TAG = "WeaponsDetailsScreen"
+data class WeaponDetailsScreenActions(
+    val onBackPressed: () -> Unit,
+    val onVideoItemClicked: (WeaponSkinChromaDto) -> Unit,
+    val onSkinLeftFocus: (WeaponSkinChromaDto) -> Unit
+
+)
 
 @Composable
 fun WeaponDetailsScreen(
-    activity: AppCompatActivity,
     weaponId: String,
     locale: ValoStatLocale,
-    viewModel: WeaponDetailsViewModel = koinViewModel {
-        parametersOf(
-            weaponId,
-            locale
-        )
-    },
-    onBackPressed: () -> Unit,
-    onEnteredFullscreen: () -> Unit,
-    onExitedFullscreen: () -> Unit
+    viewModel: WeaponDetailsViewModel,
+    exoPlayerFullScreenListener: ExoPlayerFullScreenListener,
+    onBackPressed: () -> Unit
 ) {
-    val exoFullscreenListener = remember {
-        PreExecExoPlayerFullScreenListenerImpl(
-            activity = activity,
-            beforeEnterFullScreen = { position, playOnInit ->
-                viewModel.dispatchIntent(
-                    WeaponDetailsIntent.ContinueVideoPlaybackIntent(
-                        ExoPlayerConfig.getEnterFullscreenConfig(position, playOnInit)
-                    )
-                )
-                onEnteredFullscreen()
-                true
-            },
-            beforeExitFullScreen = { position, playOnInit ->
-                viewModel.dispatchIntent(
-                    WeaponDetailsIntent.ContinueVideoPlaybackIntent(
-                        ExoPlayerConfig.getExitFullscreenConfig(position, playOnInit)
-                    )
-                )
-                onExitedFullscreen()
-                true
-            }
-        )
+    val state = viewModel.state.collectAsStateWithLifecycle()
+    val actions = WeaponDetailsScreenActions(
+        onBackPressed = onBackPressed,
+        onVideoItemClicked = {
+            viewModel.dispatchIntent(WeaponDetailsIntent.VideoClickedIntent(it))
+        },
+        onSkinLeftFocus = {
+            viewModel.dispatchIntent(WeaponDetailsIntent.VideoDisposeIntent(it))
+        }
+    )
+
+    LaunchedEffect(weaponId, locale) {
+        viewModel.dispatchIntent(WeaponDetailsIntent.UpdateWeaponDetailsIntent(weaponId, locale))
     }
 
     CompositionLocalProvider(
         LocalWeaponsDetailsViewModel provides viewModel,
-        LocalExoFullscreenListener provides exoFullscreenListener
+        LocalExoFullscreenListener provides exoPlayerFullScreenListener
     ) {
-        val state = viewModel.state.collectAsStateWithLifecycle()
-
         when (val viewState = state.value) {
             is WeaponDetailsLoadingState -> {
                 ShowingLoadingState()
@@ -148,14 +133,22 @@ fun WeaponDetailsScreen(
                 ShowingErrorState(errorMessage = viewState.t.message)
             }
             is WeaponDetailsScreenState.WeaponDetailsInGeneralState -> {
+                val backPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+                val currentOrientation = LocalConfiguration.current.orientation
+                backPressedDispatcher?.addCallback {
+                    if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+                        exoPlayerFullScreenListener.onExitFullScreen(viewState.playerConfig.playbackPosition, viewState.playerConfig.playOnInit)
+                    } else {
+                        actions.onBackPressed()
+                    }
+                }
                 when (viewState) {
                     is WeaponDetailsInDataState -> {
                         ShowingWeaponDetailsDataState(
                             modifier = Modifier,
-                            state = viewState
-                        ) {
-                            onBackPressed()
-                        }
+                            state = viewState,
+                            actions = actions
+                        )
                     }
                     is WeaponDetailsInFullscreenState -> {
                         ShowingWeaponDetailsInFullscreenState(
@@ -174,10 +167,8 @@ fun WeaponDetailsScreen(
 fun ShowingWeaponDetailsDataState(
     modifier: Modifier = Modifier,
     state: WeaponDetailsInDataState,
-    onBackPressed: () -> Unit
+    actions: WeaponDetailsScreenActions
 ) {
-    val viewModel = LocalWeaponsDetailsViewModel.current ?: return
-    val scope = rememberCoroutineScope()
     val listState = rememberLazyListState()
 
     val activeVideoChroma = remember { mutableStateOf(state.activeVideoChroma) }
@@ -222,7 +213,7 @@ fun ShowingWeaponDetailsDataState(
                         title = state.details.displayName,
                         imageSrc = state.details.displayIcon
                     ) {
-                        onBackPressed()
+                        actions.onBackPressed()
                     }
                     WeaponDescriptionItem(
                         Modifier
@@ -246,12 +237,7 @@ fun ShowingWeaponDetailsDataState(
                 state = state,
                 chromas = state.skinsWithVideo,
                 playOnInit = playOnInit,
-                onVideoItemClicked = { chroma ->
-                    viewModel.dispatchIntent(WeaponDetailsIntent.VideoClickedIntent(chroma))
-                },
-                onSkinLeftFocus = { chroma ->
-                    viewModel.dispatchIntent(WeaponDetailsIntent.VideoDisposeIntent(chroma))
-                }
+                actions = actions
             ).invoke(this)
         }
     }
@@ -576,7 +562,7 @@ fun weaponSkins(
         ) {
             itemsIndexed(chromas) { i, item ->
                 WeaponSkinCardItem(
-                    skin = item,
+                    skin = item
                 )
                 if (i != chromas.lastIndex) {
                     Spacer(modifier = Modifier.padding(horizontal = Padding.Dp8))
@@ -648,10 +634,9 @@ fun WeaponSkinCardItem(
         }
         SkinChromasPanel(
             chromas = skin.chromas,
-            onChromaSelected = {
-                selectedWeaponImage = it.fullRenderPath
-            }
-        )
+        ) {
+            selectedWeaponImage = it.iconPath
+        }
     }
 }
 
@@ -707,8 +692,7 @@ fun weaponVideos(
     state: WeaponDetailsInDataState,
     chromas: List<WeaponSkinChromaDto>,
     playOnInit: Boolean,
-    onVideoItemClicked: (WeaponSkinChromaDto) -> Unit,
-    onSkinLeftFocus: (WeaponSkinChromaDto) -> Unit
+    actions: WeaponDetailsScreenActions
 ): LazyListScope.() -> Unit = {
     item {
         Text(
@@ -728,11 +712,11 @@ fun weaponVideos(
                     state = state,
                     chroma = chroma,
                     playOnInit = playOnInit,
-                    onVideoItemClicked = onVideoItemClicked
+                    actions = actions
                 )
             ) {
                 onDispose {
-                    onSkinLeftFocus(chroma)
+                    actions.onSkinLeftFocus(chroma)
                 }
             }
             Spacer(modifier = Modifier.padding(vertical = Padding.Dp8))
@@ -746,14 +730,14 @@ fun SkinVideoContainer(
     state: WeaponDetailsInDataState,
     playOnInit: Boolean,
     chroma: WeaponSkinChromaDto,
-    onVideoItemClicked: (WeaponSkinChromaDto) -> Unit
+    actions: WeaponDetailsScreenActions
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
             .aspectRatio(16 / 9f)
             .padding(horizontal = Padding.Dp32)
-            .clickable { onVideoItemClicked(chroma) },
+            .clickable { actions.onVideoItemClicked(chroma) },
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.Start
     ) {

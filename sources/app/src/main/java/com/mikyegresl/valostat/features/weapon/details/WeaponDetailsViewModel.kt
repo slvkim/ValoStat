@@ -17,8 +17,6 @@ import kotlinx.coroutines.launch
 
 class WeaponDetailsViewModel(
     private val repository: WeaponsRepository,
-    weaponId: String,
-    locale: ValoStatLocale
 ) : BaseNavigationViewModel<WeaponDetailsScreenState>() {
 
     companion object {
@@ -28,10 +26,6 @@ class WeaponDetailsViewModel(
     override val _state = MutableStateFlow<WeaponDetailsScreenState>(
         WeaponDetailsLoadingState
     )
-
-    init {
-        loadWeaponDetails(weaponId, locale)
-    }
 
     private fun loadWeaponDetails(weaponId: String, locale: ValoStatLocale) {
         viewModelScope.launch {

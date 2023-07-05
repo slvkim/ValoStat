@@ -1,6 +1,5 @@
 package com.mikyegresl.valostat.features.agent.details
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -25,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,7 +50,6 @@ import com.mikyegresl.valostat.base.model.ValoStatLocale
 import com.mikyegresl.valostat.base.model.agent.AgentAbilityDto
 import com.mikyegresl.valostat.base.model.agent.AgentOriginDto
 import com.mikyegresl.valostat.base.model.agent.AgentRoleDto
-import com.mikyegresl.valostat.base.model.agent.AgentVoiceLineDto
 import com.mikyegresl.valostat.common.compose.ShowingErrorState
 import com.mikyegresl.valostat.common.compose.ShowingLoadingState
 import com.mikyegresl.valostat.features.agent.agentAbilitiesMock
@@ -68,12 +64,12 @@ import com.mikyegresl.valostat.ui.theme.surfaceDark
 import com.mikyegresl.valostat.ui.theme.washWhite
 import com.mikyegresl.valostat.ui.widget.gradientModifier
 import org.koin.androidx.compose.koinViewModel
-import org.koin.core.parameter.parametersOf
-
-internal val LocalProviderOfAgentDetailsViewModel = compositionLocalOf<AgentDetailsViewModel?> { null }
-internal val LocalProviderOfAudioPlayer = compositionLocalOf<ExoAudioPlayer?> { null }
 
 private const val TAG = "AgentDetailsScreen"
+
+data class AgentDetailsActions(
+    val onBackPressed: () -> Unit = {}
+)
 
 @Preview
 @Composable
@@ -92,28 +88,25 @@ fun AgentDetailsScreen(
     onBackPressed: () -> Unit
 ) {
     LaunchedEffect(agentId, locale) {
-        Log.e(TAG, "launchedEffect: id=$agentId, locale=$locale")
         viewModel.dispatchIntent(AgentDetailsIntent.UpdateAgentDetailsIntent(agentId, locale))
     }
-    CompositionLocalProvider(LocalProviderOfAgentDetailsViewModel provides viewModel) {
-        val state = viewModel.state.collectAsStateWithLifecycle()
+    val state = viewModel.state.collectAsStateWithLifecycle()
 
-        when (val viewState = state.value) {
-            is AgentDetailsScreenState.AgentDetailsDataState -> {
-                AgentDetailsAsDataState(
-                    modifier = Modifier,
-                    state = viewState
-                ) {
-                    onBackPressed()
-                }
-            }
-            is AgentDetailsScreenState.AgentDetailsLoadingState -> {
-                ShowingLoadingState()
-            }
-            is AgentDetailsScreenState.AgentDetailsErrorState -> {
-                ShowingErrorState(errorMessage = viewState.t.message)
-
-            }
+    when (val viewState = state.value) {
+        is AgentDetailsScreenState.AgentDetailsDataState -> {
+            AgentDetailsAsDataState(
+                modifier = Modifier,
+                state = viewState,
+                actions = AgentDetailsActions(
+                    onBackPressed = onBackPressed
+                )
+            )
+        }
+        is AgentDetailsScreenState.AgentDetailsLoadingState -> {
+            ShowingLoadingState()
+        }
+        is AgentDetailsScreenState.AgentDetailsErrorState -> {
+            ShowingErrorState(errorMessage = viewState.t.message)
         }
     }
 }
@@ -123,12 +116,12 @@ fun AgentDetailsScreen(
 fun AgentDetailsAsDataState(
     modifier: Modifier = Modifier,
     state: AgentDetailsScreenState.AgentDetailsDataState,
-    onBackPressed: () -> Unit
+    actions: AgentDetailsActions
 ) {
-    val viewModel = LocalProviderOfAgentDetailsViewModel.current ?: return
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val scope = rememberCoroutineScope()
+
     val audioPlayer = remember {
         ExoAudioPlayer(
             context = context,
@@ -137,11 +130,9 @@ fun AgentDetailsAsDataState(
             uiCoroutineScope = scope,
         )
     }
+    val playerModifier = Modifier
 
-    CompositionLocalProvider(
-        LocalOverscrollConfiguration provides null,
-        LocalProviderOfAudioPlayer provides audioPlayer
-    ) {
+    CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
         LazyColumn(
             modifier = modifier
                 .fillMaxSize()
@@ -151,7 +142,7 @@ fun AgentDetailsAsDataState(
                     title = state.details.displayName,
                     imageSrc = state.details.fullPortrait
                 ) {
-                    onBackPressed()
+                    actions.onBackPressed()
                 }
             }
             item {
@@ -164,8 +155,14 @@ fun AgentDetailsAsDataState(
                             end = Padding.Dp32
                         ),
                     state = state,
-                    onVoicelineLeftFocus = {
-                        viewModel.dispatchIntent(AgentDetailsIntent.AudioDisposeIntent)
+                    playerView = {
+                        DisposableEffect(
+                            audioPlayer.RenderPlayerView(modifier = playerModifier)
+                        ) {
+                            onDispose {
+                                audioPlayer.releaseResources()
+                            }
+                        }
                     }
                 )
             }
@@ -239,8 +236,7 @@ fun AgentDetailsTopBar(
 fun AgentDescriptionItem(
     modifier: Modifier = Modifier,
     state: AgentDetailsScreenState.AgentDetailsDataState,
-//    onPlayIconClicked: (AgentVoiceLineDto.VoiceLineMediaDto) -> Unit,
-    onVoicelineLeftFocus: () -> Unit
+    playerView: @Composable () -> Unit
 ) {
     val commonRowModifier = Modifier.fillMaxWidth()
     val dividerModifier = Modifier.padding(vertical = Padding.Dp8)
@@ -278,9 +274,7 @@ fun AgentDescriptionItem(
         )
         VoiceLineSection(
             modifier = commonRowModifier,
-            state = state,
-//            onPlayIconClicked = onPlayIconClicked,
-            onVoicelineLeftFocus = onVoicelineLeftFocus
+            playerView = playerView
         )
         Divider(
             modifier = dividerModifier,
@@ -384,11 +378,8 @@ fun PointsForUltimateSection(
 @Composable
 fun VoiceLineSection(
     modifier: Modifier = Modifier,
-    state: AgentDetailsScreenState.AgentDetailsDataState,
-//    onPlayIconClicked: (AgentVoiceLineDto.VoiceLineMediaDto) -> Unit,
-    onVoicelineLeftFocus: () -> Unit
+    playerView: @Composable () -> Unit
 ) {
-
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.SpaceBetween
@@ -397,42 +388,8 @@ fun VoiceLineSection(
             text = "${stringResource(id = R.string.voiceline)}:",
             style = ValoStatTypography.caption.copy(color = secondaryTextDark)
         )
-        DisposableEffect(
-//            VoiceLineItemContainer(
-//                state = state,
-//                onPlayIconClicked = onPlayIconClicked
-//            )
-            LocalProviderOfAudioPlayer.current?.RenderPlayerView(Modifier)
-        ) {
-            onDispose {
-                onVoicelineLeftFocus()
-            }
-        }
+        playerView()
     }
-}
-
-@Composable
-fun VoiceLineItemContainer(
-    state: AgentDetailsScreenState.AgentDetailsDataState,
-    onPlayIconClicked: (AgentVoiceLineDto.VoiceLineMediaDto) -> Unit
-) {
-    val isPlaying by remember {
-        mutableStateOf(state.activeVoiceline != state.details.voiceLine.voiceline)
-    }
-    VoiceLineIconItem(
-        voiceline = state.details.voiceLine.voiceline,
-        isPlaying = isPlaying,
-        onPlayIconClicked = onPlayIconClicked
-    )
-}
-
-@Composable
-fun VoiceLineIconItem(
-    voiceline: AgentVoiceLineDto.VoiceLineMediaDto,
-    isPlaying: Boolean,
-    onPlayIconClicked: (AgentVoiceLineDto.VoiceLineMediaDto) -> Unit
-) {
-
 }
 
 fun agentAbilities(

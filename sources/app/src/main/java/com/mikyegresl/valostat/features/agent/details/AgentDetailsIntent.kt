@@ -8,8 +8,6 @@ sealed class AgentDetailsIntent {
         val voiceline: AgentVoiceLineDto.VoiceLineMediaDto
     ) : AgentDetailsIntent()
 
-    object AudioDisposeIntent : AgentDetailsIntent()
-
     data class UpdateAgentDetailsIntent(
         val agentId: String,
         val locale: ValoStatLocale

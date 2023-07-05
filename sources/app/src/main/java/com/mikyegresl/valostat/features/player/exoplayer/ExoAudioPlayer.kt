@@ -25,6 +25,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
+private const val TAG = "ExoAudioPlayer"
+
 @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 class ExoAudioPlayer(
     private val context: Context,
@@ -61,9 +63,10 @@ class ExoAudioPlayer(
     }
 
     private fun play() = exoPlayer?.let {
-        it.playWhenReady = false
-        it.prepare()
-        it.play()
+        with(it) {
+            prepare()
+            play()
+        }
         changeContentState(AudioPlayerContentState.AudioPlayingState)
     }
 
@@ -77,7 +80,7 @@ class ExoAudioPlayer(
         it.seekTo(0)
     }
 
-    private fun releaseResources() {
+    fun releaseResources() {
         changeContentState(AudioPlayerContentState.AudioEndedState)
         exoPlayer?.removeListener(playerStateListener)
         exoPlayer?.release()
@@ -96,10 +99,14 @@ class ExoAudioPlayer(
 
     private fun initAudioPlayer() {
         exoPlayer = exoPlayer ?: ExoPlayer.Builder(context).build()
-        exoPlayer?.addListener(playerStateListener)
-        val audioSource = DefaultMediaSourceFactory(dataSourceFactory!!)
-            .createMediaSource(MediaItem.fromUri(Uri.parse(mediaUrl)))
-        exoPlayer?.setMediaSource(audioSource)
+        exoPlayer?.let {
+            with(it) {
+                addListener(playerStateListener)
+                val audioSource = DefaultMediaSourceFactory(dataSourceFactory!!)
+                    .createMediaSource(MediaItem.fromUri(Uri.parse(mediaUrl)))
+                setMediaSource(audioSource)
+            }
+        }
     }
 
     @Composable
@@ -128,7 +135,7 @@ class ExoAudioPlayer(
         lifecycleOwner.lifecycle.addObserver(lifecycleObserver)    }
 
     @Composable
-    fun AudioPlayerView(
+    private fun AudioPlayerView(
         modifier: Modifier = Modifier,
         isPlaying: Boolean,
         onPlayIconClicked: () -> Unit
