@@ -41,13 +41,10 @@ import com.mikyegresl.valostat.features.agent.AgentsScreen
 import com.mikyegresl.valostat.features.agent.AgentsViewModel
 import com.mikyegresl.valostat.features.agent.details.AgentDetailsScreen
 import com.mikyegresl.valostat.features.player.ActivityConfigHandler
-import com.mikyegresl.valostat.features.player.exoplayer.ExoPlayerConfig
-import com.mikyegresl.valostat.features.player.exoplayer.PreExecExoPlayerFullScreenListenerImpl
 import com.mikyegresl.valostat.features.settings.SettingsScreen
 import com.mikyegresl.valostat.features.weapon.WeaponsIntent
 import com.mikyegresl.valostat.features.weapon.WeaponsScreen
 import com.mikyegresl.valostat.features.weapon.WeaponsViewModel
-import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsIntent
 import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsScreen
 import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsViewModel
 import com.mikyegresl.valostat.navigation.GlobalNavItem
@@ -213,14 +210,8 @@ class MainActivity : AppCompatActivity() {
                         onBackPressed = {
                             navController.navigateUp()
                         },
-                        exoPlayerFullScreenListener = PreExecExoPlayerFullScreenListenerImpl(
-                            enterFullscreenMode = { position, playOnInit ->
-                                enterFullscreenMode(position, playOnInit)
-                            },
-                            exitFullscreenMode = { position, playOnInit ->
-                                exitFullscreenMode(position, playOnInit)
-                            }
-                        )
+                        enterFullscreenMode = ::enterFullscreenMode,
+                        exitFullscreenMode = ::exitFullscreenMode
                     )
                 }
             }
@@ -278,23 +269,13 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    private fun enterFullscreenMode(position: Long, playOnInit: Boolean) {
+    private fun enterFullscreenMode() {
         ActivityConfigHandler.hideSystemUI(this@MainActivity)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-        weaponDetailsViewModel.dispatchIntent(
-            WeaponDetailsIntent.ContinueVideoPlaybackIntent(
-                ExoPlayerConfig.getExitFullscreenConfig(position, playOnInit)
-            )
-        )
     }
 
-    private fun exitFullscreenMode(position: Long, playOnInit: Boolean) {
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+    private fun exitFullscreenMode() {
         ActivityConfigHandler.showSystemUI(this@MainActivity)
-        weaponDetailsViewModel.dispatchIntent(
-            WeaponDetailsIntent.ContinueVideoPlaybackIntent(
-                ExoPlayerConfig.getEnterFullscreenConfig(position, playOnInit)
-            )
-        )
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     }
 }

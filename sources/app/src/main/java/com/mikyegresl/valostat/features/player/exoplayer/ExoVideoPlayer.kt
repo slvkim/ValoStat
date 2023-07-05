@@ -51,11 +51,11 @@ class ExoVideoPlayer(
     private val mediaUrl: String,
     private val lifecycleOwner: LifecycleOwner,
     private val uiCoroutineScope: CoroutineScope,
-    private val fullScreenListener: ExoPlayerFullScreenListener?,
+    private val onEnterFullscreen: (Long, Boolean) -> Unit,
+    private val onExitFullscreen: (Long, Boolean) -> Unit,
     private val config: ExoPlayerConfig
 ) {
-
-    private var isFullScreen = fullScreenListener?.let { config.areInFullscreenFromStart } ?: false
+    private var isFullScreen = config.areInFullscreenFromStart
 
     companion object {
         const val TAG = "ExoBaseMediaPlayer"
@@ -173,20 +173,19 @@ class ExoVideoPlayer(
         settingsBtn.visibility = View.VISIBLE
 
         val fullScreenBtn = playerView.findViewById<ImageView>(androidx.media3.ui.R.id.exo_fullscreen)
-        fullScreenBtn.isVisible = fullScreenListener != null
+        fullScreenBtn.visibility = View.VISIBLE
 
         fullScreenBtn.takeIf { it.isVisible }?.setOnClickListener {
             val params = playerView.layoutParams
             val playOnInit = exoPlayer?.isPlaying ?: false
             val playbackPosition = exoPlayer?.currentPosition ?: 0
 
-            isFullScreen = if (fullScreenListener == null) false
-            else if (isFullScreen) {
-                fullScreenListener.onExitFullScreen(playbackPosition, playOnInit)
+            isFullScreen = if (isFullScreen) {
+                onExitFullscreen(playbackPosition, playOnInit)
                 params.height = ViewGroup.LayoutParams.WRAP_CONTENT
                 false
             } else {
-                fullScreenListener.onEnterFullScreen(playbackPosition, playOnInit)
+                onEnterFullscreen(playbackPosition, playOnInit)
                 params.height = ViewGroup.LayoutParams.MATCH_PARENT
                 true
             }
@@ -199,8 +198,6 @@ class ExoVideoPlayer(
 
     private fun setFullscreenImageByFullscreenState(context: Context, playerView: PlayerView) {
         val fullScreenBtn = playerView.findViewById<ImageButton>(androidx.media3.ui.R.id.exo_fullscreen) ?: return
-
-        if (fullScreenListener == null) return
 
         val res = if (isFullScreen) com.mikyegresl.valostat.R.drawable.ic_disable_fullscreen
         else com.mikyegresl.valostat.R.drawable.ic_enable_fullscreen

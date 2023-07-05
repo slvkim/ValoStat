@@ -37,7 +37,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -72,7 +71,7 @@ import com.mikyegresl.valostat.common.compose.ShowingErrorState
 import com.mikyegresl.valostat.common.compose.ShowingLoadingState
 import com.mikyegresl.valostat.features.player.ComposableExoPlayer
 import com.mikyegresl.valostat.features.player.exoplayer.ExoPlayerConfig
-import com.mikyegresl.valostat.features.player.exoplayer.ExoPlayerFullScreenListener
+import com.mikyegresl.valostat.features.player.exoplayer.PreExecExoPlayerFullScreenListenerImpl
 import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsScreenState.WeaponDetailsErrorState
 import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsScreenState.WeaponDetailsInGeneralState.WeaponDetailsInDataState
 import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsScreenState.WeaponDetailsInGeneralState.WeaponDetailsInFullscreenState
@@ -88,14 +87,12 @@ import com.mikyegresl.valostat.ui.theme.washWhite
 import com.mikyegresl.valostat.ui.widget.gradientModifier
 import kotlin.math.roundToInt
 
-internal val LocalWeaponsDetailsViewModel = compositionLocalOf<WeaponDetailsViewModel?> { null }
-internal val LocalExoFullscreenListener = compositionLocalOf<ExoPlayerFullScreenListener?> { null }
-
 data class WeaponDetailsScreenActions(
-    val onBackPressed: () -> Unit,
     val onVideoItemClicked: (WeaponSkinChromaDto) -> Unit,
+    val onEnterFullscreen: (Long, Boolean) -> Unit,
+    val onExitFullscreen: (Long, Boolean) -> Unit,
+    val onBackPressed: () -> Unit,
     val onSkinLeftFocus: (WeaponSkinChromaDto) -> Unit
-
 )
 
 @Composable
@@ -103,59 +100,94 @@ fun WeaponDetailsScreen(
     weaponId: String,
     locale: ValoStatLocale,
     viewModel: WeaponDetailsViewModel,
-    exoPlayerFullScreenListener: ExoPlayerFullScreenListener,
-    onBackPressed: () -> Unit
+    onBackPressed: () -> Unit,
+    enterFullscreenMode: () -> Unit,
+    exitFullscreenMode: () -> Unit
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle()
+
+    val exoPlayerFullScreenListener = remember {
+        PreExecExoPlayerFullScreenListenerImpl(
+            beforeEnterFullScreen = { playbackPosition, playOnInit ->
+                viewModel.dispatchIntent(
+                    WeaponDetailsIntent.ContinueVideoPlaybackIntent(
+                        ExoPlayerConfig.getEnterFullscreenConfig(
+                            playbackPosition, playOnInit
+                        )
+                    )
+                )
+                true
+            },
+            beforeExitFullScreen = { playbackPosition, playOnInit ->
+                viewModel.dispatchIntent(
+                    WeaponDetailsIntent.ContinueVideoPlaybackIntent(
+                        ExoPlayerConfig.getExitFullscreenConfig(
+                            playbackPosition, playOnInit
+                        )
+                    )
+                )
+                true
+            },
+            enterFullscreenMode = enterFullscreenMode,
+            exitFullscreenMode = exitFullscreenMode
+        )
+    }
+
     val actions = WeaponDetailsScreenActions(
-        onBackPressed = onBackPressed,
         onVideoItemClicked = {
             viewModel.dispatchIntent(WeaponDetailsIntent.VideoClickedIntent(it))
         },
+        onEnterFullscreen = { playbackPosition, playOnInit ->
+            exoPlayerFullScreenListener.onEnterFullScreen(playbackPosition, playOnInit)
+        },
+        onExitFullscreen = { playbackPosition, playOnInit ->
+            exoPlayerFullScreenListener.onExitFullScreen(playbackPosition, playOnInit)
+        },
         onSkinLeftFocus = {
             viewModel.dispatchIntent(WeaponDetailsIntent.VideoDisposeIntent(it))
-        }
+        },
+        onBackPressed = onBackPressed
     )
-
     LaunchedEffect(weaponId, locale) {
         viewModel.dispatchIntent(WeaponDetailsIntent.UpdateWeaponDetailsIntent(weaponId, locale))
     }
-
-    CompositionLocalProvider(
-        LocalWeaponsDetailsViewModel provides viewModel,
-        LocalExoFullscreenListener provides exoPlayerFullScreenListener
-    ) {
-        when (val viewState = state.value) {
-            is WeaponDetailsLoadingState -> {
-                ShowingLoadingState()
-            }
-            is WeaponDetailsErrorState -> {
-                ShowingErrorState(errorMessage = viewState.t.message)
-            }
-            is WeaponDetailsScreenState.WeaponDetailsInGeneralState -> {
-                val backPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
-                val currentOrientation = LocalConfiguration.current.orientation
-                backPressedDispatcher?.addCallback {
-                    if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-                        exoPlayerFullScreenListener.onExitFullScreen(viewState.playerConfig.playbackPosition, viewState.playerConfig.playOnInit)
-                    } else {
-                        actions.onBackPressed()
-                    }
+    when (val viewState = state.value) {
+        is WeaponDetailsLoadingState -> {
+            ShowingLoadingState()
+        }
+        is WeaponDetailsErrorState -> {
+            ShowingErrorState(errorMessage = viewState.t.message)
+        }
+        is WeaponDetailsScreenState.WeaponDetailsInGeneralState -> {
+            val backPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+            val currentOrientation = LocalConfiguration.current.orientation
+            backPressedDispatcher?.addCallback {
+                if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    exoPlayerFullScreenListener.onExitFullScreen(viewState.playerConfig.playbackPosition, viewState.playerConfig.playOnInit)
+                } else {
+                    actions.onBackPressed()
                 }
-                when (viewState) {
-                    is WeaponDetailsInDataState -> {
-                        ShowingWeaponDetailsDataState(
-                            modifier = Modifier,
-                            state = viewState,
-                            actions = actions
-                        )
-                    }
-                    is WeaponDetailsInFullscreenState -> {
-                        ShowingWeaponDetailsInFullscreenState(
-                            mediaUri = viewState.activeVideoChroma.streamedVideo,
-                            playerConfig = viewState.playerConfig
-                        )
-                    }
+            }
+            when (viewState) {
+                is WeaponDetailsInDataState -> {
+                    ShowingWeaponDetailsDataState(
+                        modifier = Modifier,
+                        state = viewState,
+                        onVideoItemClick = actions.onVideoItemClicked,
+                        onEnterFullscreen = actions.onEnterFullscreen,
+                        onExitFullscreen = actions.onExitFullscreen,
+                        onBackPressed = actions.onBackPressed,
+                        onSkinLeftFocus = actions.onSkinLeftFocus
+                    )
+                }
+                is WeaponDetailsInFullscreenState -> {
+                    ShowingWeaponDetailsInFullscreenState(
+                        modifier = Modifier.fillMaxSize(),
+                        mediaUri = viewState.activeVideoChroma.streamedVideo,
+                        playerConfig = viewState.playerConfig,
+                        onEnterFullscreen = actions.onEnterFullscreen,
+                        onExitFullscreen = actions.onExitFullscreen
+                    )
                 }
             }
         }
@@ -167,7 +199,11 @@ fun WeaponDetailsScreen(
 fun ShowingWeaponDetailsDataState(
     modifier: Modifier = Modifier,
     state: WeaponDetailsInDataState,
-    actions: WeaponDetailsScreenActions
+    onVideoItemClick: (WeaponSkinChromaDto) -> Unit,
+    onEnterFullscreen: (Long, Boolean) -> Unit,
+    onExitFullscreen: (Long, Boolean) -> Unit,
+    onBackPressed: () -> Unit,
+    onSkinLeftFocus: (WeaponSkinChromaDto) -> Unit
 ) {
     val listState = rememberLazyListState()
 
@@ -211,10 +247,9 @@ fun ShowingWeaponDetailsDataState(
                 ) {
                     WeaponDetailsTopBar(
                         title = state.details.displayName,
-                        imageSrc = state.details.displayIcon
-                    ) {
-                        actions.onBackPressed()
-                    }
+                        imageSrc = state.details.displayIcon,
+                        onBackPressed = onBackPressed
+                    )
                     WeaponDescriptionItem(
                         Modifier
                             .fillMaxWidth()
@@ -237,7 +272,10 @@ fun ShowingWeaponDetailsDataState(
                 state = state,
                 chromas = state.skinsWithVideo,
                 playOnInit = playOnInit,
-                actions = actions
+                onVideoItemClick = onVideoItemClick,
+                onEnterFullscreen = onEnterFullscreen,
+                onExitFullscreen = onExitFullscreen,
+                onSkinLeftFocus = onSkinLeftFocus
             ).invoke(this)
         }
     }
@@ -692,7 +730,10 @@ fun weaponVideos(
     state: WeaponDetailsInDataState,
     chromas: List<WeaponSkinChromaDto>,
     playOnInit: Boolean,
-    actions: WeaponDetailsScreenActions
+    onVideoItemClick: (WeaponSkinChromaDto) -> Unit,
+    onEnterFullscreen: (Long, Boolean) -> Unit,
+    onExitFullscreen: (Long, Boolean) -> Unit,
+    onSkinLeftFocus: (WeaponSkinChromaDto) -> Unit
 ): LazyListScope.() -> Unit = {
     item {
         Text(
@@ -712,11 +753,13 @@ fun weaponVideos(
                     state = state,
                     chroma = chroma,
                     playOnInit = playOnInit,
-                    actions = actions
+                    onVideoItemClick = onVideoItemClick,
+                    onEnterFullscreen = onEnterFullscreen,
+                    onExitFullscreen = onExitFullscreen
                 )
             ) {
                 onDispose {
-                    actions.onSkinLeftFocus(chroma)
+                    onSkinLeftFocus(chroma)
                 }
             }
             Spacer(modifier = Modifier.padding(vertical = Padding.Dp8))
@@ -730,14 +773,16 @@ fun SkinVideoContainer(
     state: WeaponDetailsInDataState,
     playOnInit: Boolean,
     chroma: WeaponSkinChromaDto,
-    actions: WeaponDetailsScreenActions
+    onVideoItemClick: (WeaponSkinChromaDto) -> Unit,
+    onEnterFullscreen: (Long, Boolean) -> Unit,
+    onExitFullscreen: (Long, Boolean) -> Unit
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
             .aspectRatio(16 / 9f)
             .padding(horizontal = Padding.Dp32)
-            .clickable { actions.onVideoItemClicked(chroma) },
+            .clickable { onVideoItemClick(chroma) },
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.Start
     ) {
@@ -758,7 +803,9 @@ fun SkinVideoContainer(
                 modifier = Modifier.fillMaxSize(),
                 mediaUri = chroma.streamedVideo,
                 playerConfig = state.playerConfig,
-                playOnInit = playOnInit
+                playOnInit = playOnInit,
+                onEnterFullscreen = onEnterFullscreen,
+                onExitFullscreen = onExitFullscreen
             )
         }
     }
@@ -805,13 +852,16 @@ fun SkinVideoItem(
     modifier: Modifier = Modifier,
     mediaUri: String,
     playerConfig: ExoPlayerConfig,
-    playOnInit: Boolean
+    playOnInit: Boolean,
+    onEnterFullscreen: (Long, Boolean) -> Unit,
+    onExitFullscreen: (Long, Boolean) -> Unit
 ) {
     ComposableExoPlayer(
         modifier = modifier,
         mediaUri = mediaUri,
         playerConfig = playerConfig.copy(playOnInit = playOnInit),
-        fullScreenListener = LocalExoFullscreenListener.current
+        onEnterFullscreen = onEnterFullscreen,
+        onExitFullscreen = onExitFullscreen
     )
 }
 
@@ -819,12 +869,15 @@ fun SkinVideoItem(
 fun ShowingWeaponDetailsInFullscreenState(
     modifier: Modifier = Modifier,
     mediaUri: String,
-    playerConfig: ExoPlayerConfig
+    playerConfig: ExoPlayerConfig,
+    onEnterFullscreen: (Long, Boolean) -> Unit,
+    onExitFullscreen: (Long, Boolean) -> Unit
 ) {
     ComposableExoPlayer(
         modifier = modifier,
         mediaUri = mediaUri,
         playerConfig = playerConfig,
-        fullScreenListener = LocalExoFullscreenListener.current
+        onEnterFullscreen = onEnterFullscreen,
+        onExitFullscreen = onExitFullscreen
     )
 }
