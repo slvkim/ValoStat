@@ -20,9 +20,6 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
-
-        buildConfigField("int", "VERSION_CODE", "1")
-        buildConfigField("String", "VERSION_NAME", '"0.0.1"')
         buildConfigField("String", "BASE_URL_DEV", '"https://valorant-api.com/"')
         buildConfigField("String", "VIDEO_API_URL", '"https://www.googleapis.com/youtube/"')
         buildConfigField("String", "WHATSAPP_APP_LINK", '"https://api.whatsapp.com/send/?phone=998901334709&text&type=phone_number&app_absent=0/"')
