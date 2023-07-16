@@ -1,4 +1,4 @@
-package com.mikyegresl.valostat.providers
+package com.mikyegresl.valostat.provider
 
 import android.content.res.Resources
 import androidx.compose.ui.text.intl.Locale

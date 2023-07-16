@@ -1,4 +1,4 @@
-package com.mikyegresl.valostat.providers
+package com.mikyegresl.valostat.provider
 
 import com.mikyegresl.valostat.BuildConfig
 import com.mikyegresl.valostat.base.config.ValoStatConfigProvider

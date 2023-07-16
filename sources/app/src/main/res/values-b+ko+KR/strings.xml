@@ -38,5 +38,7 @@
     <string name="en" translatable="false">English</string>
     <string name="ru" translatable="false">Русский</string>
     <string name="kr" translatable="false">한국어</string>
+    <string name="contact_me">저에게 연락주세요</string>
+    <string name="useful_links">웹 사이트 링크</string>
 
 </resources>

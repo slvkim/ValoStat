@@ -38,4 +38,13 @@
     <string name="en" translatable="false">English</string>
     <string name="ru" translatable="false">Русский</string>
     <string name="kr" translatable="false">한국어</string>
+    <string name="whatsapp">Whatsapp</string>
+    <string name="telegram">Telegram</string>
+    <string name="linkedin">Linkedin</string>
+    <string name="github">Github</string>
+    <string name="contact_me">Contact me</string>
+    <string name="source_code">Source code</string>
+    <string name="official_page">Official page</string>
+    <string name="useful_links">Useful links</string>
+    <string name="rate_app">Rate the app</string>
 </resources>

@@ -35,6 +35,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.mikyegresl.valostat.base.launcher.ExternalLinkLauncher
 import com.mikyegresl.valostat.base.model.ValoStatLocale
 import com.mikyegresl.valostat.features.agent.AgentsIntent
 import com.mikyegresl.valostat.features.agent.AgentsScreen
@@ -42,6 +43,7 @@ import com.mikyegresl.valostat.features.agent.AgentsViewModel
 import com.mikyegresl.valostat.features.agent.details.AgentDetailsScreen
 import com.mikyegresl.valostat.features.player.ActivityConfigHandler
 import com.mikyegresl.valostat.features.settings.SettingsScreen
+import com.mikyegresl.valostat.features.settings.SettingsScreenActions
 import com.mikyegresl.valostat.features.weapon.WeaponsIntent
 import com.mikyegresl.valostat.features.weapon.WeaponsScreen
 import com.mikyegresl.valostat.features.weapon.WeaponsViewModel
@@ -49,10 +51,11 @@ import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsScreen
 import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsViewModel
 import com.mikyegresl.valostat.navigation.GlobalNavItem
 import com.mikyegresl.valostat.navigation.NavigationItem
-import com.mikyegresl.valostat.providers.AppLocaleProvider
+import com.mikyegresl.valostat.provider.AppLocaleProvider
 import com.mikyegresl.valostat.ui.dimen.ElemSize
 import com.mikyegresl.valostat.ui.theme.ValoStatTheme
 import com.mikyegresl.valostat.ui.theme.mainBackgroundDark
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
@@ -61,6 +64,8 @@ class MainActivity : AppCompatActivity() {
     private val localeConfigProvider by lazy {
         AppLocaleProvider(resources)
     }
+
+    private val linkLauncher: ExternalLinkLauncher by inject()
 
     private val agentsViewModel by viewModel<AgentsViewModel> {
         parametersOf(
@@ -139,6 +144,9 @@ class MainActivity : AppCompatActivity() {
                     alwaysShowLabel = true,
                     selected = currentRoute == item.route,
                     onClick = {
+                        if (item.route == currentRoute) {
+                            return@BottomNavigationItem
+                        }
                         navController.navigate(item.route) {
                             navController.graph.startDestinationRoute?.let { startRoute ->
                                 popUpTo(startRoute)
@@ -183,9 +191,15 @@ class MainActivity : AppCompatActivity() {
             composable(GlobalNavItem.Settings.route) {
                 SettingsScreen(
                     locales = localeConfigProvider.locales,
-                    onAppLangSwitched = {
-                        onAppLanguageChanged(it)
-                    }
+                    actions = SettingsScreenActions(
+                        onAppLangSwitched = ::onAppLanguageChanged,
+                        onWhatsappClick = { linkLauncher.openWhatsApp(this@MainActivity) },
+                        onTelegramClick = { linkLauncher.openTelegram(this@MainActivity) },
+                        onLinkedInClick = { linkLauncher.openLinkedIn(this@MainActivity) },
+                        onGithubClick = { linkLauncher.openGithub(this@MainActivity) },
+                        onOfficialPageClick = { linkLauncher.openOfficialPage(this@MainActivity) },
+                        onRateAppClick = { linkLauncher.openRateAppPage(this@MainActivity) }
+                    )
                 )
             }
             composable(
