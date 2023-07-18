@@ -4,11 +4,15 @@ import java.time.LocalDate
 import java.time.Period
 import java.time.format.DateTimeFormatter
 
-private val datePattern = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
+fun String?.convertDate(): String? =
+    this?.let {
+        val localDate = LocalDate.parse(it, DateTimeFormatter.ISO_DATE_TIME)
+        localDate.format(DateTimeFormatter.ofPattern("dd/MM/yy"))
+    }
 
 fun String?.parseDate(): String? =
     this?.let {
-        val from = LocalDate.parse(it, datePattern)
+        val from = LocalDate.parse(it, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"))
         val to = LocalDate.now()
 
         val period = Period.between(from, to)

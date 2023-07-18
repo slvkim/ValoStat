@@ -8,4 +8,7 @@
     <dimen name="space_large">32dp</dimen>
     <dimen name="space_huge">40dp</dimen>
     <dimen name="space_superb">64dp</dimen>
+
+    <dimen name="post_text_size">14sp</dimen>
+
 </resources>

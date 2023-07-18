@@ -1,4 +1,4 @@
-package com.mikyegresl.valostat.features.player.exoplayer
+package com.mikyegresl.valostat.features.video.player.exoplayer
 
 import android.content.Context
 import android.media.session.PlaybackState
@@ -38,8 +38,8 @@ import androidx.media3.datasource.cache.SimpleCache
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.ui.PlayerView
-import com.mikyegresl.valostat.features.player.VideoPlayerContentState
-import com.mikyegresl.valostat.features.player.VideoPlayerIntent
+import com.mikyegresl.valostat.features.video.player.VideoPlayerContentState
+import com.mikyegresl.valostat.features.video.player.VideoPlayerIntent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

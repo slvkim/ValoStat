@@ -17,6 +17,7 @@ internal class NetworkConfigProviderImpl(
     override fun getNetworkConfig(): NetworkConfig =
         NetworkConfig(
             apiUrl = valoStatConfigProvider.apiUrl,
+            newsApiUrl = valoStatConfigProvider.newsApiUrl,
             videoApiUrl = valoStatConfigProvider.videoApiUrl,
             isDebug = appConfigProvider.isDebug,
         )

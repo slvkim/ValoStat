@@ -1,4 +1,4 @@
-package com.mikyegresl.valostat.features.player.exoplayer
+package com.mikyegresl.valostat.features.video.player.exoplayer
 
 import android.annotation.SuppressLint
 

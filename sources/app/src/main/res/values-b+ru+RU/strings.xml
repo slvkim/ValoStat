@@ -4,6 +4,7 @@
     <string name="agent_details" translatable="false">Agent details</string>
     <string name="weapon_details" translatable="false">Weapon details</string>
 
+    <string name="news">Новости</string>
     <string name="agents">Агенты</string>
     <string name="weapons">Арсенал</string>
     <string name="maps">Карты</string>
@@ -40,6 +41,6 @@
     <string name="kr" translatable="false">한국어</string>
     <string name="contact_me">Полезные ссылки</string>
     <string name="useful_links">Свяжитесь со мной</string>
-
+    <string name="see_article">Подробнее</string>
 
 </resources>

@@ -2,7 +2,7 @@ package com.mikyegresl.valostat.features.weapon.details
 
 import com.mikyegresl.valostat.base.model.ValoStatLocale
 import com.mikyegresl.valostat.base.model.weapon.skin.WeaponSkinChromaDto
-import com.mikyegresl.valostat.features.player.exoplayer.ExoPlayerConfig
+import com.mikyegresl.valostat.features.video.player.exoplayer.ExoPlayerConfig
 
 sealed class WeaponDetailsIntent {
 

@@ -1,4 +1,4 @@
-package com.mikyegresl.valostat.features.player
+package com.mikyegresl.valostat.features.video.player
 
 import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
@@ -7,10 +7,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import com.mikyegresl.valostat.features.player.exoplayer.ExoPlayerConfig
-import com.mikyegresl.valostat.features.player.exoplayer.ExoVideoPlayer
-
-private const val TAG = "ComposablePlayerView"
+import com.mikyegresl.valostat.features.video.player.exoplayer.ExoPlayerConfig
+import com.mikyegresl.valostat.features.video.player.exoplayer.ExoVideoPlayer
 
 @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 @Composable

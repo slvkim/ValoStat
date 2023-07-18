@@ -4,7 +4,7 @@ import com.mikyegresl.valostat.base.model.weapon.WeaponDto
 import com.mikyegresl.valostat.base.model.weapon.skin.WeaponSkinChromaDto
 import com.mikyegresl.valostat.base.model.weapon.skin.WeaponSkinDto
 import com.mikyegresl.valostat.common.state.BaseState
-import com.mikyegresl.valostat.features.player.exoplayer.ExoPlayerConfig
+import com.mikyegresl.valostat.features.video.player.exoplayer.ExoPlayerConfig
 
 sealed class WeaponDetailsScreenState : BaseState {
 

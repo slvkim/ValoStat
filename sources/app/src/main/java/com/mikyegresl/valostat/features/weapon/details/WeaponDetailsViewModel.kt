@@ -4,7 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.mikyegresl.valostat.base.model.ValoStatLocale
 import com.mikyegresl.valostat.base.repository.WeaponsRepository
 import com.mikyegresl.valostat.common.viewmodel.BaseNavigationViewModel
-import com.mikyegresl.valostat.features.player.exoplayer.ExoPlayerConfig
+import com.mikyegresl.valostat.features.video.player.exoplayer.ExoPlayerConfig
 import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsIntent.ContinueVideoPlaybackIntent
 import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsIntent.UpdateWeaponDetailsIntent
 import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsScreenState.WeaponDetailsErrorState

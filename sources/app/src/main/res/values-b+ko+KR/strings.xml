@@ -4,6 +4,7 @@
     <string name="agent_details" translatable="false">Agent details</string>
     <string name="weapon_details" translatable="false">Weapon details</string>
 
+    <string name="news">소식</string>
     <string name="agents">요원</string>
     <string name="weapons">무기고</string>
     <string name="maps">맵</string>
@@ -40,5 +41,6 @@
     <string name="kr" translatable="false">한국어</string>
     <string name="contact_me">저에게 연락주세요</string>
     <string name="useful_links">웹 사이트 링크</string>
+    <string name="see_article">소식 보기</string>
 
 </resources>

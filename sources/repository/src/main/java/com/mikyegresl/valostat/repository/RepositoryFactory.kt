@@ -2,9 +2,11 @@ package com.mikyegresl.valostat.repository
 
 import com.google.gson.Gson
 import com.mikyegresl.valostat.base.network.service.AgentsRemoteDataSource
+import com.mikyegresl.valostat.base.network.service.NewsRemoteDataSource
 import com.mikyegresl.valostat.base.network.service.VideosRemoteDataSource
 import com.mikyegresl.valostat.base.network.service.WeaponsRemoteDataSource
 import com.mikyegresl.valostat.base.repository.AgentsRepository
+import com.mikyegresl.valostat.base.repository.NewsRepository
 import com.mikyegresl.valostat.base.repository.VideosRepository
 import com.mikyegresl.valostat.base.repository.WeaponsRepository
 import com.mikyegresl.valostat.base.storage.service.AgentsLocalDataSource
@@ -43,6 +45,12 @@ object RepositoryFactory {
     fun getVideosRepository(
         remoteDataSource: VideosRemoteDataSource,
     ) : VideosRepository = VideosRepositoryImpl(
+        remoteDataSource
+    )
+
+    fun getNewsRepository(
+        remoteDataSource: NewsRemoteDataSource,
+    ) : NewsRepository = NewsRepositoryImpl(
         remoteDataSource
     )
 }

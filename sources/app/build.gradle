@@ -21,6 +21,7 @@ android {
             useSupportLibrary true
         }
         buildConfigField("String", "BASE_URL_DEV", '"https://valorant-api.com/"')
+        buildConfigField("String", "NEWS_API_URL", '"https://playvalorant.com/"')
         buildConfigField("String", "VIDEO_API_URL", '"https://www.googleapis.com/youtube/"')
         buildConfigField("String", "WHATSAPP_APP_LINK", '"https://api.whatsapp.com/send/?phone=998901334709&text&type=phone_number&app_absent=0/"')
         buildConfigField("String", "WHATSAPP_WEB_LINK", '"https://api.whatsapp.com/send/?phone=998901334709&text&type=phone_number&app_absent=1/"')

@@ -18,4 +18,5 @@ val networkModule = module {
     single { get<NetworkFactory>().agentsRemoteDataSource }
     single { get<NetworkFactory>().weaponsRemoteDataSource }
     single { get<NetworkFactory>().videosRemoteDataSource }
+    single { get<NetworkFactory>().newsRemoteDataSource }
 }

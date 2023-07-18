@@ -6,6 +6,7 @@ val koinModules = listOf(
     networkModule,
     storageModule,
     repositoryModule,
+    newsModule,
     agentsModule,
     weaponsModule,
     videosModule,

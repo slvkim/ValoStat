@@ -1,4 +1,4 @@
-package com.mikyegresl.valostat.features.player.exoplayer
+package com.mikyegresl.valostat.features.video.player.exoplayer
 
 import android.content.Context
 import android.net.Uri
@@ -20,12 +20,10 @@ import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import com.mikyegresl.valostat.R
-import com.mikyegresl.valostat.features.player.AudioPlayerContentState
+import com.mikyegresl.valostat.features.video.player.AudioPlayerContentState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-
-private const val TAG = "ExoAudioPlayer"
 
 @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 class ExoAudioPlayer(

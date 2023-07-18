@@ -52,8 +52,9 @@ import com.mikyegresl.valostat.base.model.agent.AgentOriginDto
 import com.mikyegresl.valostat.base.model.agent.AgentRoleDto
 import com.mikyegresl.valostat.common.compose.ShowingErrorState
 import com.mikyegresl.valostat.common.compose.ShowingLoadingState
+import com.mikyegresl.valostat.common.compose.TopBarBackButton
 import com.mikyegresl.valostat.features.agent.agentAbilitiesMock
-import com.mikyegresl.valostat.features.player.exoplayer.ExoAudioPlayer
+import com.mikyegresl.valostat.features.video.player.exoplayer.ExoAudioPlayer
 import com.mikyegresl.valostat.ui.dimen.ElemSize
 import com.mikyegresl.valostat.ui.dimen.Padding
 import com.mikyegresl.valostat.ui.theme.ValoStatTypography
@@ -207,14 +208,7 @@ fun AgentDetailsTopBar(
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                modifier = Modifier
-                    .rotate(210f)
-                    .clickable { onBackPressed() },
-                painter = painterResource(id = R.drawable.ic_arrow_left),
-                contentDescription = stringResource(id = R.string.agent_details),
-                tint = secondaryTextDark
-            )
+            TopBarBackButton(onBackPressed = onBackPressed)
             Text(
                 modifier = Modifier
                     .weight(1f),

@@ -1,4 +1,4 @@
-package com.mikyegresl.valostat.features.player
+package com.mikyegresl.valostat.features.video.player
 
 sealed class VideoPlayerIntent {
 

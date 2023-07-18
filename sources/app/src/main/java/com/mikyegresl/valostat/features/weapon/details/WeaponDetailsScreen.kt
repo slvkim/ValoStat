@@ -69,9 +69,10 @@ import com.mikyegresl.valostat.base.model.weapon.stats.WeaponDamageRangeDto
 import com.mikyegresl.valostat.base.model.weapon.stats.WeaponStatsDto
 import com.mikyegresl.valostat.common.compose.ShowingErrorState
 import com.mikyegresl.valostat.common.compose.ShowingLoadingState
-import com.mikyegresl.valostat.features.player.ComposableExoPlayer
-import com.mikyegresl.valostat.features.player.exoplayer.ExoPlayerConfig
-import com.mikyegresl.valostat.features.player.exoplayer.PreExecExoPlayerFullScreenListenerImpl
+import com.mikyegresl.valostat.common.compose.TopBarBackButton
+import com.mikyegresl.valostat.features.video.player.ComposableExoPlayer
+import com.mikyegresl.valostat.features.video.player.exoplayer.ExoPlayerConfig
+import com.mikyegresl.valostat.features.video.player.exoplayer.PreExecExoPlayerFullScreenListenerImpl
 import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsScreenState.WeaponDetailsErrorState
 import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsScreenState.WeaponDetailsInGeneralState.WeaponDetailsInDataState
 import com.mikyegresl.valostat.features.weapon.details.WeaponDetailsScreenState.WeaponDetailsInGeneralState.WeaponDetailsInFullscreenState
@@ -85,77 +86,48 @@ import com.mikyegresl.valostat.ui.theme.secondaryTextDark
 import com.mikyegresl.valostat.ui.theme.surfaceDark
 import com.mikyegresl.valostat.ui.theme.washWhite
 import com.mikyegresl.valostat.ui.widget.gradientModifier
+import kotlinx.coroutines.flow.StateFlow
 import kotlin.math.roundToInt
 
 private const val TAG = "WEAPON_DETAILS_SCREEN"
 
 data class WeaponDetailsScreenActions(
     val onVideoItemClicked: (WeaponSkinChromaDto) -> Unit,
-    val onEnterFullscreen: (Long, Boolean) -> Unit,
-    val onExitFullscreen: (Long, Boolean) -> Unit,
+    val onEnterFullscreen: () -> Unit,
+    val onExitFullscreen: () -> Unit,
+    val beforeEnterFullscreen: (Long, Boolean) -> Unit,
+    val beforeExitFullscreen: (Long, Boolean) -> Unit,
     val onBackPressed: () -> Unit,
-    val onSkinLeftFocus: (WeaponSkinChromaDto) -> Unit
+    val onSkinLeftFocus: (WeaponSkinChromaDto) -> Unit,
+    val onUpdateWeaponDetails: (String, ValoStatLocale) -> Unit
 )
 
 @Composable
 fun WeaponDetailsScreen(
     weaponId: String,
+    state: StateFlow<WeaponDetailsScreenState>,
     locale: ValoStatLocale,
-    viewModel: WeaponDetailsViewModel,
-    onBackPressed: () -> Unit,
-    enterFullscreenMode: () -> Unit,
-    exitFullscreenMode: () -> Unit
+    actions: WeaponDetailsScreenActions
 ) {
-    val state = viewModel.state.collectAsStateWithLifecycle()
-
+    val detailsState = state.collectAsStateWithLifecycle()
     val exoPlayerFullScreenListener = remember {
         PreExecExoPlayerFullScreenListenerImpl(
             beforeEnterFullScreen = { playbackPosition, playOnInit ->
-                viewModel.dispatchIntent(
-                    WeaponDetailsIntent.ContinueVideoPlaybackIntent(
-                        ExoPlayerConfig.getEnterFullscreenConfig(
-                            playbackPosition, playOnInit
-                        )
-                    )
-                )
+                actions.beforeEnterFullscreen(playbackPosition, playOnInit)
                 true
             },
             beforeExitFullScreen = { playbackPosition, playOnInit ->
-                viewModel.dispatchIntent(
-                    WeaponDetailsIntent.ContinueVideoPlaybackIntent(
-                        ExoPlayerConfig.getExitFullscreenConfig(
-                            playbackPosition, playOnInit
-                        )
-                    )
-                )
+                actions.beforeExitFullscreen(playbackPosition, playOnInit)
                 true
             },
-            enterFullscreenMode = enterFullscreenMode,
-            exitFullscreenMode = exitFullscreenMode
-        )
-    }
-
-    val actions = remember {
-        WeaponDetailsScreenActions(
-            onVideoItemClicked = {
-                viewModel.dispatchIntent(WeaponDetailsIntent.VideoClickedIntent(it))
-            },
-            onEnterFullscreen = { playbackPosition, playOnInit ->
-                exoPlayerFullScreenListener.onEnterFullScreen(playbackPosition, playOnInit)
-            },
-            onExitFullscreen = { playbackPosition, playOnInit ->
-                exoPlayerFullScreenListener.onExitFullScreen(playbackPosition, playOnInit)
-            },
-            onSkinLeftFocus = {
-                viewModel.dispatchIntent(WeaponDetailsIntent.VideoDisposeIntent(it))
-            },
-            onBackPressed = onBackPressed
+            enterFullscreenMode = actions.onEnterFullscreen,
+            exitFullscreenMode = actions.onExitFullscreen
         )
     }
     LaunchedEffect(weaponId, locale) {
-        viewModel.dispatchIntent(WeaponDetailsIntent.UpdateWeaponDetailsIntent(weaponId, locale))
+        actions.onUpdateWeaponDetails(weaponId, locale)
     }
-    when (val viewState = state.value) {
+    when (val viewState = detailsState.value) {
         is WeaponDetailsLoadingState -> {
             ShowingLoadingState()
         }
@@ -178,8 +150,12 @@ fun WeaponDetailsScreen(
                         modifier = Modifier,
                         state = viewState,
                         onVideoItemClick = actions.onVideoItemClicked,
-                        onEnterFullscreen = actions.onEnterFullscreen,
-                        onExitFullscreen = actions.onExitFullscreen,
+                        onEnterFullscreen = { playbackPosition, playOnInit ->
+                            exoPlayerFullScreenListener.onEnterFullScreen(playbackPosition, playOnInit)
+                        },
+                        onExitFullscreen = { playbackPosition, playOnInit ->
+                            exoPlayerFullScreenListener.onExitFullScreen(playbackPosition, playOnInit)
+                        },
                         onBackPressed = actions.onBackPressed,
                         onSkinLeftFocus = actions.onSkinLeftFocus
                     )
@@ -189,8 +165,12 @@ fun WeaponDetailsScreen(
                         modifier = Modifier.fillMaxSize(),
                         mediaUri = viewState.activeVideoChroma.streamedVideo,
                         playerConfig = viewState.playerConfig,
-                        onEnterFullscreen = actions.onEnterFullscreen,
-                        onExitFullscreen = actions.onExitFullscreen
+                        onEnterFullscreen = { playbackPosition, playOnInit ->
+                            exoPlayerFullScreenListener.onEnterFullScreen(playbackPosition, playOnInit)
+                        },
+                        onExitFullscreen = { playbackPosition, playOnInit ->
+                            exoPlayerFullScreenListener.onExitFullScreen(playbackPosition, playOnInit)
+                        }
                     )
                 }
             }
@@ -306,14 +286,7 @@ fun WeaponDetailsTopBar(
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                modifier = Modifier
-                    .rotate(210f)
-                    .clickable { onBackPressed() },
-                painter = painterResource(id = R.drawable.ic_arrow_left),
-                contentDescription = stringResource(id = R.string.weapon_details),
-                tint = secondaryTextDark
-            )
+            TopBarBackButton(onBackPressed = onBackPressed)
             Text(
                 modifier = Modifier
                     .weight(1f),

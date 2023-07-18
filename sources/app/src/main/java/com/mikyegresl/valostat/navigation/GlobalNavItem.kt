@@ -10,12 +10,27 @@ sealed class GlobalNavItem(
     val route: String
 ) {
     companion object {
+        private const val NEWS = "news"
         private const val AGENTS = "agents"
         private const val WEAPONS = "weapons"
         private const val MAPS = "maps"
         private const val VIDEOS = "videos"
         private const val SETTINGS = "settings"
+
+        fun getItemList(): List<GlobalNavItem> =
+            listOf(
+                News,
+                Agents,
+                Weapons,
+                Settings
+            )
     }
+
+    object News: GlobalNavItem(
+        title = R.string.news,
+        icon = R.drawable.ic_news,
+        route = NEWS
+    )
 
     object Agents : GlobalNavItem(
         title = R.string.agents,
