@@ -51,7 +51,6 @@ data class SettingsScreenActions(
     val onWhatsappClick: () -> Unit = {},
     val onTelegramClick: () -> Unit = {},
     val onLinkedInClick: () -> Unit = {},
-    val onGithubClick: () -> Unit = {},
     val onOfficialPageClick: () -> Unit = {},
     val onRateAppClick: () -> Unit = {}
 )
@@ -83,7 +82,6 @@ fun SettingsScreen(
             onWhatsappClick = actions.onWhatsappClick,
             onTelegramClick = actions.onTelegramClick,
             onLinkedInClick = actions.onLinkedInClick,
-            onSourceCodeClick = actions.onGithubClick,
             onOfficialPageClick = actions.onOfficialPageClick,
             onRateAppClick = actions.onRateAppClick
         )
@@ -120,7 +118,6 @@ fun SettingsScreenContent(
     onWhatsappClick: () -> Unit,
     onTelegramClick: () -> Unit,
     onLinkedInClick: () -> Unit,
-    onSourceCodeClick: () -> Unit,
     onOfficialPageClick: () -> Unit,
     onRateAppClick: () -> Unit
 ) {
@@ -144,7 +141,6 @@ fun SettingsScreenContent(
             onWhatsappClick = onWhatsappClick,
             onTelegramClick = onTelegramClick,
             onLinkedInClick = onLinkedInClick,
-            onSourceCodeClick = onSourceCodeClick,
             onOfficialPageClick = onOfficialPageClick,
             onRateAppClick = onRateAppClick,
         )
@@ -214,7 +210,6 @@ fun ContactMeContent(
     onWhatsappClick: () -> Unit,
     onTelegramClick: () -> Unit,
     onLinkedInClick: () -> Unit,
-    onSourceCodeClick: () -> Unit,
     onOfficialPageClick: () -> Unit,
     onRateAppClick: () -> Unit
 ) {
@@ -224,18 +219,6 @@ fun ContactMeContent(
         Text(
             text = "${stringResource(id = R.string.useful_links)}:",
             style = ValoStatTypography.caption.copy(fontSize = 16.sp)
-        )
-        Spacer(
-            modifier = Modifier.padding(top = Padding.Dp8)
-        )
-        Text(
-            modifier = Modifier.clickable { onSourceCodeClick() },
-            text = stringResource(id = R.string.source_code),
-            style = ValoStatTypography.caption.copy(
-                color = secondaryTextDark,
-                fontStyle = FontStyle.Italic,
-                textDecoration = TextDecoration.Underline
-            )
         )
         Spacer(modifier = Modifier.padding(top = Padding.Dp8))
         Text(

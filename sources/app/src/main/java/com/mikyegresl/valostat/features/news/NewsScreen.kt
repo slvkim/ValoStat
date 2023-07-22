@@ -25,25 +25,21 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.mikyegresl.valostat.R
+import com.mikyegresl.valostat.base.model.news.ArticleDto
+import com.mikyegresl.valostat.base.model.news.ArticleTypeDto
 import com.mikyegresl.valostat.base.model.news.BannerContentTypeDto
 import com.mikyegresl.valostat.base.model.news.BannerDimensionDto
 import com.mikyegresl.valostat.base.model.news.BannerDto
-import com.mikyegresl.valostat.base.model.news.ArticleDto
-import com.mikyegresl.valostat.base.model.news.ArticleTypeDto
 import com.mikyegresl.valostat.common.compose.ShowingErrorState
 import com.mikyegresl.valostat.common.compose.ShowingLoadingState
 import com.mikyegresl.valostat.ui.dimen.Padding
@@ -59,21 +55,24 @@ fun PreviewNewsList() {
     NewsList(
         modifier = Modifier,
         news = newsListMock(),
-    ) {
-
-    }
+    ) { _, _ -> }
 }
 
 data class NewsScreenActions(
-    val onArticleClick: (String) -> Unit = {}
+    val onArticleClick: (String, ArticleTypeDto) -> Unit = { _, _ -> }
 )
 
 @Composable
 fun NewsScreen(
     screenState: StateFlow<NewsScreenState>,
-    actions: NewsScreenActions
+    onArticleClick: (String, ArticleTypeDto) -> Unit
 ) {
     val state = screenState.collectAsStateWithLifecycle()
+    val actions = remember {
+        NewsScreenActions(
+            onArticleClick = onArticleClick
+        )
+    }
 
     Scaffold(
         modifier = Modifier,
@@ -126,7 +125,7 @@ fun NewsScreenTopBar(
 fun NewsScreenInDataState(
     modifier: Modifier = Modifier,
     state: NewsScreenState.NewsDataState,
-    onArticleClick: (String) -> Unit
+    onArticleClick: (String, ArticleTypeDto) -> Unit
 ) {
     Column(
         modifier = modifier.fillMaxSize()
@@ -134,8 +133,8 @@ fun NewsScreenInDataState(
         NewsList(
             modifier = Modifier,
             news = state.newsList,
-        ) {
-            onArticleClick(it)
+        ) { url, type ->
+            onArticleClick(url, type)
         }
     }
 }
@@ -146,12 +145,8 @@ fun NewsList(
     modifier: Modifier = Modifier,
     listState: LazyListState = rememberLazyListState(),
     news: List<ArticleDto>,
-    onArticleClick: (String) -> Unit
+    onArticleClick: (String, ArticleTypeDto) -> Unit
 ) {
-    val configuration = LocalConfiguration.current
-    val widgetHeight by remember {
-        mutableStateOf((configuration.screenHeightDp / 1.5).dp)
-    }
     CompositionLocalProvider(
         LocalOverscrollConfiguration provides null
     ) {
@@ -167,8 +162,8 @@ fun NewsList(
                 NewsItem(
                     modifier = Modifier.fillMaxWidth(),
                     article = article
-                ) {
-                    onArticleClick(it)
+                ) { url, type ->
+                    onArticleClick(url, type)
                 }
             }
         }
@@ -179,7 +174,7 @@ fun NewsList(
 fun NewsItem(
     modifier: Modifier = Modifier,
     article: ArticleDto,
-    onArticleClick: (String) -> Unit
+    onArticleClick: (String, ArticleTypeDto) -> Unit
 ) {
     Column(
         modifier = modifier.padding(Padding.Dp16)
@@ -221,7 +216,8 @@ fun NewsItem(
                     ArticleTypeDto.NORMAL_ARTICLE -> article.url
                     ArticleTypeDto.EXTERNAL_LINK -> article.externalLink
                     else -> ""
-                }
+                },
+                article.type
             ) }
         ) {
             Text(

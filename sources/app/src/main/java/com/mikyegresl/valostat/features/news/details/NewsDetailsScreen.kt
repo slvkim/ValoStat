@@ -1,8 +1,8 @@
 package com.mikyegresl.valostat.features.news.details
 
 import android.util.Log
-import android.widget.Space
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,7 +14,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -23,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.mikyegresl.valostat.R
+import com.mikyegresl.valostat.base.model.ValoStatLocale
 import com.mikyegresl.valostat.base.model.news.ArticleCategoryDto
 import com.mikyegresl.valostat.base.model.news.ArticleCategoryTypeDto
 import com.mikyegresl.valostat.base.model.news.ArticleDetailsDto
@@ -35,14 +38,14 @@ import com.mikyegresl.valostat.base.model.news.BannerDimensionDto
 import com.mikyegresl.valostat.base.model.news.BannerDto
 import com.mikyegresl.valostat.common.compose.ShowingErrorState
 import com.mikyegresl.valostat.common.compose.ShowingLoadingState
+import com.mikyegresl.valostat.common.compose.SpannableHtmlContent
 import com.mikyegresl.valostat.common.compose.TopBarBackButton
-import com.mikyegresl.valostat.features.news.NewsScreenState
 import com.mikyegresl.valostat.ui.dimen.Padding
 import com.mikyegresl.valostat.ui.theme.ValoStatTypography
 import com.mikyegresl.valostat.ui.theme.mainTextDark
 import com.mikyegresl.valostat.ui.theme.secondaryTextDark
 import com.mikyegresl.valostat.ui.theme.tertiaryTextDark
-import kotlinx.coroutines.flow.StateFlow
+import org.koin.androidx.compose.koinViewModel
 
 @Preview
 @Composable
@@ -60,56 +63,78 @@ data class NewsDetailsScreenActions(
 
 @Composable
 fun NewsDetailsScreen(
-    screenState: StateFlow<NewsScreenState>,
-    actions: NewsDetailsScreenActions
+    viewModel: NewsDetailsViewModel = koinViewModel(),
+    url: String,
+    locale: ValoStatLocale,
+    onBackPressed: () -> Unit
 ) {
-    val state = screenState.collectAsStateWithLifecycle()
+    val state = viewModel.state.collectAsStateWithLifecycle()
+    val actions = remember {
+        NewsDetailsScreenActions(
+            onBackPressed = onBackPressed
+        )
+    }
+    LaunchedEffect(key1 = url) {
+        viewModel.dispatchIntent(NewsDetailsIntent.LoadNewsDetails(locale, url))
+    }
 
     Scaffold(
         modifier = Modifier,
     ) { paddingValues ->
         when (val viewState = state.value) {
-            is NewsScreenState.NewsLoadingState -> {
+            is NewsDetailsScreenState.NewsDetailsLoadingState -> {
                 ShowingLoadingState()
             }
-            is NewsScreenState.NewsErrorState -> {
-                Log.e("NewsScreen", ": ", viewState.t)
+            is NewsDetailsScreenState.NewsDetailsErrorState -> {
+                Log.e("NewsDetailsScreen", ": ", viewState.t)
                 ShowingErrorState(errorMessage = viewState.t.message)
             }
-            is NewsScreenState.NewsDataState -> {
-//                NewsDetailsScreenInDataState(
-//                    modifier = Modifier.padding(paddingValues),
-//                    details = viewState,
-//                    onBackPressed = actions.onBackPressed
-//                )
+            is NewsDetailsScreenState.NewsDetailsDataState -> {
+                NewsDetailsScreenInDataState(
+                    modifier = Modifier.padding(paddingValues),
+                    details = viewState.details,
+                    onBackPressed = actions.onBackPressed
+                )
             }
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NewsDetailsScreenInDataState(
     modifier: Modifier = Modifier,
     details: ArticleDetailsDto,
     onBackPressed: () -> Unit
 ) {
-    LazyColumn(
-        modifier = modifier.fillMaxSize()
+    CompositionLocalProvider(
+        LocalOverscrollConfiguration provides null
     ) {
-        item {
-            details.banner?.url?.let {
-                ArticleBanner(
+        LazyColumn(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(horizontal = Padding.Dp16)
+        ) {
+            item {
+                details.banner?.url?.let {
+                    ArticleBanner(
+                        modifier = Modifier,
+                        imageSrc = it,
+                        onBackPressed = onBackPressed
+                    )
+                }
+                ArticleTitle(
                     modifier = Modifier,
-                    imageSrc = it,
-                    onBackPressed = onBackPressed
+                    title = details.title,
+                    date = details.date,
+                    category = details.category?.title
+                )
+                Spacer(modifier = Modifier.padding(top = Padding.Dp16))
+                ArticleContent(
+                    modifier = Modifier,
+                    content = details.htmlContent
                 )
             }
-            ArticleTitle(
-                modifier = Modifier.padding(horizontal = Padding.Dp16),
-                title = details.title,
-                date = details.date,
-                category = details.category?.title
-            )
         }
     }
 }
@@ -120,14 +145,18 @@ fun ArticleBanner(
     imageSrc: String,
     onBackPressed: () -> Unit
 ) {
-    Box(
-        modifier = Modifier
+    Column(
+        modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = Padding.Dp16, vertical = Padding.Dp16)
     ) {
-        TopBarBackButton(onBackPressed = onBackPressed)
+        TopBarBackButton(
+            modifier = Modifier.padding(
+                vertical = Padding.Dp24
+            ),
+            onBackPressed = onBackPressed
+        )
         AsyncImage(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight(),
             model = imageSrc,
@@ -182,7 +211,13 @@ fun ArticleContent(
     modifier: Modifier = Modifier,
     content: String
 ) {
-
+    SpannableHtmlContent(
+        modifier = modifier,
+        content = content,
+        textColor = mainTextDark,
+        textSize = 16.sp,
+        lineSpacing = 32f
+    )
 }
 
 private fun detailsMock(): ArticleDetailsDto =

@@ -10,6 +10,6 @@ interface ValorantNewsApi {
     @GET("page-data/{lang}/news/page-data.json")
     suspend fun getNews(@Path("lang") language: String): NewsResponse
 
-    @GET("page-data/{lang}/news/{url}/page-data.json")
+    @GET("page-data/{lang}/{url}/page-data.json")
     suspend fun getNewsDetails(@Path("lang") language: String, @Path("url") articleUrl: String): NewsDetailsResponse
 }

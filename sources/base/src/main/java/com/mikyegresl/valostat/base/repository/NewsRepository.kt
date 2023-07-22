@@ -11,5 +11,4 @@ interface NewsRepository {
     fun getNews(locale: ValoStatLocale): Flow<Response<List<ArticleDto>>>
 
     fun getNewsDetails(locale: ValoStatLocale, url: String): Flow<Response<ArticleDetailsDto>>
-
 }

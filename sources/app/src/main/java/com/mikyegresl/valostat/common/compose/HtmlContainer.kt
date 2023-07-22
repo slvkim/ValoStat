@@ -1,6 +1,9 @@
 package com.mikyegresl.valostat.common.compose
 
+import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.text.Html
 import android.text.Spanned
 import android.text.method.LinkMovementMethod
@@ -14,6 +17,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -22,18 +27,30 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.text.toSpanned
+import coil.Coil
+import coil.request.ImageRequest
+import coil.request.SuccessResult
+import coil.size.OriginalSize
+import coil.target.Target
 import com.mikyegresl.valostat.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 sealed class HtmlSpannableContent(
     open val rContentSpanned: Spanned,
 ) {
-
     data class RegularTextHtmlSpannableContent(
         override val rContentSpanned: Spanned,
     ): HtmlSpannableContent(rContentSpanned)
@@ -126,10 +143,67 @@ fun SpannableHtmlText(
     )
 }
 
+private fun trimSpacesFilter(content: HtmlSpannableContent): HtmlSpannableContent? {
+    return when (content) {
+        is HtmlSpannableContent.RegularTextHtmlSpannableContent -> {
+            val newSpanned = content.rContentSpanned.trim(' ', '\n').toSpanned()
+            if (newSpanned.isEmpty()) null
+            else content.copy(rContentSpanned = newSpanned)
+        }
+        is HtmlSpannableContent.ImageHtmlSpannableContent -> {
+            if (content.imageUrl.isNullOrEmpty().not()) content
+            else null
+        }
+    }
+}
+
+@Composable
+fun dpToSp(dp: Dp) = with(LocalDensity.current) { dp.toSp() }
+
+@Composable
+fun spToPx(sp: TextUnit) = with(LocalDensity.current) { sp.toPx() }
+
+@Composable
+private fun LoadImageAndResizePxAsDp(
+    context: Context,
+    imageUrl: String,
+    resultBitmap: MutableState<Bitmap?>
+) {
+    val target = SizePxAsDpTarget(LocalDensity.current)
+    val imageRequest = ImageRequest.Builder(context)
+        .data(imageUrl)
+        .size(OriginalSize)
+        .target(target)
+        .build()
+
+    LaunchedEffect(imageUrl) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val imageResponse = Coil.imageLoader(context).execute(imageRequest)
+
+            if (imageResponse !is SuccessResult) return@launch
+            val resizedBitmap = target.resizedBitmap
+            withContext(Dispatchers.Main) {
+                resultBitmap.value = resizedBitmap
+            }
+        }
+    }
+}
+
+internal class SizePxAsDpTarget(private val localDensity: Density) : Target {
+    var resizedBitmap: Bitmap? = null
+
+    override fun onSuccess(result: Drawable) {
+        val originalBitmap = (result as? BitmapDrawable)?.bitmap ?: return
+        val resizedWidth = with(localDensity) { originalBitmap.width.dp.toPx().toInt() }
+        val resizedHeight = with(localDensity) { originalBitmap.height.dp.toPx().toInt() }
+        resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, resizedWidth, resizedHeight, false)
+    }
+}
+
 @Composable
 fun SpannableHtmlContent(
     modifier: Modifier = Modifier,
-    rText: String,
+    content: String,
     textColor: Color,
     linkTextColor: Color = textColor,
     totalMaxLinesCount: Int? = null,
@@ -138,9 +212,9 @@ fun SpannableHtmlContent(
     contentOptions: SpannableHtmlContentOptions = SpannableHtmlContentOptions(),
     onClick: (HtmlSpannableContent) -> Unit = { _ -> },
     isBold: Boolean = false,
-    lineSpacing: Float? = null,
+    lineSpacing: Float? = null
 ) {
-    val spannableContents = HtmlSpannableContentFactory.createFromHtmlString(rText).let {
+    val spannableContents = HtmlSpannableContentFactory.createFromHtmlString(content).let {
         var seq = it.asSequence()
         if (contentOptions.trimSpaces) {
             seq = seq.mapNotNull { trimSpacesFilter(it) }
@@ -203,14 +277,10 @@ object HtmlSpannableContentFactory {
         val fullSpanned = Html.fromHtml(content)
         var currentSpanned = fullSpanned
 
-        // Go through all interesting spans that needs to be separated (like images, tables, etc)
         fullSpanned.getSpans(0, fullSpanned.length, CharacterStyle::class.java)
             .filter { spanTypesOfInterest.contains<Class<CharacterStyle>>(it.javaClass) }
             .let { spansOfInterest ->
                 val sorted = spansOfInterest.sortedBy { fullSpanned.getSpanStart(it) }
-
-                // And one to one split currentSpanned with parts "before interesting", "interesting"
-                // while continuing to observe "after interesting" part with the next interesting span
                 sorted.forEach {
                     val startIndex = currentSpanned.getSpanStart(it)
                     val endIndex = currentSpanned.getSpanEnd(it)

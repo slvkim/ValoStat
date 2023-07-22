@@ -2,10 +2,7 @@ package com.mikyegresl.valostat.base.converter.responseToDto.news
 
 import com.mikyegresl.valostat.base.common.converter.Converter
 import com.mikyegresl.valostat.base.model.news.ArticleDto
-import com.mikyegresl.valostat.base.model.news.ArticleTypeDto
-import com.mikyegresl.valostat.base.network.model.news.ArticleUrlResponse
 import com.mikyegresl.valostat.base.network.model.news.NewsResponse
-import com.mikyegresl.valostat.base.utils.convertDate
 
 object ArticleResponseToDtoConverter : Converter<NewsResponse, List<ArticleDto>> {
 

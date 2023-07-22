@@ -26,7 +26,11 @@ object ArticleRelatedResponseToDtoConverter {
         }
 
     internal fun mapArticleUrl(from: ArticleUrlResponse?): String =
-        from?.url ?: Converter.EMPTY_STRING
+        from?.url?.let {
+            if (it.startsWith("/")) {
+                it.replaceFirst("/", "")
+            } else it
+        } ?: Converter.EMPTY_STRING
 
     internal fun mapDate(from: String?): String? =
         from?.convertDate()

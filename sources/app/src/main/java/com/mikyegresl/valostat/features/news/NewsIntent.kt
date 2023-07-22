@@ -7,4 +7,5 @@ sealed class NewsIntent {
     data class UpdateNewsIntent(
         val locale: ValoStatLocale
     ) : NewsIntent()
+
 }

@@ -39,8 +39,8 @@ import com.mikyegresl.valostat.features.agent.AgentsViewModel
 import com.mikyegresl.valostat.features.agent.agentsRouter
 import com.mikyegresl.valostat.features.agent.details.agentDetailsRouter
 import com.mikyegresl.valostat.features.news.NewsIntent
-import com.mikyegresl.valostat.features.news.NewsScreenActions
 import com.mikyegresl.valostat.features.news.NewsViewModel
+import com.mikyegresl.valostat.features.news.details.newsDetailsRouter
 import com.mikyegresl.valostat.features.news.newsRouter
 import com.mikyegresl.valostat.features.settings.SettingsScreenActions
 import com.mikyegresl.valostat.features.settings.settingsRouter
@@ -58,6 +58,7 @@ import com.mikyegresl.valostat.provider.AppLocaleProvider
 import com.mikyegresl.valostat.ui.dimen.ElemSize
 import com.mikyegresl.valostat.ui.theme.ValoStatTheme
 import com.mikyegresl.valostat.ui.theme.mainBackgroundDark
+import com.mikyegresl.valostat.utils.openWebsite
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -159,12 +160,16 @@ class MainActivity : AppCompatActivity() {
         ) {
             newsRouter(
                 state = newsViewModel.state,
-                actions = NewsScreenActions(
-                    onArticleClick =  {
-//                        newsViewModel.dispatchIntent(NewsIntent.UpdateNewsIntent(it))
-                    }
-                ),
+                navController = navController,
                 builder = this,
+                openWebPage = {
+                    this@MainActivity.openWebsite(it)
+                }
+            )
+            newsDetailsRouter(
+                currentLocale = localeConfigProvider.appLocale,
+                navController = navController,
+                builder = this
             )
             agentsRouter(
                 state = agentsViewModel.state,
@@ -231,7 +236,6 @@ class MainActivity : AppCompatActivity() {
                     onWhatsappClick = { linkLauncher.openWhatsApp(this@MainActivity) },
                     onTelegramClick = { linkLauncher.openTelegram(this@MainActivity) },
                     onLinkedInClick = { linkLauncher.openLinkedIn(this@MainActivity) },
-                    onGithubClick = { linkLauncher.openGithub(this@MainActivity) },
                     onOfficialPageClick = { linkLauncher.openOfficialPage(this@MainActivity) },
                     onRateAppClick = { linkLauncher.openRateAppPage(this@MainActivity) }
                 ),
