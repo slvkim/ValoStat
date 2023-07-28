@@ -32,6 +32,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.mikyegresl.valostat.base.common.converter.NavigationEncoderFactory
 import com.mikyegresl.valostat.base.launcher.ExternalLinkLauncher
 import com.mikyegresl.valostat.base.model.ValoStatLocale
 import com.mikyegresl.valostat.features.agent.AgentsIntent
@@ -77,6 +78,8 @@ class MainActivity : AppCompatActivity() {
     private val weaponsViewModel by viewModel<WeaponsViewModel>()
 
     private val weaponDetailsViewModel by viewModel<WeaponDetailsViewModel>()
+
+    private val encoderFactory: NavigationEncoderFactory by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -162,6 +165,7 @@ class MainActivity : AppCompatActivity() {
                 state = newsViewModel.state,
                 navController = navController,
                 builder = this,
+                encoder = encoderFactory.getNewsNavigationEncoder(),
                 openWebPage = {
                     this@MainActivity.openWebsite(it)
                 }
@@ -169,7 +173,8 @@ class MainActivity : AppCompatActivity() {
             newsDetailsRouter(
                 currentLocale = localeConfigProvider.appLocale,
                 navController = navController,
-                builder = this
+                builder = this,
+                encoderFactory.getNewsNavigationEncoder()
             )
             agentsRouter(
                 state = agentsViewModel.state,

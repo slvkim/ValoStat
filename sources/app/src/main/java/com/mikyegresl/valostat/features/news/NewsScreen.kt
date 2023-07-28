@@ -55,17 +55,17 @@ fun PreviewNewsList() {
     NewsList(
         modifier = Modifier,
         news = newsListMock(),
-    ) { _, _ -> }
+    ) { }
 }
 
 data class NewsScreenActions(
-    val onArticleClick: (String, ArticleTypeDto) -> Unit = { _, _ -> }
+    val onArticleClick: (ArticleDto) -> Unit = { }
 )
 
 @Composable
 fun NewsScreen(
     screenState: StateFlow<NewsScreenState>,
-    onArticleClick: (String, ArticleTypeDto) -> Unit
+    onArticleClick: (ArticleDto) -> Unit
 ) {
     val state = screenState.collectAsStateWithLifecycle()
     val actions = remember {
@@ -125,7 +125,7 @@ fun NewsScreenTopBar(
 fun NewsScreenInDataState(
     modifier: Modifier = Modifier,
     state: NewsScreenState.NewsDataState,
-    onArticleClick: (String, ArticleTypeDto) -> Unit
+    onArticleClick: (ArticleDto) -> Unit
 ) {
     Column(
         modifier = modifier.fillMaxSize()
@@ -133,8 +133,8 @@ fun NewsScreenInDataState(
         NewsList(
             modifier = Modifier,
             news = state.newsList,
-        ) { url, type ->
-            onArticleClick(url, type)
+        ) { article ->
+            onArticleClick(article)
         }
     }
 }
@@ -145,7 +145,7 @@ fun NewsList(
     modifier: Modifier = Modifier,
     listState: LazyListState = rememberLazyListState(),
     news: List<ArticleDto>,
-    onArticleClick: (String, ArticleTypeDto) -> Unit
+    onArticleClick: (ArticleDto) -> Unit
 ) {
     CompositionLocalProvider(
         LocalOverscrollConfiguration provides null
@@ -162,8 +162,8 @@ fun NewsList(
                 NewsItem(
                     modifier = Modifier.fillMaxWidth(),
                     article = article
-                ) { url, type ->
-                    onArticleClick(url, type)
+                ) { article ->
+                    onArticleClick(article)
                 }
             }
         }
@@ -174,7 +174,7 @@ fun NewsList(
 fun NewsItem(
     modifier: Modifier = Modifier,
     article: ArticleDto,
-    onArticleClick: (String, ArticleTypeDto) -> Unit
+    onArticleClick: (ArticleDto) -> Unit
 ) {
     Column(
         modifier = modifier.padding(Padding.Dp16)
@@ -211,14 +211,7 @@ fun NewsItem(
                 backgroundColor = secondaryTextDark
             ),
             shape = RoundedCornerShape(Padding.Dp8),
-            onClick = { onArticleClick(
-                when (article.type) {
-                    ArticleTypeDto.NORMAL_ARTICLE -> article.url
-                    ArticleTypeDto.EXTERNAL_LINK -> article.externalLink
-                    else -> ""
-                },
-                article.type
-            ) }
+            onClick = { onArticleClick(article) }
         ) {
             Text(
                 text = stringResource(id = R.string.see_article).uppercase(),

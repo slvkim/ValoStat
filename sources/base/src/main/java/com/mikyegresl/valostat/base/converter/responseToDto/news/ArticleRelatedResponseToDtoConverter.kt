@@ -16,12 +16,16 @@ import com.mikyegresl.valostat.base.network.model.news.ArticleCategoryResponse
 import com.mikyegresl.valostat.base.network.model.news.ArticleTagResponse
 import com.mikyegresl.valostat.base.network.model.news.ArticleUrlResponse
 import com.mikyegresl.valostat.base.utils.convertDate
+import com.mikyegresl.valostat.base.utils.isYoutubeVideo
 
 object ArticleRelatedResponseToDtoConverter {
-    internal fun mapArticleType(from: String?): ArticleTypeDto =
-        when (from) {
+    internal fun mapArticleType(articleType: String?, externalUrl: String?): ArticleTypeDto =
+        when (articleType) {
             "Normal article" -> ArticleTypeDto.NORMAL_ARTICLE
-            "External Link" -> ArticleTypeDto.EXTERNAL_LINK
+            "External Link" -> {
+                if (externalUrl.isYoutubeVideo()) ArticleTypeDto.YOUTUBE_VIDEO
+                else ArticleTypeDto.EXTERNAL_LINK
+            }
             else -> ArticleTypeDto.UNDEFINED
         }
 

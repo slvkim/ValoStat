@@ -19,7 +19,7 @@ object ArticleResponseToDtoConverter : Converter<NewsResponse, List<ArticleDto>>
                     date = ArticleRelatedResponseToDtoConverter.mapDate(it.date) ?: Converter.EMPTY_STRING,
                     url = ArticleRelatedResponseToDtoConverter.mapArticleUrl(it.url),
                     externalLink = it.externalLink ?: Converter.EMPTY_STRING,
-                    type = ArticleRelatedResponseToDtoConverter.mapArticleType(it.type),
+                    type = ArticleRelatedResponseToDtoConverter.mapArticleType(it.type, it.externalLink),
                     banner = ArticleBannerResponseToDtoConverter.convert(it.banner),
                 )
             )

@@ -29,6 +29,7 @@ import com.mikyegresl.valostat.base.model.ValoStatLocale
 import com.mikyegresl.valostat.base.model.news.ArticleCategoryDto
 import com.mikyegresl.valostat.base.model.news.ArticleCategoryTypeDto
 import com.mikyegresl.valostat.base.model.news.ArticleDetailsDto
+import com.mikyegresl.valostat.base.model.news.ArticleDto
 import com.mikyegresl.valostat.base.model.news.ArticleTagDto
 import com.mikyegresl.valostat.base.model.news.ArticleTagTypeDto
 import com.mikyegresl.valostat.base.model.news.ArticleTypeDto
@@ -64,7 +65,7 @@ data class NewsDetailsScreenActions(
 @Composable
 fun NewsDetailsScreen(
     viewModel: NewsDetailsViewModel = koinViewModel(),
-    url: String,
+    singleArticle: ArticleDto,
     locale: ValoStatLocale,
     onBackPressed: () -> Unit
 ) {
@@ -74,15 +75,24 @@ fun NewsDetailsScreen(
             onBackPressed = onBackPressed
         )
     }
-    LaunchedEffect(key1 = url) {
-        viewModel.dispatchIntent(NewsDetailsIntent.LoadNewsDetails(locale, url))
+    LaunchedEffect(key1 = singleArticle.url) {
+        when (singleArticle.type) {
+            ArticleTypeDto.NORMAL_ARTICLE -> {
+                viewModel.dispatchIntent(NewsDetailsIntent.LoadNewsDetails(locale, singleArticle.url))
+            }
+            ArticleTypeDto.YOUTUBE_VIDEO -> {
+                viewModel.dispatchIntent(NewsDetailsIntent.ProcessYoutubeVideo(singleArticle))
+            }
+            else -> {
+                viewModel.dispatchIntent(NewsDetailsIntent.EmitNotSupportedYet)
+            }
+        }
     }
-
     Scaffold(
         modifier = Modifier,
     ) { paddingValues ->
         when (val viewState = state.value) {
-            is NewsDetailsScreenState.NewsDetailsLoadingState -> {
+            NewsDetailsScreenState.NewsDetailsLoadingState -> {
                 ShowingLoadingState()
             }
             is NewsDetailsScreenState.NewsDetailsErrorState -> {
@@ -132,7 +142,7 @@ fun NewsDetailsScreenInDataState(
                 Spacer(modifier = Modifier.padding(top = Padding.Dp16))
                 ArticleContent(
                     modifier = Modifier,
-                    content = details.htmlContent
+                    details = details
                 )
             }
         }
@@ -209,15 +219,21 @@ fun ArticleTitle(
 @Composable
 fun ArticleContent(
     modifier: Modifier = Modifier,
-    content: String
+    details: ArticleDetailsDto
 ) {
-    SpannableHtmlContent(
-        modifier = modifier,
-        content = content,
-        textColor = mainTextDark,
-        textSize = 16.sp,
-        lineSpacing = 32f
-    )
+    when (details.type) {
+        ArticleTypeDto.NORMAL_ARTICLE -> SpannableHtmlContent(
+            modifier = modifier,
+            content = details.htmlContent,
+            textColor = mainTextDark,
+            textSize = 16.sp,
+            lineSpacing = 32f
+        )
+        ArticleTypeDto.YOUTUBE_VIDEO -> {
+
+        }
+        else -> {  }
+    }
 }
 
 private fun detailsMock(): ArticleDetailsDto =

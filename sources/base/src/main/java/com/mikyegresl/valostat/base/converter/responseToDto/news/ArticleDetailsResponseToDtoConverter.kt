@@ -17,7 +17,7 @@ object ArticleDetailsResponseToDtoConverter : Converter<NewsDetailsResponse?, Ar
                 date = ArticleRelatedResponseToDtoConverter.mapDate(this?.date) ?: Converter.EMPTY_STRING,
                 url = ArticleRelatedResponseToDtoConverter.mapArticleUrl(this?.url),
                 externalLink = this?.externalLink ?: Converter.EMPTY_STRING,
-                type = ArticleRelatedResponseToDtoConverter.mapArticleType(this?.articleType),
+                type = ArticleRelatedResponseToDtoConverter.mapArticleType(this?.articleType, this?.externalLink),
                 banner = ArticleBannerResponseToDtoConverter.convert(this?.banner),
                 author = ArticleAuthorResponseToDtoConverter.convert(this?.authors?.firstOrNull()),
                 tags = this?.articleTags?.map { tag -> ArticleTagResponseToDtoConverter.convert(tag) } ?: emptyList(),

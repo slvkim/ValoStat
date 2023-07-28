@@ -2,6 +2,7 @@ package com.mikyegresl.valostat.di
 
 import android.content.Context
 import com.google.gson.GsonBuilder
+import com.mikyegresl.valostat.base.common.converter.NavigationEncoderFactory
 import com.mikyegresl.valostat.base.manager.FileManager
 import com.mikyegresl.valostat.base.network.model.video.SearchPartRequest
 import com.mikyegresl.valostat.base.network.model.video.YoutubeSearchTypeRequest
@@ -27,4 +28,6 @@ val coreModule = module {
             .setLenient()
             .create()
     }
+
+    single { NavigationEncoderFactory(get()) }
 }

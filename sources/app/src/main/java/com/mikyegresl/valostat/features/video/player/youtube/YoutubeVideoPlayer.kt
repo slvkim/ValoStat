@@ -93,7 +93,7 @@ class YoutubeVideoPlayer(
         setUpPlayer(youtubePlayerView!!, onReady = {
             Log.d(TAG, "Youtube Player init: OK!")
             youtubePlayer = it
-                it.loadVideo(videoUrl, JS_READY_DELAY_MS)
+            it.loadVideo(videoUrl, JS_READY_DELAY_MS)
         })
     }
 

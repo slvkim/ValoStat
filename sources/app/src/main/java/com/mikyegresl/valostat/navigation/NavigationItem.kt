@@ -25,7 +25,7 @@ sealed class NavigationItem(
         title = R.string.news_details,
         route = "newsDetails"
     ) {
-        const val url = "url"
+        const val article = "article"
     }
 }
 
