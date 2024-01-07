@@ -12,7 +12,7 @@ Official API: https://valorant-api.com/
 
 ## Install
 
-Link to Google Play: [to be added soon...]
+Link to Google Play: https://play.google.com/store/apps/details?id=com.mikyegresl.valostat&pcampaignid=web_share
 
 Or build & compile the code directly with gradle 8.0+ & Android Studio.
 
