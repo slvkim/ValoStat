@@ -24,8 +24,6 @@ buildscript {
 
     dependencies {
         apply from: "$rootDir/versions.gradle"
-
-        classpath "com.google.gms:google-services:$versions.googleServices"
     }
 }
 

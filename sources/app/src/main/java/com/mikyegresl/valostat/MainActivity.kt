@@ -132,7 +132,8 @@ class MainActivity : AppCompatActivity() {
                             modifier = Modifier.size(ElemSize.Dp16),
                             painter = painterResource(id = item.icon),
                             contentDescription = stringResource(id = item.title)
-                    ) },
+                        )
+                    },
                     label = { Text(text = stringResource(id = item.title), fontSize = 9.sp) },
                     selectedContentColor = Color.White,
                     unselectedContentColor = Color.Gray,

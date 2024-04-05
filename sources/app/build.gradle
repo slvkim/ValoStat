@@ -1,6 +1,8 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
 }
 
 apply from: "$rootDir/dependencies.gradle"
@@ -102,6 +104,7 @@ dependencies {
     def firebaseBom = platform(deps.firebase.bom)
     implementation firebaseBom
     implementation deps.firebase.analytics
+    implementation deps.firebase.crashlytics
 
     // Phoenix
     implementation deps.processPhoenix
