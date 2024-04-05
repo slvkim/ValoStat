@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import com.mikyegresl.valostat.features.video.player.exoplayer.ExoPlayerConfig
 import com.mikyegresl.valostat.features.video.player.exoplayer.ExoVideoPlayer
+import com.mikyegresl.valostat.features.video.player.youtube.YoutubeVideoPlayer
 
 @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 @Composable
@@ -35,4 +36,24 @@ fun ComposableExoPlayer(
     player.RenderPlayerView(
         modifier = modifier.background(Color.Black)
     )
+}
+
+@Composable
+fun ComposableYoutubePlayer(
+    modifier: Modifier = Modifier,
+    mediaUri: String,
+    onEnterFullscreen: () -> Unit,
+    onExitFullscreen: () -> Unit
+) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    val player = remember {
+        YoutubeVideoPlayer(
+            videoUrl = mediaUri,
+            lifecycleOwner = lifecycleOwner,
+            onYoutubeEnterFullscreen = onEnterFullscreen,
+            onYoutubeExitFullscreen = onExitFullscreen,
+        )
+    }
+    player.InflatePlayerView(modifier = modifier.background(Color.Black))
 }

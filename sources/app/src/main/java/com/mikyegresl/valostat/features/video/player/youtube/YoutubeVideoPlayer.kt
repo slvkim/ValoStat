@@ -17,7 +17,6 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.Ful
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.options.IFramePlayerOptions
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 
-
 class YoutubeVideoPlayer(
     private val videoUrl: String,
     private val lifecycleOwner: LifecycleOwner,
@@ -35,8 +34,6 @@ class YoutubeVideoPlayer(
     private var youtubePlayerView: YouTubePlayerView? = null
     private var youtubePlayer: YouTubePlayer? = null
     private var listener: AbstractYouTubePlayerListener? = null
-
-    private var isFullscreen = false
 
     @Composable
     fun InflatePlayerView(
@@ -93,7 +90,9 @@ class YoutubeVideoPlayer(
         setUpPlayer(youtubePlayerView!!, onReady = {
             Log.d(TAG, "Youtube Player init: OK!")
             youtubePlayer = it
-            it.loadVideo(videoUrl, JS_READY_DELAY_MS)
+            generateVideoId(videoUrl)?.let { videoId ->
+                it.loadVideo(videoId, JS_READY_DELAY_MS)
+            }
         })
     }
 
@@ -107,18 +106,17 @@ class YoutubeVideoPlayer(
         val iFramePlayerOptions: IFramePlayerOptions = IFramePlayerOptions.Builder()
             .controls(1)
             .fullscreen(1)
+            .autoplay(0)
             .build()
         it.enableAutomaticInitialization = false
         it.initialize(listener!!, iFramePlayerOptions)
         it.addFullscreenListener(object : FullscreenListener {
             override fun onEnterFullscreen(fullscreenView: View, exitFullscreen: () -> Unit) {
                 onYoutubeEnterFullscreen()
-                youtubePlayer?.toggleFullscreen()
             }
 
             override fun onExitFullscreen() {
                 onYoutubeExitFullscreen()
-                youtubePlayer?.toggleFullscreen()
             }
         })
     }

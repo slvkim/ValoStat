@@ -238,9 +238,6 @@ class MainActivity : AppCompatActivity() {
                 locales = localeConfigProvider.locales,
                 actions = SettingsScreenActions(
                     onAppLangSwitched = ::onAppLanguageChanged,
-                    onWhatsappClick = { linkLauncher.openWhatsApp(this@MainActivity) },
-                    onTelegramClick = { linkLauncher.openTelegram(this@MainActivity) },
-                    onLinkedInClick = { linkLauncher.openLinkedIn(this@MainActivity) },
                     onOfficialPageClick = { linkLauncher.openOfficialPage(this@MainActivity) },
                     onRateAppClick = { linkLauncher.openRateAppPage(this@MainActivity) }
                 ),

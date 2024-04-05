@@ -23,11 +23,6 @@ android {
         buildConfigField("String", "BASE_URL_DEV", '"https://valorant-api.com/"')
         buildConfigField("String", "NEWS_API_URL", '"https://playvalorant.com/"')
         buildConfigField("String", "VIDEO_API_URL", '"https://www.googleapis.com/youtube/"')
-        buildConfigField("String", "WHATSAPP_APP_LINK", '"https://api.whatsapp.com/send/?phone=998901334709&text&type=phone_number&app_absent=0"')
-        buildConfigField("String", "WHATSAPP_WEB_LINK", '"https://api.whatsapp.com/send/?phone=998901334709&text&type=phone_number&app_absent=1"')
-        buildConfigField("String", "TELEGRAM_LINK", '"https://telegram.me/mikyegresl/"')
-        buildConfigField("String", "LINKEDIN_LINK", '"https://www.linkedin.com/in/sergey-kim-58825a1a0/"')
-        buildConfigField("String", "GITHUB_LINK", '"https://github.com/sergey-lvovich-kim/ValoStat/"')
         buildConfigField("String", "OFFICIAL_PAGE_LINK", '"https://playvalorant.com/"')
         buildConfigField("String", "GOOGLE_PLAY_LINK", '"https://play.google.com/store/apps/details?id=com.mikyegresl.valostat"')
 

@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -32,14 +33,19 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -72,6 +78,38 @@ fun PreviewAgentItem() {
     AgentItem(
         agent = agentMock(),
         onAgentClicked = {}
+    )
+}
+
+@Composable
+fun GradientLinearProgressBar(
+    modifier: Modifier,
+    backgroundColor: Color,
+    progress: Int
+) {
+    val progressGradient = Brush.linearGradient(
+        0.0f to Color(0xFFFF8080),
+        1.0f to Color(0xFFA770B8)
+    )
+    var progressBarWidth by remember(progress) { mutableStateOf(0.dp) }
+    var progressBarHeight by remember(progress) { mutableStateOf(0.dp) }
+    val width = remember(progressBarWidth) {(progressBarWidth*progress)/100}
+
+    Box(
+        modifier = modifier
+            .onSizeChanged {
+                progressBarWidth = it.width.dp
+                progressBarHeight = it.height.dp
+            }
+            .clip(shape = RoundedCornerShape(8.dp))
+            .background(backgroundColor)
+            .drawBehind {
+                drawRect(
+                    brush = progressGradient,
+                    topLeft = Offset(x = 0.dp.toPx(), y = 0.dp.toPx()),
+                    size = Size(width = width.value, height = progressBarHeight.toPx())
+                )
+            }
     )
 }
 

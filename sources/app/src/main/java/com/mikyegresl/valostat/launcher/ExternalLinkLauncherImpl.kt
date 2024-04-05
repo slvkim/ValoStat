@@ -11,42 +11,6 @@ class ExternalLinkLauncherImpl(
     private val contactProvider: DevContactProvider
 ): ExternalLinkLauncher {
 
-    override fun openWhatsApp(context: Context) {
-        launchAppOrWebpage(
-            context = context,
-            appName = "com.whatsapp",
-            setupIntent = {
-                it.type = "phone_number"
-                it.putExtra(Intent.EXTRA_PHONE_NUMBER, contactProvider.getWhatsAppAppLink())
-            },
-            openWebpage = {
-                context.openWebsite(contactProvider.getWhatsAppWebLink())
-            }
-        )
-    }
-
-    override fun openTelegram(context: Context) {
-        launchAppOrWebpage(
-            context = context,
-            appName = "org.telegram.messenger",
-            setupIntent = {
-                it.type = "text/plain"
-                it.putExtra(Intent.EXTRA_USER, contactProvider.getTelegramLink())
-            },
-            openWebpage = {
-                context.openWebsite(contactProvider.getTelegramLink())
-            }
-        )
-    }
-
-    override fun openGithub(context: Context) {
-        context.openWebsite(contactProvider.getGithubLink())
-    }
-
-    override fun openLinkedIn(context: Context) {
-        context.openWebsite(contactProvider.getLinkedInLink())
-    }
-
     override fun openOfficialPage(context: Context) =
         context.openWebsite(contactProvider.getOfficialPageLink())
 
